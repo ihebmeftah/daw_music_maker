@@ -1,0 +1,12 @@
+{
+  "servers": {
+    "serverpod": {
+      "command": "serverpod",
+      "args": ["mcp-server", "--server-dir", "daw_music_maker_server"]
+    },
+    "dart": {
+      "command": "dart",
+      "args": ["mcp-server"]
+    }
+  }
+}

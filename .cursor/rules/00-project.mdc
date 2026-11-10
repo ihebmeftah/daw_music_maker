@@ -1,0 +1,9 @@
+---
+description: Project overview, core rules, Serverpod runner/MCP usage and change checklist
+alwaysApply: true
+---
+
+Follow @AGENTS.md — it is the single source of truth for this project (DAW music maker,
+Flutter + Serverpod). Key points: MVVM Flutter, Serverpod backend, UUID ids, entity/DTO/response
+separation, validation on both sides, mandatory tests and docs for every feature, use the
+`serverpod` and `dart` MCP servers (configured in `.cursor/mcp.json`), never edit generated code.

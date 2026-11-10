@@ -1,0 +1,8 @@
+---
+description: Testing rules — unit and widget tests in Flutter, unit and integration tests in Serverpod
+globs: "**/test/**"
+alwaysApply: false
+---
+
+Follow @docs/conventions/testing.md. Mirror `lib/` paths, Given/when/then naming, mocktail
+fakes, cover happy path + validation + auth/ownership + edge cases.

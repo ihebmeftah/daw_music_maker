@@ -1,0 +1,7 @@
+---
+description: Documentation rules — dartdoc, .spy.yaml comments, feature docs
+globs: "**/lib/**,docs/**"
+alwaysApply: false
+---
+
+Follow @docs/conventions/documentation.md.
