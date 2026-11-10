@@ -1,0 +1,11 @@
+name: _
+publish_to: none
+
+environment:
+  sdk: '^3.12.2'
+
+workspace:
+  - daw_music_maker_client
+  - daw_music_maker_server
+  - daw_music_maker_flutter
+
