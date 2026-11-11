@@ -1,0 +1,9 @@
+### Input for changing a member's role (owner only).
+class: UpdateMemberRoleRequest
+fields:
+  ### The project.
+  projectId: UuidValue
+  ### The member's user id.
+  userId: UuidValue
+  ### The new role.
+  role: ProjectRole

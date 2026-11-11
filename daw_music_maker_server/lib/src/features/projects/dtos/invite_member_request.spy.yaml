@@ -1,0 +1,9 @@
+### Input for inviting someone to a project by email (owner only).
+class: InviteMemberRequest
+fields:
+  ### The project to invite to.
+  projectId: UuidValue
+  ### Invitee email address.
+  email: String
+  ### Role granted on acceptance.
+  role: ProjectRole

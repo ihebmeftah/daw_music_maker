@@ -19,7 +19,7 @@ Email + password authentication built on Serverpod's email identity provider.
 | `/login`           | `LoginView`          | `LoginViewModel`          |
 | `/register`        | `RegisterView`       | `RegisterViewModel`       |
 | `/forgot-password` | `ForgotPasswordView` | `ForgotPasswordViewModel` |
-| `/projects`        | `ProjectsView` (placeholder until the projects feature) | `ProjectsViewModel` |
+| `/projects`        | `ProjectsView` (see [projects.md](projects.md)) | `ProjectsViewModel` (sign out) |
 
 Routing (`app/router/`): `authRedirect` in `route_guards.dart` sends signed-out users on a
 protected path to `/login`, and signed-in users on an auth path to `/projects`. The router

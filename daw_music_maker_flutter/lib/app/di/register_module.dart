@@ -29,6 +29,15 @@ abstract class RegisterModule {
   @lazySingleton
   EndpointEmailIdp emailIdp(Client client) => client.emailIdp;
 
+  /// Project CRUD endpoint.
+  @lazySingleton
+  EndpointProject projectEndpoint(Client client) => client.project;
+
+  /// Members, invitations and join requests endpoint.
+  @lazySingleton
+  EndpointProjectCollaboration projectCollaborationEndpoint(Client client) =>
+      client.projectCollaboration;
+
   /// The client's auth session manager (signed-in state, sign out).
   @lazySingleton
   FlutterAuthSessionManager authSessionManager(Client client) => client.auth;

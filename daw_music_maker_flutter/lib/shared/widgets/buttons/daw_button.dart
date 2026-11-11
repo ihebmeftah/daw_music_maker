@@ -181,11 +181,15 @@ class _ButtonContent extends StatelessWidget {
               key: const ValueKey('label'),
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  label.toUpperCase(),
-                  style: context.textStyles.label.copyWith(
-                    color: color,
-                    letterSpacing: 1.6,
+                Flexible(
+                  child: Text(
+                    label.toUpperCase(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textStyles.label.copyWith(
+                      color: color,
+                      letterSpacing: 1.6,
+                    ),
                   ),
                 ),
                 if (icon != null)

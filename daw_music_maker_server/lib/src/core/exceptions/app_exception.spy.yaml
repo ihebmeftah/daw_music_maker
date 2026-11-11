@@ -1,0 +1,10 @@
+### The only exception feature endpoints throw to the client. Never contains
+### stack traces, SQL or other internal details.
+exception: AppException
+fields:
+  ### What went wrong.
+  code: ErrorCode
+  ### Optional developer-oriented summary (safe to show, never internal).
+  message: String?
+  ### Per-field validation errors, keyed by DTO field name.
+  fieldErrors: Map<String, String>?

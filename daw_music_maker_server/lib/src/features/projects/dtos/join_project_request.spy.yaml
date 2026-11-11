@@ -1,0 +1,7 @@
+### Input for asking to join a public project that accepts contributions.
+class: JoinProjectRequest
+fields:
+  ### The project to join.
+  projectId: UuidValue
+  ### Role the caller asks for.
+  role: ProjectRole

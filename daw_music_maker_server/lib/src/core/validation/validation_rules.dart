@@ -22,4 +22,28 @@ abstract final class ValidationRules {
   ///
   /// Matches Serverpod's `defaultVerificationCodeGenerator` (digits 1–9).
   static const int verificationCodeLength = 8;
+
+  // ── Projects ─────────────────────────────────────────────────────────────
+
+  /// Maximum project name length (after trimming; minimum is 1).
+  static const int projectNameMaxLength = 80;
+
+  /// Maximum project description length (after trimming; may be empty).
+  static const int projectDescriptionMaxLength = 1000;
+
+  /// Maximum number of genre tags per project.
+  static const int projectGenresMax = 8;
+
+  /// Maximum length of one genre tag (after trimming; minimum is 1).
+  static const int genreMaxLength = 24;
+
+  /// Maximum collaborators per project (members + pending invitations,
+  /// excluding the owner).
+  static const int projectMembersMax = 50;
+
+  /// Maximum length of a discover search query.
+  static const int searchQueryMaxLength = 80;
+
+  /// Email shape check (`local@domain.tld`), same as the Flutter app.
+  static final RegExp emailPattern = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]{2,}$');
 }

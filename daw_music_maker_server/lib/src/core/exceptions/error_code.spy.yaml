@@ -1,0 +1,15 @@
+### Machine-readable category of an [AppException]. The client maps each code
+### to a user-friendly message.
+enum: ErrorCode
+values:
+  ### The resource does not exist or the caller may not see it (also used for
+  ### resources owned by someone else, so ids cannot be probed).
+  - notFound
+  ### The caller can see the resource but may not perform this action.
+  - forbidden
+  ### The request failed validation; see [AppException.fieldErrors].
+  - validation
+  ### The request conflicts with the current state (e.g. already a member).
+  - conflict
+  ### A configured limit (e.g. members per project) has been reached.
+  - limitReached

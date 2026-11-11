@@ -13,5 +13,28 @@ emailIdp:
   - hasAccount:
 jwtRefresh:
   - refreshAccessToken:
+projectCollaboration:
+  - listMembers:
+  - updateMemberRole:
+  - removeMember:
+  - leave:
+  - invite:
+  - listProjectInvitations:
+  - cancelInvitation:
+  - myInvitations:
+  - respondToInvitation:
+  - requestToJoin:
+  - cancelJoinRequest:
+  - myJoinRequests:
+  - listJoinRequests:
+  - respondToJoinRequest:
+project:
+  - create:
+  - getById:
+  - listMine:
+  - listShared:
+  - discover:
+  - update:
+  - delete:
 greeting:
   - hello:

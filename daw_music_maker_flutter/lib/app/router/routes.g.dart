@@ -11,6 +11,7 @@ List<RouteBase> get $appRoutes => [
   $registerRoute,
   $forgotPasswordRoute,
   $projectsRoute,
+  $inboxRoute,
 ];
 
 RouteBase get $loginRoute => GoRouteData.$route(
@@ -96,6 +97,25 @@ RouteBase get $projectsRoute => GoRouteData.$route(
   path: '/projects',
   hasOverriddenOnExit: false,
   factory: $ProjectsRoute._fromState,
+  routes: [
+    GoRouteData.$route(
+      path: 'new',
+      hasOverriddenOnExit: false,
+      factory: $NewProjectRoute._fromState,
+    ),
+    GoRouteData.$route(
+      path: ':id',
+      hasOverriddenOnExit: false,
+      factory: $ProjectDetailRoute._fromState,
+      routes: [
+        GoRouteData.$route(
+          path: 'edit',
+          hasOverriddenOnExit: false,
+          factory: $EditProjectRoute._fromState,
+        ),
+      ],
+    ),
+  ],
 );
 
 mixin $ProjectsRoute on GoRouteData {
@@ -103,6 +123,101 @@ mixin $ProjectsRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/projects');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $NewProjectRoute on GoRouteData {
+  static NewProjectRoute _fromState(GoRouterState state) =>
+      const NewProjectRoute();
+
+  @override
+  String get location => GoRouteData.$location('/projects/new');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $ProjectDetailRoute on GoRouteData {
+  static ProjectDetailRoute _fromState(GoRouterState state) =>
+      ProjectDetailRoute(id: state.pathParameters['id']!);
+
+  ProjectDetailRoute get _self => this as ProjectDetailRoute;
+
+  @override
+  String get location =>
+      GoRouteData.$location('/projects/${Uri.encodeComponent(_self.id)}');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin $EditProjectRoute on GoRouteData {
+  static EditProjectRoute _fromState(GoRouterState state) =>
+      EditProjectRoute(id: state.pathParameters['id']!);
+
+  EditProjectRoute get _self => this as EditProjectRoute;
+
+  @override
+  String get location =>
+      GoRouteData.$location('/projects/${Uri.encodeComponent(_self.id)}/edit');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $inboxRoute => GoRouteData.$route(
+  path: '/inbox',
+  hasOverriddenOnExit: false,
+  factory: $InboxRoute._fromState,
+);
+
+mixin $InboxRoute on GoRouteData {
+  static InboxRoute _fromState(GoRouterState state) => const InboxRoute();
+
+  @override
+  String get location => GoRouteData.$location('/inbox');
 
   @override
   void go(BuildContext context) => context.go(location);

@@ -30,6 +30,8 @@ class DawTextField extends StatefulWidget {
     this.autofillHints,
     this.inputFormatters,
     this.maxLength,
+    this.maxLines = 1,
+    this.minLines,
     this.obscure = false,
     this.monospace = false,
     this.enabled = true,
@@ -67,6 +69,12 @@ class DawTextField extends StatefulWidget {
 
   /// Maximum number of characters (the counter is hidden).
   final int? maxLength;
+
+  /// Maximum visible lines (use more than 1 for multi-line text).
+  final int maxLines;
+
+  /// Minimum visible lines.
+  final int? minLines;
 
   /// Hides the text and shows a visibility toggle.
   final bool obscure;
@@ -114,6 +122,8 @@ class _DawTextFieldState extends State<DawTextField> {
       autofillHints: widget.autofillHints,
       inputFormatters: widget.inputFormatters,
       maxLength: widget.maxLength,
+      maxLines: widget.obscure ? 1 : widget.maxLines,
+      minLines: widget.minLines,
       textAlign: widget.monospace ? TextAlign.center : TextAlign.start,
       style: textStyle,
       autovalidateMode: AutovalidateMode.onUserInteraction,

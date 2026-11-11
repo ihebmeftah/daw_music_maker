@@ -11,6 +11,12 @@ void main() {
       expect(ValidationRules.passwordMinLength, 8);
       expect(ValidationRules.passwordMaxLength, 128);
       expect(ValidationRules.verificationCodeLength, 8);
+      expect(ValidationRules.projectNameMaxLength, 80);
+      expect(ValidationRules.projectDescriptionMaxLength, 1000);
+      expect(ValidationRules.projectGenresMax, 8);
+      expect(ValidationRules.genreMaxLength, 24);
+      expect(ValidationRules.projectMembersMax, 50);
+      expect(ValidationRules.searchQueryMaxLength, 80);
     });
   });
 
@@ -108,6 +114,65 @@ void main() {
     test('when it has 8 digits 1–9, then accepts it', () {
       expect(Validators.verificationCode('12345678'), isNull);
       expect(Validators.verificationCode(' 98765432 '), isNull);
+    });
+  });
+
+  group('Given Validators.projectName', () {
+    test('when blank, then asks for a name', () {
+      expect(Validators.projectName(''), 'Give your project a name');
+      expect(Validators.projectName('   '), 'Give your project a name');
+      expect(Validators.projectName(null), 'Give your project a name');
+    });
+
+    test('when exactly the maximum length, then accepts it', () {
+      expect(Validators.projectName('a' * 80), isNull);
+    });
+
+    test('when above the maximum length, then rejects it', () {
+      expect(Validators.projectName('a' * 81), contains('at most'));
+    });
+
+    test('when padded with spaces, then validates the trimmed value', () {
+      expect(Validators.projectName('  ${'a' * 80}  '), isNull);
+    });
+  });
+
+  group('Given Validators.projectDescription', () {
+    test('when empty, then accepts it (optional)', () {
+      expect(Validators.projectDescription(''), isNull);
+      expect(Validators.projectDescription(null), isNull);
+    });
+
+    test('when at the limit, then accepts it', () {
+      expect(Validators.projectDescription('a' * 1000), isNull);
+    });
+
+    test('when above the limit, then rejects it', () {
+      expect(Validators.projectDescription('a' * 1001), contains('at most'));
+    });
+  });
+
+  group('Given Validators.genreTag', () {
+    test('when blank, then asks for a genre', () {
+      expect(Validators.genreTag(' ', const []), 'Type a genre');
+    });
+
+    test('when too long, then rejects it', () {
+      expect(Validators.genreTag('a' * 25, const []), contains('at most'));
+      expect(Validators.genreTag('a' * 24, const []), isNull);
+    });
+
+    test('when the maximum count is reached, then rejects another tag', () {
+      final full = [for (var i = 0; i < 8; i++) 'g$i'];
+      expect(Validators.genreTag('house', full), 'Up to 8 genres');
+      expect(Validators.genreTag('house', full.take(7).toList()), isNull);
+    });
+
+    test('when it duplicates a tag case-insensitively, then rejects it', () {
+      expect(
+        Validators.genreTag(' TECHNO ', const ['techno']),
+        'Already added',
+      );
     });
   });
 }

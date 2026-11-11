@@ -1,0 +1,11 @@
+### The caller's relationship to a project, computed per request.
+enum: ProjectAccess
+values:
+  ### The caller owns the project.
+  - owner
+  ### The caller is a member with write permission.
+  - write
+  ### The caller is a member with read permission.
+  - read
+  ### The caller is not a member; the project is visible because it is public.
+  - none

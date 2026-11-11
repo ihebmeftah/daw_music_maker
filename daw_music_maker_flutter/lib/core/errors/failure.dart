@@ -21,6 +21,21 @@ enum FailureCode {
   /// The server could not be reached.
   network,
 
+  /// The resource does not exist or is not visible to the user.
+  notFound,
+
+  /// The user's role does not allow this action.
+  forbidden,
+
+  /// The server rejected the input; see [Failure.fieldErrors].
+  validation,
+
+  /// The action conflicts with the current state (e.g. already a member).
+  conflict,
+
+  /// A limit was reached (e.g. collaborators per project).
+  limitReached,
+
   /// Anything else; details are only logged, never shown.
   unknown;
 
@@ -37,6 +52,11 @@ enum FailureCode {
       'This account has been blocked. Contact support.',
     FailureCode.network =>
       'Cannot reach the studio server. Check your connection.',
+    FailureCode.notFound => 'This was not found — it may have been removed.',
+    FailureCode.forbidden => 'You do not have permission to do that.',
+    FailureCode.validation => 'Some fields need your attention.',
+    FailureCode.conflict => 'That is already done.',
+    FailureCode.limitReached => 'This project has reached its limit.',
     FailureCode.unknown => 'Something went wrong. Please try again.',
   };
 }
@@ -46,11 +66,18 @@ enum FailureCode {
 /// ViewModels catch [Failure]s and store them in their state; views render
 /// [message].
 class Failure implements Exception {
-  /// Creates a failure of the given [code].
-  const Failure(this.code);
+  /// Creates a failure of the given [code], with optional server-side
+  /// [fieldErrors] (keyed by request field name).
+  const Failure(this.code, {this.fieldErrors = const {}});
 
   /// What went wrong.
   final FailureCode code;
+
+  /// Per-field validation messages from the server (e.g. `{'name': '…'}`).
+  final Map<String, String> fieldErrors;
+
+  /// The server message for [field], if any.
+  String? fieldError(String field) => fieldErrors[field];
 
   /// User-friendly message for [code].
   String get message => code.message;

@@ -16,6 +16,14 @@ import 'package:daw_music_maker/features/auth/data/auth_repository.dart'
     as _i64;
 import 'package:daw_music_maker/features/auth/data/auth_repository_impl.dart'
     as _i290;
+import 'package:daw_music_maker/features/projects/data/collaboration_repository.dart'
+    as _i49;
+import 'package:daw_music_maker/features/projects/data/collaboration_repository_impl.dart'
+    as _i88;
+import 'package:daw_music_maker/features/projects/data/project_repository.dart'
+    as _i879;
+import 'package:daw_music_maker/features/projects/data/project_repository_impl.dart'
+    as _i337;
 import 'package:daw_music_maker_client/daw_music_maker_client.dart' as _i440;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
@@ -37,8 +45,22 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i440.EndpointEmailIdp>(
       () => registerModule.emailIdp(gh<_i440.Client>()),
     );
+    gh.lazySingleton<_i440.EndpointProject>(
+      () => registerModule.projectEndpoint(gh<_i440.Client>()),
+    );
+    gh.lazySingleton<_i440.EndpointProjectCollaboration>(
+      () => registerModule.projectCollaborationEndpoint(gh<_i440.Client>()),
+    );
     gh.lazySingleton<_i90.FlutterAuthSessionManager>(
       () => registerModule.authSessionManager(gh<_i440.Client>()),
+    );
+    gh.lazySingleton<_i49.CollaborationRepository>(
+      () => _i88.CollaborationRepositoryImpl(
+        gh<_i440.EndpointProjectCollaboration>(),
+      ),
+    );
+    gh.lazySingleton<_i879.ProjectRepository>(
+      () => _i337.ProjectRepositoryImpl(gh<_i440.EndpointProject>()),
     );
     gh.lazySingleton<_i64.AuthRepository>(
       () => _i290.AuthRepositoryImpl(

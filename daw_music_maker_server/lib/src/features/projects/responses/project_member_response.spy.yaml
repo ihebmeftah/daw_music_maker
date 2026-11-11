@@ -1,0 +1,15 @@
+### A person with access to a project (the owner is included, first).
+###
+### Emails are only returned to the project's owner and members.
+class: ProjectMemberResponse
+fields:
+  ### The person's user id.
+  userId: UuidValue
+  ### Their email address, if they have an email account.
+  email: String?
+  ### Their role (the owner is reported as write).
+  role: ProjectRole
+  ### Whether this person owns the project.
+  isOwner: bool
+  ### When they joined (the project's creation time for the owner).
+  joinedAt: DateTime

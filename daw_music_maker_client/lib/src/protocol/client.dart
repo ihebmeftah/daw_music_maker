@@ -11,6 +11,26 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _ida;
+import 'package:daw_music_maker_client/src/protocol/features/projects/dtos/create_project_request.dart'
+    as _igj9gzmx;
+import 'package:daw_music_maker_client/src/protocol/features/projects/dtos/invite_member_request.dart'
+    as _ifw5qbat;
+import 'package:daw_music_maker_client/src/protocol/features/projects/dtos/join_project_request.dart'
+    as _immwh6ll;
+import 'package:daw_music_maker_client/src/protocol/features/projects/dtos/update_member_role_request.dart'
+    as _ig0a8nmn;
+import 'package:daw_music_maker_client/src/protocol/features/projects/dtos/update_project_request.dart'
+    as _i4ow79ga;
+import 'package:daw_music_maker_client/src/protocol/features/projects/responses/join_request_response.dart'
+    as _i9kix0wi;
+import 'package:daw_music_maker_client/src/protocol/features/projects/responses/project_invitation_response.dart'
+    as _inz5k6t4;
+import 'package:daw_music_maker_client/src/protocol/features/projects/responses/project_member_response.dart'
+    as _ic4cvzfq;
+import 'package:daw_music_maker_client/src/protocol/features/projects/responses/project_page_response.dart'
+    as _iiazmhcc;
+import 'package:daw_music_maker_client/src/protocol/features/projects/responses/project_response.dart'
+    as _ia3hvpml;
 import 'package:daw_music_maker_client/src/protocol/greetings/greeting.dart'
     as _iruhsk5y;
 import 'package:http/http.dart' as _i85jenna;
@@ -347,6 +367,254 @@ class EndpointJwtRefresh extends _iacc.EndpointRefreshJwtTokens {
       );
 }
 
+/// Members, invitations and join requests (`client.projectCollaboration`).
+///
+/// Requires a signed-in user. Throws [AppException]: [ErrorCode.notFound]
+/// for projects/invitations/requests the caller cannot see,
+/// [ErrorCode.forbidden] when the caller's role does not allow the action or
+/// contributions are disabled, [ErrorCode.conflict] (already a member, owner
+/// leaving), [ErrorCode.limitReached] (collaborator cap) and
+/// [ErrorCode.validation].
+/// {@category Endpoint}
+class EndpointProjectCollaboration extends _isc.EndpointRef {
+  EndpointProjectCollaboration(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'projectCollaboration';
+
+  /// Owner and members of a project, owner first (owner and members only).
+  _ida.Future<List<_ic4cvzfq.ProjectMemberResponse>> listMembers(
+    _isc.UuidValue projectId,
+  ) => caller.callServerEndpoint<List<_ic4cvzfq.ProjectMemberResponse>>(
+    'projectCollaboration',
+    'listMembers',
+    {'projectId': projectId},
+  );
+
+  /// Changes a member's role (owner only).
+  _ida.Future<_ic4cvzfq.ProjectMemberResponse> updateMemberRole(
+    _ig0a8nmn.UpdateMemberRoleRequest request,
+  ) => caller.callServerEndpoint<_ic4cvzfq.ProjectMemberResponse>(
+    'projectCollaboration',
+    'updateMemberRole',
+    {'request': request},
+  );
+
+  /// Removes a member (owner only).
+  _ida.Future<void> removeMember(
+    _isc.UuidValue projectId,
+    _isc.UuidValue userId,
+  ) => caller.callServerEndpoint<void>(
+    'projectCollaboration',
+    'removeMember',
+    {
+      'projectId': projectId,
+      'userId': userId,
+    },
+  );
+
+  /// Leaves a project the caller is a member of.
+  _ida.Future<void> leave(_isc.UuidValue projectId) =>
+      caller.callServerEndpoint<void>(
+        'projectCollaboration',
+        'leave',
+        {'projectId': projectId},
+      );
+
+  /// Invites an email address with a role (owner only, contributions open).
+  /// Behaves identically whether or not the email has an account.
+  _ida.Future<_inz5k6t4.ProjectInvitationResponse> invite(
+    _ifw5qbat.InviteMemberRequest request,
+  ) => caller.callServerEndpoint<_inz5k6t4.ProjectInvitationResponse>(
+    'projectCollaboration',
+    'invite',
+    {'request': request},
+  );
+
+  /// Pending invitations of a project (owner only).
+  _ida.Future<List<_inz5k6t4.ProjectInvitationResponse>> listProjectInvitations(
+    _isc.UuidValue projectId,
+  ) => caller.callServerEndpoint<List<_inz5k6t4.ProjectInvitationResponse>>(
+    'projectCollaboration',
+    'listProjectInvitations',
+    {'projectId': projectId},
+  );
+
+  /// Cancels a pending invitation (owner only).
+  _ida.Future<void> cancelInvitation(_isc.UuidValue invitationId) =>
+      caller.callServerEndpoint<void>(
+        'projectCollaboration',
+        'cancelInvitation',
+        {'invitationId': invitationId},
+      );
+
+  /// Pending invitations addressed to the caller's email.
+  _ida.Future<List<_inz5k6t4.ProjectInvitationResponse>> myInvitations() =>
+      caller.callServerEndpoint<List<_inz5k6t4.ProjectInvitationResponse>>(
+        'projectCollaboration',
+        'myInvitations',
+        {},
+      );
+
+  /// Accepts or declines an invitation addressed to the caller.
+  _ida.Future<void> respondToInvitation(
+    _isc.UuidValue invitationId,
+    bool accept,
+  ) => caller.callServerEndpoint<void>(
+    'projectCollaboration',
+    'respondToInvitation',
+    {
+      'invitationId': invitationId,
+      'accept': accept,
+    },
+  );
+
+  /// Asks to join a public project that accepts contributions.
+  _ida.Future<_i9kix0wi.JoinRequestResponse> requestToJoin(
+    _immwh6ll.JoinProjectRequest request,
+  ) => caller.callServerEndpoint<_i9kix0wi.JoinRequestResponse>(
+    'projectCollaboration',
+    'requestToJoin',
+    {'request': request},
+  );
+
+  /// Cancels the caller's own pending join request.
+  _ida.Future<void> cancelJoinRequest(_isc.UuidValue requestId) =>
+      caller.callServerEndpoint<void>(
+        'projectCollaboration',
+        'cancelJoinRequest',
+        {'requestId': requestId},
+      );
+
+  /// The caller's pending join requests.
+  _ida.Future<List<_i9kix0wi.JoinRequestResponse>> myJoinRequests() =>
+      caller.callServerEndpoint<List<_i9kix0wi.JoinRequestResponse>>(
+        'projectCollaboration',
+        'myJoinRequests',
+        {},
+      );
+
+  /// Pending join requests of a project with requester emails (owner only).
+  _ida.Future<List<_i9kix0wi.JoinRequestResponse>> listJoinRequests(
+    _isc.UuidValue projectId,
+  ) => caller.callServerEndpoint<List<_i9kix0wi.JoinRequestResponse>>(
+    'projectCollaboration',
+    'listJoinRequests',
+    {'projectId': projectId},
+  );
+
+  /// Accepts or declines a join request (owner only).
+  _ida.Future<void> respondToJoinRequest(
+    _isc.UuidValue requestId,
+    bool accept,
+  ) => caller.callServerEndpoint<void>(
+    'projectCollaboration',
+    'respondToJoinRequest',
+    {
+      'requestId': requestId,
+      'accept': accept,
+    },
+  );
+}
+
+/// Project CRUD and listing (`client.project`).
+///
+/// Requires a signed-in user. Every method throws [AppException]:
+/// [ErrorCode.notFound] for projects the caller cannot see (private and not a
+/// member, or nonexistent), [ErrorCode.forbidden] for actions the caller's
+/// role does not allow, [ErrorCode.validation] with `fieldErrors` for invalid
+/// input.
+/// {@category Endpoint}
+class EndpointProject extends _isc.EndpointRef {
+  EndpointProject(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'project';
+
+  /// Creates a project owned by the caller.
+  _ida.Future<_ia3hvpml.ProjectResponse> create(
+    _igj9gzmx.CreateProjectRequest request,
+  ) => caller.callServerEndpoint<_ia3hvpml.ProjectResponse>(
+    'project',
+    'create',
+    {'request': request},
+  );
+
+  /// Returns a project the caller owns, is a member of, or that is public.
+  _ida.Future<_ia3hvpml.ProjectResponse> getById(_isc.UuidValue projectId) =>
+      caller.callServerEndpoint<_ia3hvpml.ProjectResponse>(
+        'project',
+        'getById',
+        {'projectId': projectId},
+      );
+
+  /// Projects owned by the caller, most recently changed first.
+  /// [limit] is capped at 50 (default 20).
+  _ida.Future<_iiazmhcc.ProjectPageResponse> listMine({
+    int? limit,
+    int? offset,
+  }) => caller.callServerEndpoint<_iiazmhcc.ProjectPageResponse>(
+    'project',
+    'listMine',
+    {
+      'limit': limit,
+      'offset': offset,
+    },
+  );
+
+  /// Projects the caller collaborates on (member, not owner).
+  _ida.Future<_iiazmhcc.ProjectPageResponse> listShared({
+    int? limit,
+    int? offset,
+  }) => caller.callServerEndpoint<_iiazmhcc.ProjectPageResponse>(
+    'project',
+    'listShared',
+    {
+      'limit': limit,
+      'offset': offset,
+    },
+  );
+
+  /// Public projects of other users, optionally filtered by a case-insensitive
+  /// name [query] (max 80 chars).
+  _ida.Future<_iiazmhcc.ProjectPageResponse> discover({
+    String? query,
+    int? limit,
+    int? offset,
+  }) => caller.callServerEndpoint<_iiazmhcc.ProjectPageResponse>(
+    'project',
+    'discover',
+    {
+      'query': query,
+      'limit': limit,
+      'offset': offset,
+    },
+  );
+
+  /// Replaces a project's details. Owner: everything; write members: name,
+  /// description and genres only.
+  _ida.Future<_ia3hvpml.ProjectResponse> update(
+    _isc.UuidValue projectId,
+    _i4ow79ga.UpdateProjectRequest request,
+  ) => caller.callServerEndpoint<_ia3hvpml.ProjectResponse>(
+    'project',
+    'update',
+    {
+      'projectId': projectId,
+      'request': request,
+    },
+  );
+
+  /// Deletes a project with its members, invitations and join requests
+  /// (owner only).
+  _ida.Future<void> delete(_isc.UuidValue projectId) =>
+      caller.callServerEndpoint<void>(
+        'project',
+        'delete',
+        {'projectId': projectId},
+      );
+}
+
 /// This is an example endpoint that returns a greeting message through
 /// its [hello] method.
 /// {@category Endpoint}
@@ -405,6 +673,8 @@ class Client extends _isc.ServerpodClientShared {
        ) {
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
+    projectCollaboration = EndpointProjectCollaboration(this);
+    project = EndpointProject(this);
     greeting = EndpointGreeting(this);
     modules = Modules(this);
   }
@@ -412,6 +682,10 @@ class Client extends _isc.ServerpodClientShared {
   late final EndpointEmailIdp emailIdp;
 
   late final EndpointJwtRefresh jwtRefresh;
+
+  late final EndpointProjectCollaboration projectCollaboration;
+
+  late final EndpointProject project;
 
   late final EndpointGreeting greeting;
 
@@ -421,6 +695,8 @@ class Client extends _isc.ServerpodClientShared {
   Map<String, _isc.EndpointRef> get endpointRefLookup => {
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
+    'projectCollaboration': projectCollaboration,
+    'project': project,
     'greeting': greeting,
   };
 

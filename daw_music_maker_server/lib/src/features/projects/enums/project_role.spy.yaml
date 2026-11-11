@@ -1,0 +1,9 @@
+### Permission granted to a project member (also requested by invitations and
+### join requests).
+enum: ProjectRole
+values:
+  ### Can view the project.
+  - read
+  ### Can view and edit the project's content and details (not visibility,
+  ### contributions or membership, which stay with the owner).
+  - write

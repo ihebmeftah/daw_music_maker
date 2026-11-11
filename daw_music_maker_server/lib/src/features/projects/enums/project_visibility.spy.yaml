@@ -1,0 +1,8 @@
+### Who can find and view a project.
+enum: ProjectVisibility
+values:
+  ### Only the owner and members can see the project.
+  - private
+  ### Every signed-in user can discover and view the project, and request to
+  ### join it when contributions are open.
+  - public

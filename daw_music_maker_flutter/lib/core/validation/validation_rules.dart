@@ -16,6 +16,24 @@ abstract final class ValidationRules {
   /// Number of digits in registration and password-reset verification codes.
   static const int verificationCodeLength = 8;
 
+  /// Maximum project name length (after trimming; minimum is 1).
+  static const int projectNameMaxLength = 80;
+
+  /// Maximum project description length (after trimming).
+  static const int projectDescriptionMaxLength = 1000;
+
+  /// Maximum number of genre tags per project.
+  static const int projectGenresMax = 8;
+
+  /// Maximum length of one genre tag.
+  static const int genreMaxLength = 24;
+
+  /// Maximum collaborators per project (members + pending invitations).
+  static const int projectMembersMax = 50;
+
+  /// Maximum length of a discover search query.
+  static const int searchQueryMaxLength = 80;
+
   /// Pragmatic email shape check: `local@domain.tld`, no whitespace.
   static final RegExp emailPattern = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]{2,}$');
 

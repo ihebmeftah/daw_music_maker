@@ -1,0 +1,17 @@
+### A pending join request, as seen by the project owner or by the requester.
+class: JoinRequestResponse
+fields:
+  ### Request id.
+  id: UuidValue
+  ### The project.
+  projectId: UuidValue
+  ### The project's name.
+  projectName: String
+  ### The requesting user.
+  userId: UuidValue
+  ### The requester's email (shared with the owner by requesting).
+  email: String?
+  ### Role asked for.
+  role: ProjectRole
+  ### When it was sent.
+  createdAt: DateTime

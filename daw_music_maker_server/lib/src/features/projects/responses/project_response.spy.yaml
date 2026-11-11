@@ -1,0 +1,27 @@
+### A project as seen by the caller.
+class: ProjectResponse
+fields:
+  ### Project id.
+  id: UuidValue
+  ### Owner's user id.
+  ownerId: UuidValue
+  ### Display name.
+  name: String
+  ### Description (may be empty).
+  description: String
+  ### Genre tags.
+  genres: List<String>
+  ### Who can see the project.
+  visibility: ProjectVisibility
+  ### Whether collaborators can be invited / request to join.
+  allowContributions: bool
+  ### The caller's relationship to the project.
+  access: ProjectAccess
+  ### Number of members, excluding the owner.
+  memberCount: int
+  ### Whether the caller has a pending join request for this project.
+  hasPendingJoinRequest: bool
+  ### Creation time.
+  createdAt: DateTime
+  ### Last modification time.
+  updatedAt: DateTime

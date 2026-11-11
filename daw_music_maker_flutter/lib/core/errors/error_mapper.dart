@@ -13,6 +13,16 @@ import 'failure.dart';
 Failure mapGenericError(Object error) {
   return switch (error) {
     Failure() => error,
+    AppException(:final code, :final fieldErrors) => Failure(
+      switch (code) {
+        ErrorCode.notFound => FailureCode.notFound,
+        ErrorCode.forbidden => FailureCode.forbidden,
+        ErrorCode.validation => FailureCode.validation,
+        ErrorCode.conflict => FailureCode.conflict,
+        ErrorCode.limitReached => FailureCode.limitReached,
+      },
+      fieldErrors: fieldErrors ?? const {},
+    ),
     AuthUserBlockedException() => const Failure(FailureCode.accountBlocked),
     TimeoutException() => const Failure(FailureCode.network),
     ServerpodClientNetworkException() => const Failure(FailureCode.network),

@@ -1,0 +1,7 @@
+### One page of projects.
+class: ProjectPageResponse
+fields:
+  ### Projects on this page.
+  items: List<ProjectResponse>
+  ### Whether more projects exist after this page.
+  hasMore: bool

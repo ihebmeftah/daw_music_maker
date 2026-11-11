@@ -8,5 +8,12 @@ import 'app/di/injection.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await configureDependencies();
-  runApp(const ProviderScope(child: DawApp()));
+  runApp(
+    ProviderScope(
+      // Failures are shown with an explicit "Try again" action instead of
+      // silent automatic retries (which would also retry e.g. notFound).
+      retry: (retryCount, error) => null,
+      child: const DawApp(),
+    ),
+  );
 }

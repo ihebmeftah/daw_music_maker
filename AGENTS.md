@@ -56,8 +56,11 @@ Keep this list up to date (one line each, link to `docs/features/<feature>.md`).
 
 - [auth](docs/features/auth.md) — email sign-in, registration and forgot-password flows
   (Serverpod email provider), animated wave UI, dark/light mode; lands on `/projects`
-- _planned_: projects (`/projects` is a placeholder), channel rack / step sequencer,
-  piano roll, playlist / arrangement, mixer, sample browser, transport
+- [projects](docs/features/projects.md) — project CRUD (name, description, genres,
+  private/public, contributions), invitations by email, join requests, members with
+  read/write roles, discover and inbox
+- _planned_: channel rack / step sequencer, piano roll, playlist / arrangement, mixer,
+  sample browser, transport
 
 ## Serverpod runner & MCP
 

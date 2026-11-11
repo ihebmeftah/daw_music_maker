@@ -1,0 +1,15 @@
+### A pending invitation, as seen by the project owner or by the invitee.
+class: ProjectInvitationResponse
+fields:
+  ### Invitation id.
+  id: UuidValue
+  ### The project.
+  projectId: UuidValue
+  ### The project's name.
+  projectName: String
+  ### Invitee email.
+  email: String
+  ### Role granted on acceptance.
+  role: ProjectRole
+  ### When it was sent.
+  createdAt: DateTime

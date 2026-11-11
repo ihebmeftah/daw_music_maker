@@ -1,0 +1,16 @@
+### Full replacement of a project's details. Validated like
+### [CreateProjectRequest]. Members with write permission may change name,
+### description and genres; only the owner may change visibility and
+### contributions.
+class: UpdateProjectRequest
+fields:
+  ### Display name, 1–80 chars after trimming.
+  name: String
+  ### Description, up to 1000 chars after trimming.
+  description: String
+  ### Genre tags: max 8, each 1–24 chars; duplicates are removed.
+  genres: List<String>
+  ### Who can see the project (owner only).
+  visibility: ProjectVisibility
+  ### Whether collaborators can be invited / request to join (owner only).
+  allowContributions: bool

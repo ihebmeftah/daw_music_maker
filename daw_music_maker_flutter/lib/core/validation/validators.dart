@@ -67,4 +67,40 @@ abstract final class Validators {
     }
     return null;
   }
+
+  /// Validates a required project name (1–80 chars after trimming).
+  static String? projectName(String? value) {
+    final name = value?.trim() ?? '';
+    if (name.isEmpty) return 'Give your project a name';
+    if (name.length > ValidationRules.projectNameMaxLength) {
+      return 'Use at most ${ValidationRules.projectNameMaxLength} characters';
+    }
+    return null;
+  }
+
+  /// Validates an optional project description (max 1000 chars).
+  static String? projectDescription(String? value) {
+    final description = value?.trim() ?? '';
+    if (description.length > ValidationRules.projectDescriptionMaxLength) {
+      return 'Use at most '
+          '${ValidationRules.projectDescriptionMaxLength} characters';
+    }
+    return null;
+  }
+
+  /// Validates a genre tag about to be added to [existing] tags.
+  static String? genreTag(String? value, List<String> existing) {
+    final tag = value?.trim() ?? '';
+    if (tag.isEmpty) return 'Type a genre';
+    if (tag.length > ValidationRules.genreMaxLength) {
+      return 'Use at most ${ValidationRules.genreMaxLength} characters';
+    }
+    if (existing.length >= ValidationRules.projectGenresMax) {
+      return 'Up to ${ValidationRules.projectGenresMax} genres';
+    }
+    if (existing.any((g) => g.toLowerCase() == tag.toLowerCase())) {
+      return 'Already added';
+    }
+    return null;
+  }
 }

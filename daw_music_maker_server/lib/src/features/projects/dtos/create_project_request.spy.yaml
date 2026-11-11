@@ -1,0 +1,13 @@
+### Input for creating a project. Validated by the server.
+class: CreateProjectRequest
+fields:
+  ### Display name, 1–80 chars after trimming.
+  name: String
+  ### Description, up to 1000 chars after trimming.
+  description: String
+  ### Genre tags: max 8, each 1–24 chars; duplicates are removed.
+  genres: List<String>
+  ### Who can see the project.
+  visibility: ProjectVisibility
+  ### Whether collaborators can be invited / request to join.
+  allowContributions: bool

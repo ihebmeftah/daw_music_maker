@@ -3,6 +3,7 @@ import 'package:daw_music_maker/app/router/app_router.dart';
 import 'package:daw_music_maker/core/auth/auth_session_provider.dart';
 import 'package:daw_music_maker/core/theme/app_theme.dart';
 import 'package:daw_music_maker/features/auth/data/auth_repository_provider.dart';
+import 'package:daw_music_maker/features/projects/data/project_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -34,6 +35,7 @@ extension PumpApp on WidgetTester {
     prepareSurface(this);
     await pumpWidget(
       ProviderScope(
+        retry: (_, _) => null,
         overrides: overrides,
         child: MaterialApp(
           theme: theme ?? AppTheme.dark,
@@ -47,17 +49,32 @@ extension PumpApp on WidgetTester {
   /// Pumps the whole [DawApp] (real router + auth guard) at
   /// [initialLocation], with a fake session and a mocked repository.
   ///
+  /// Project repositories default to mocks returning empty lists
+  /// ([stubEmptyProjectLists], [stubEmptyInbox]); pass your own to stub
+  /// specific calls.
+  ///
   /// Returns the [ProviderContainer] for reading providers in assertions.
   Future<ProviderContainer> pumpDawApp({
     required FakeAuthSession session,
-    required MockAuthRepository repository,
+    MockAuthRepository? repository,
+    MockProjectRepository? projects,
+    MockCollaborationRepository? collaboration,
     String? initialLocation,
   }) async {
     prepareSurface(this);
+    final projectRepo = projects ?? MockProjectRepository();
+    final collabRepo = collaboration ?? MockCollaborationRepository();
+    if (projects == null) stubEmptyProjectLists(projectRepo);
+    if (collaboration == null) stubEmptyInbox(collabRepo);
     final container = ProviderContainer(
+      retry: (_, _) => null,
       overrides: [
         authSessionProvider.overrideWithValue(session),
-        authRepositoryProvider.overrideWithValue(repository),
+        authRepositoryProvider.overrideWithValue(
+          repository ?? MockAuthRepository(),
+        ),
+        projectRepositoryProvider.overrideWithValue(projectRepo),
+        collaborationRepositoryProvider.overrideWithValue(collabRepo),
       ],
     );
     addTearDown(container.dispose);
