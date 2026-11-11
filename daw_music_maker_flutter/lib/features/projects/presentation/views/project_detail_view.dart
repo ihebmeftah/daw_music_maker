@@ -26,6 +26,9 @@ class ProjectDetailView extends ConsumerWidget {
   /// Creates the view for [projectId].
   const ProjectDetailView({super.key, required this.projectId});
 
+  /// Key of the "Go to studio" button.
+  static const studioKey = Key('projectDetail.studio');
+
   /// Key of the edit button.
   static const editKey = Key('projectDetail.edit');
 
@@ -110,6 +113,12 @@ class _Detail extends ConsumerWidget {
   List<Widget> _actions(BuildContext context, WidgetRef ref) {
     final busy = state.isBusy;
     return [
+      DawButton(
+        key: ProjectDetailView.studioKey,
+        label: 'Go to studio',
+        icon: Icons.graphic_eq_rounded,
+        onPressed: () => StudioRoute(id: projectId.toString()).go(context),
+      ),
       if (state.canEdit)
         DawButton(
           key: ProjectDetailView.editKey,
@@ -118,7 +127,7 @@ class _Detail extends ConsumerWidget {
           variant: DawButtonVariant.ghost,
           onPressed: busy
               ? null
-              : () => EditProjectRoute(id: projectId.toString()).push(context),
+              : () => ProjectFormRoute(id: projectId.toString()).go(context),
         ),
       if (state.isOwner)
         DawButton(

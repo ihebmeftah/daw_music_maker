@@ -12,17 +12,40 @@ void main() {
     WidgetTester tester,
     ProjectResponse project, {
     VoidCallback? onTap,
+    VoidCallback? onOpenStudio,
   }) => tester.pumpApp(
     Center(
       child: SizedBox(
         width: 360,
         height: 196,
-        child: ProjectCard(project: project, onTap: onTap ?? () {}),
+        child: ProjectCard(
+          project: project,
+          onTap: onTap ?? () {},
+          onOpenStudio: onOpenStudio ?? () {},
+        ),
       ),
     ),
   );
 
   group('Given a ProjectCard', () {
+    testWidgets('when tapping STUDIO, then opens the studio, not the page', (
+      tester,
+    ) async {
+      var studio = 0;
+      var page = 0;
+      await pump(
+        tester,
+        testProject(),
+        onTap: () => page++,
+        onOpenStudio: () => studio++,
+      );
+
+      await tester.tap(find.byKey(ProjectCard.studioKey(testRequestId)));
+
+      expect(studio, 1);
+      expect(page, 0);
+    });
+
     testWidgets('when rendered, then shows name, badges, genres and count', (
       tester,
     ) async {

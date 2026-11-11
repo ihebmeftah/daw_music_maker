@@ -20,6 +20,8 @@ import 'package:daw_music_maker_server/src/generated/features/projects/dtos/upda
     as _it611bmf;
 import 'package:daw_music_maker_server/src/generated/features/projects/dtos/update_project_request.dart'
     as _ido95wja;
+import 'package:daw_music_maker_server/src/generated/features/projects/dtos/update_project_tempo_request.dart'
+    as _ipesbjbp;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
@@ -804,6 +806,31 @@ class Endpoints extends _is.EndpointDispatch {
                 Map<String, dynamic> params,
               ) async =>
                   (endpoints['project'] as _inmisbug.ProjectEndpoint).update(
+                    session,
+                    params['projectId'],
+                    params['request'],
+                  ),
+        ),
+        'updateTempo': _is.MethodConnector(
+          name: 'updateTempo',
+          params: {
+            'projectId': _is.ParameterDescription(
+              name: 'projectId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+            'request': _is.ParameterDescription(
+              name: 'request',
+              type: _is.getType<_ipesbjbp.UpdateProjectTempoRequest>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['project'] as _inmisbug.ProjectEndpoint)
+                  .updateTempo(
                     session,
                     params['projectId'],
                     params['request'],

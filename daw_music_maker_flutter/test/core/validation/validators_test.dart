@@ -175,4 +175,27 @@ void main() {
       );
     });
   });
+
+  group('Given Validators.bpm', () {
+    test('when the limits are compared to the server, then they match', () {
+      expect(ValidationRules.bpmMin, 20);
+      expect(ValidationRules.bpmMax, 999);
+    });
+
+    test('when empty or not a number, then rejects it', () {
+      expect(Validators.bpm(''), 'Enter a tempo');
+      expect(Validators.bpm('fast'), 'Enter a number');
+    });
+
+    test('when out of range, then rejects it', () {
+      expect(Validators.bpm('19.9'), '20–999 BPM');
+      expect(Validators.bpm('1000'), '20–999 BPM');
+    });
+
+    test('when in range (with a decimal comma), then accepts it', () {
+      expect(Validators.bpm('20'), isNull);
+      expect(Validators.bpm('128,5'), isNull);
+      expect(Validators.bpm(' 999 '), isNull);
+    });
+  });
 }

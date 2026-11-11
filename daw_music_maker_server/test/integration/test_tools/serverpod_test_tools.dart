@@ -23,6 +23,8 @@ import 'package:daw_music_maker_server/src/generated/features/projects/dtos/upda
     as _it611bmf;
 import 'package:daw_music_maker_server/src/generated/features/projects/dtos/update_project_request.dart'
     as _ido95wja;
+import 'package:daw_music_maker_server/src/generated/features/projects/dtos/update_project_tempo_request.dart'
+    as _ipesbjbp;
 import 'package:daw_music_maker_server/src/generated/features/projects/responses/join_request_response.dart'
     as _i2s7w22c;
 import 'package:daw_music_maker_server/src/generated/features/projects/responses/project_invitation_response.dart'
@@ -1315,6 +1317,41 @@ class _ProjectEndpoint {
           createSessionCallback: (_) => _localUniqueSession,
           endpointPath: 'project',
           methodName: 'update',
+          parameters: _ist.testObjectToJson({
+            'projectId': projectId,
+            'request': request,
+          }),
+          serializationManager: _serializationManager,
+        );
+        var _localReturnValue =
+            await (_localCallContext.method.call(
+                  _localUniqueSession,
+                  _localCallContext.arguments,
+                )
+                as _ida.Future<_iean9euz.ProjectResponse>);
+        return _localReturnValue;
+      } finally {
+        await _localUniqueSession.close();
+      }
+    });
+  }
+
+  _ida.Future<_iean9euz.ProjectResponse> updateTempo(
+    _ist.TestSessionBuilder sessionBuilder,
+    _is.UuidValue projectId,
+    _ipesbjbp.UpdateProjectTempoRequest request,
+  ) async {
+    return _ist.callAwaitableFunctionAndHandleExceptions(() async {
+      var _localUniqueSession =
+          (sessionBuilder as _ist.InternalTestSessionBuilder).internalBuild(
+            endpoint: 'project',
+            method: 'updateTempo',
+          );
+      try {
+        var _localCallContext = await _endpointDispatch.getMethodCallContext(
+          createSessionCallback: (_) => _localUniqueSession,
+          endpointPath: 'project',
+          methodName: 'updateTempo',
           parameters: _ist.testObjectToJson({
             'projectId': projectId,
             'request': request,

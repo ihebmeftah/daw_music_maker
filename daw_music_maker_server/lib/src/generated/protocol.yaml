@@ -35,6 +35,7 @@ project:
   - listShared:
   - discover:
   - update:
+  - updateTempo:
   - delete:
 greeting:
   - hello:

@@ -195,6 +195,35 @@ class ProjectService {
     );
   }
 
+  /// Sets a project's tempo (owner or write member).
+  ///
+  /// Throws [AppException]: [ErrorCode.notFound] if not visible,
+  /// [ErrorCode.forbidden] for read members and visitors,
+  /// [ErrorCode.validation] for an out-of-range tempo.
+  Future<ProjectResponse> updateTempo(
+    Session session,
+    UuidValue userId,
+    UuidValue projectId,
+    UpdateProjectTempoRequest request,
+  ) async {
+    final (project, access) = await _access.load(session, projectId, userId);
+    if (!ProjectRules.canEditDetails(access)) {
+      throw AppException(
+        code: ErrorCode.forbidden,
+        message: 'You cannot change the tempo of this project',
+      );
+    }
+    final bpm = ProjectRules.validateBpm(request.bpm);
+    final updated = await _projects.update(
+      session,
+      project.copyWith(bpm: bpm, updatedAt: DateTime.now().toUtc()),
+    );
+    return updated.toResponse(
+      access: access,
+      memberCount: await _members.count(session, projectId),
+    );
+  }
+
   /// Deletes a project and everything attached to it (owner only).
   Future<void> delete(
     Session session,

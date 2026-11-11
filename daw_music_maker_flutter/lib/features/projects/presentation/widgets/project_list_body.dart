@@ -70,13 +70,12 @@ class _Grid extends StatelessWidget {
                 childCount: state.items.length,
                 (context, i) {
                   final project = state.items[i];
+                  final id = project.id.toString();
                   return ProjectCard(
                     key: ValueKey(project.id),
                     project: project,
-                    onTap: () =>
-                        ProjectDetailRoute(id: project.id.toString()).push(
-                          context,
-                        ),
+                    onTap: () => ProjectDetailRoute(id: id).go(context),
+                    onOpenStudio: () => StudioRoute(id: id).go(context),
                   );
                 },
               ),
@@ -127,7 +126,7 @@ class _Empty extends StatelessWidget {
         action: DawButton(
           label: 'New project',
           icon: Icons.add_rounded,
-          onPressed: () => const NewProjectRoute().push(context),
+          onPressed: () => const ProjectFormRoute().go(context),
         ),
       ),
       ProjectListKind.shared => const EmptyState(

@@ -59,6 +59,8 @@ Keep this list up to date (one line each, link to `docs/features/<feature>.md`).
 - [projects](docs/features/projects.md) — project CRUD (name, description, genres,
   private/public, contributions), invitations by email, join requests, members with
   read/write roles, discover and inbox
+- [studio](docs/features/studio.md) — `/projects/:id/studio`: project tempo (BPM) with
+  tap tempo, saved on the project, and a play/pause metronome
 - _planned_: channel rack / step sequencer, piano roll, playlist / arrangement, mixer,
   sample browser, transport
 

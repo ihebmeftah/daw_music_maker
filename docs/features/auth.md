@@ -21,10 +21,20 @@ Email + password authentication built on Serverpod's email identity provider.
 | `/forgot-password` | `ForgotPasswordView` | `ForgotPasswordViewModel` |
 | `/projects`        | `ProjectsView` (see [projects.md](projects.md)) | `ProjectsViewModel` (sign out) |
 
-Routing (`app/router/`): `authRedirect` in `route_guards.dart` sends signed-out users on a
-protected path to `/login`, and signed-in users on an auth path to `/projects`. The router
-listens to `AuthSession.changes`, so every successful sign-in (login, registration, reset)
-ends on `/projects` without views navigating explicitly.
+Routing (`app/router/`): `authRedirect` in `route_guards.dart` runs on every navigation
+with the full requested URI:
+
+- Signed out on a protected page → `/login?from=<that page>` (plain `/login` for `/` and
+  `/projects`), so deep links and browser refreshes survive signing in.
+- Signed in on an auth page → the `from` page if it is safe, else `/projects`.
+  `safeReturnPath` only accepts relative in-app paths (no scheme, host or `//`, never an
+  auth page), which prevents open redirects through `?from=`.
+- `/` → `/projects`.
+
+The router listens to `AuthSession.changes`, so every successful sign-in (login,
+registration, reset) ends on the requested page or `/projects` without views navigating
+explicitly. In-app navigation uses `go` (not `push`) so the browser URL always matches the
+screen.
 
 Flows:
 
@@ -96,14 +106,16 @@ No project models. Uses the generated auth models: `AuthSuccess`, `EmailAccountL
 
 Flutter (`daw_music_maker_flutter/test/`):
 
-- Unit: `core/validation/validators_test.dart`, `app/router/route_guards_test.dart`,
+- Unit: `core/validation/validators_test.dart`, `app/router/route_guards_test.dart`
+  (`from` handling and open-redirect cases),
   `core/errors/error_mapper_test.dart`, `core/theme/theme_mode_controller_test.dart`,
   `features/auth/data/auth_repository_impl_test.dart` (mocked endpoint + session manager),
   the three ViewModel tests (state transitions, failures, double-submit guard).
 - Widget: `login_view_test`, `register_view_test`, `forgot_password_view_test`,
   `projects_view_test` run the real `DawApp` (router + guard) with a fake `AuthSession` and
   a mocked repository, covering validation, server errors, navigation and each full flow
-  ending on `/projects`. `auth_shell_test` checks desktop/phone layouts (no overflow) and
+  ending on `/projects`. `app/router/navigation_urls_test.dart` checks that a signed-out deep
+  link to a studio returns there after signing in. `auth_shell_test` checks desktop/phone layouts (no overflow) and
   light mode. Every shared widget has its own test.
 - `test/flutter_test_config.dart` disables Google Fonts fetching; `pumpApp` / `pumpDawApp`
   turn on "reduce motion" so infinite animations stop.

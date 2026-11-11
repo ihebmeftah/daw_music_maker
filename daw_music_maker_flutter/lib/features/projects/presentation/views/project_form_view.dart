@@ -21,7 +21,7 @@ import '../view_models/project_form_view_model.dart';
 import '../widgets/genre_tags_field.dart';
 import '../widgets/project_labels.dart';
 
-/// `/projects/new` and `/projects/:id/edit` — create or edit a project.
+/// `/projects/form` (create) and `/projects/form?id=<uuid>` (edit).
 class ProjectFormView extends ConsumerWidget {
   /// Creates the view; [projectId] is null when creating.
   const ProjectFormView({super.key, this.projectId});
@@ -49,6 +49,10 @@ class ProjectFormView extends ConsumerWidget {
     final provider = projectFormViewModelProvider(projectId);
     return StudioScaffold(
       title: projectId == null ? 'NEW PROJECT' : 'EDIT PROJECT',
+      // Editing goes back to the project; creating goes back to the list.
+      onBack: projectId == null
+          ? null
+          : () => ProjectDetailRoute(id: projectId.toString()).go(context),
       maxWidth: 720,
       body: switch (ref.watch(provider)) {
         AsyncData(:final value) => _ProjectForm(
@@ -122,13 +126,8 @@ class _ProjectFormState extends ConsumerState<_ProjectForm> {
       );
       return;
     }
-    final detail = ProjectDetailRoute(id: saved.id.toString());
-    if (widget.projectId == null) {
-      // Replace the form with the new project's page.
-      detail.pushReplacement(context);
-    } else {
-      Navigator.of(context).pop();
-    }
+    // Land on the project's page; the URL becomes /projects/<id>.
+    ProjectDetailRoute(id: saved.id.toString()).go(context);
   }
 
   @override

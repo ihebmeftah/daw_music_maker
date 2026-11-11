@@ -1,14 +1,18 @@
 import 'package:daw_music_maker/app/app.dart';
 import 'package:daw_music_maker/app/router/app_router.dart';
+import 'package:daw_music_maker/core/audio/audio_providers.dart';
+import 'package:daw_music_maker/core/audio/metronome.dart';
 import 'package:daw_music_maker/core/auth/auth_session_provider.dart';
 import 'package:daw_music_maker/core/theme/app_theme.dart';
 import 'package:daw_music_maker/features/auth/data/auth_repository_provider.dart';
 import 'package:daw_music_maker/features/projects/data/project_providers.dart';
+import 'package:daw_music_maker/features/studio/data/studio_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
+import 'fakes.dart';
 import 'mocks.dart';
 
 /// Sets a desktop-sized surface and turns on "reduce motion" so infinite
@@ -24,6 +28,14 @@ void prepareSurface(WidgetTester tester, {Size size = const Size(1400, 1100)}) {
     tester.platformDispatcher.clearAccessibilityFeaturesTestValue();
   });
 }
+
+/// The router's current location (what the browser URL shows).
+String currentLocation(ProviderContainer container) => container
+    .read(appRouterProvider)
+    .routerDelegate
+    .currentConfiguration
+    .uri
+    .toString();
 
 extension PumpApp on WidgetTester {
   /// Pumps [child] inside a themed [MaterialApp] and [ProviderScope].
@@ -59,6 +71,8 @@ extension PumpApp on WidgetTester {
     MockAuthRepository? repository,
     MockProjectRepository? projects,
     MockCollaborationRepository? collaboration,
+    MockStudioRepository? studio,
+    FakeAudioEngine? audio,
     String? initialLocation,
   }) async {
     prepareSurface(this);
@@ -75,6 +89,14 @@ extension PumpApp on WidgetTester {
         ),
         projectRepositoryProvider.overrideWithValue(projectRepo),
         collaborationRepositoryProvider.overrideWithValue(collabRepo),
+        studioRepositoryProvider.overrideWithValue(
+          studio ?? MockStudioRepository(),
+        ),
+        metronomeProvider.overrideWith((ref) {
+          final metronome = Metronome(audio ?? FakeAudioEngine());
+          ref.onDispose(metronome.dispose);
+          return metronome;
+        }),
       ],
     );
     addTearDown(container.dispose);

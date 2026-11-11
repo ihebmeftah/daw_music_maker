@@ -75,6 +75,14 @@ class ProjectEndpoint extends Endpoint {
     UpdateProjectRequest request,
   ) => _service.update(session, session.requireUserId, projectId, request);
 
+  /// Sets the project's tempo (20–999 BPM, rounded to 2 decimals). Owner and
+  /// write members only.
+  Future<ProjectResponse> updateTempo(
+    Session session,
+    UuidValue projectId,
+    UpdateProjectTempoRequest request,
+  ) => _service.updateTempo(session, session.requireUserId, projectId, request);
+
   /// Deletes a project with its members, invitations and join requests
   /// (owner only).
   Future<void> delete(Session session, UuidValue projectId) =>

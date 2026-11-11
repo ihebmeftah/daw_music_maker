@@ -18,10 +18,8 @@ GoRouter appRouter(Ref ref) {
     initialLocation: homePath,
     routes: $appRoutes,
     refreshListenable: session.changes,
-    redirect: (context, state) => authRedirect(
-      isAuthenticated: session.isAuthenticated,
-      location: state.matchedLocation,
-    ),
+    redirect: (context, state) =>
+        authRedirect(isAuthenticated: session.isAuthenticated, uri: state.uri),
   );
   ref.onDispose(router.dispose);
   return router;

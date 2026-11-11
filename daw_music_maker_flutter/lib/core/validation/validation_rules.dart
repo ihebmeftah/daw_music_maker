@@ -34,6 +34,12 @@ abstract final class ValidationRules {
   /// Maximum length of a discover search query.
   static const int searchQueryMaxLength = 80;
 
+  /// Slowest allowed tempo in beats per minute.
+  static const double bpmMin = 20;
+
+  /// Fastest allowed tempo in beats per minute.
+  static const double bpmMax = 999;
+
   /// Pragmatic email shape check: `local@domain.tld`, no whitespace.
   static final RegExp emailPattern = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]{2,}$');
 

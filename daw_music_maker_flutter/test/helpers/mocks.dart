@@ -2,6 +2,7 @@ import 'package:daw_music_maker/core/auth/auth_session.dart';
 import 'package:daw_music_maker/features/auth/data/auth_repository.dart';
 import 'package:daw_music_maker/features/projects/data/collaboration_repository.dart';
 import 'package:daw_music_maker/features/projects/data/project_repository.dart';
+import 'package:daw_music_maker/features/studio/data/studio_repository.dart';
 import 'package:daw_music_maker_client/daw_music_maker_client.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mocktail/mocktail.dart';
@@ -16,6 +17,9 @@ class MockProjectRepository extends Mock implements ProjectRepository {}
 /// Mock of the collaboration repository.
 class MockCollaborationRepository extends Mock
     implements CollaborationRepository {}
+
+/// Mock of the studio repository.
+class MockStudioRepository extends Mock implements StudioRepository {}
 
 /// Mock of the generated project endpoint.
 class MockEndpointProject extends Mock implements EndpointProject {}
@@ -78,6 +82,7 @@ ProjectResponse testProject({
   ProjectAccess access = ProjectAccess.owner,
   int memberCount = 0,
   bool hasPendingJoinRequest = false,
+  double bpm = 120,
 }) => ProjectResponse(
   id: id ?? testRequestId,
   ownerId: otherTestId,
@@ -86,6 +91,7 @@ ProjectResponse testProject({
   genres: genres,
   visibility: visibility,
   allowContributions: allowContributions,
+  bpm: bpm,
   access: access,
   memberCount: memberCount,
   hasPendingJoinRequest: hasPendingJoinRequest,

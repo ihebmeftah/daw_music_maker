@@ -29,12 +29,14 @@ abstract class Project
     required this.genres,
     _iih43j5r.ProjectVisibility? visibility,
     bool? allowContributions,
+    double? bpm,
     this.members,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : description = description ?? '',
        visibility = visibility ?? _iih43j5r.ProjectVisibility.private,
        allowContributions = allowContributions ?? false,
+       bpm = bpm ?? 120.0,
        createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now();
 
@@ -46,6 +48,7 @@ abstract class Project
     required List<String> genres,
     _iih43j5r.ProjectVisibility? visibility,
     bool? allowContributions,
+    double? bpm,
     List<_i029m83h.ProjectMember>? members,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -74,6 +77,7 @@ abstract class Project
           : _is.BoolJsonExtension.fromJson(
               jsonSerialization['allowContributions'],
             ),
+      bpm: (jsonSerialization['bpm'] as num?)?.toDouble(),
       members: jsonSerialization['members'] == null
           ? null
           : _iau3psze.Protocol().deserialize<List<_i029m83h.ProjectMember>>(
@@ -113,6 +117,9 @@ abstract class Project
   /// Whether the owner accepts collaborators (invitations and join requests).
   bool allowContributions;
 
+  /// Tempo in beats per minute (20–999, up to 2 decimals).
+  double bpm;
+
   /// Members of the project (excluding the owner).
   List<_i029m83h.ProjectMember>? members;
 
@@ -136,6 +143,7 @@ abstract class Project
     List<String>? genres,
     _iih43j5r.ProjectVisibility? visibility,
     bool? allowContributions,
+    double? bpm,
     List<_i029m83h.ProjectMember>? members =
         const _is.$UndefinedList<_i029m83h.ProjectMember>(),
     DateTime? createdAt,
@@ -152,6 +160,7 @@ abstract class Project
       'genres': genres.toJson(),
       'visibility': visibility.toJson(),
       'allowContributions': allowContributions,
+      'bpm': bpm,
       if (members != null)
         'members': members?.toJson(valueToJson: (v) => v.toJson()),
       'createdAt': createdAt.toJson(),
@@ -201,6 +210,7 @@ class _ProjectImpl extends Project {
     required List<String> genres,
     _iih43j5r.ProjectVisibility? visibility,
     bool? allowContributions,
+    double? bpm,
     List<_i029m83h.ProjectMember>? members,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -212,6 +222,7 @@ class _ProjectImpl extends Project {
          genres: genres,
          visibility: visibility,
          allowContributions: allowContributions,
+         bpm: bpm,
          members: members,
          createdAt: createdAt,
          updatedAt: updatedAt,
@@ -229,6 +240,7 @@ class _ProjectImpl extends Project {
     List<String>? genres,
     _iih43j5r.ProjectVisibility? visibility,
     bool? allowContributions,
+    double? bpm,
     List<_i029m83h.ProjectMember>? members =
         const _is.$UndefinedList<_i029m83h.ProjectMember>(),
     DateTime? createdAt,
@@ -242,6 +254,7 @@ class _ProjectImpl extends Project {
       genres: genres ?? this.genres.map((e0) => e0).toList(),
       visibility: visibility ?? this.visibility,
       allowContributions: allowContributions ?? this.allowContributions,
+      bpm: bpm ?? this.bpm,
       members: members is _is.UndefinedSentinel
           ? this.members?.map((e0) => e0.copyWith()).toList()
           : members,
@@ -284,6 +297,11 @@ class ProjectUpdateTable extends _is.UpdateTable<ProjectTable> {
 
   _is.ColumnValue<bool, bool> allowContributions(bool value) => _is.ColumnValue(
     table.allowContributions,
+    value,
+  );
+
+  _is.ColumnValue<double, double> bpm(double value) => _is.ColumnValue(
+    table.bpm,
     value,
   );
 
@@ -331,6 +349,11 @@ class ProjectTable extends _is.Table<_is.UuidValue?> {
       this,
       hasDefault: true,
     );
+    bpm = _is.ColumnDouble(
+      'bpm',
+      this,
+      hasDefault: true,
+    );
     createdAt = _is.ColumnDateTime(
       'createdAt',
       this,
@@ -362,6 +385,9 @@ class ProjectTable extends _is.Table<_is.UuidValue?> {
 
   /// Whether the owner accepts collaborators (invitations and join requests).
   late final _is.ColumnBool allowContributions;
+
+  /// Tempo in beats per minute (20–999, up to 2 decimals).
+  late final _is.ColumnDouble bpm;
 
   /// Members of the project (excluding the owner).
   _i029m83h.ProjectMemberTable? ___members;
@@ -416,6 +442,7 @@ class ProjectTable extends _is.Table<_is.UuidValue?> {
     genres,
     visibility,
     allowContributions,
+    bpm,
     createdAt,
     updatedAt,
   ];

@@ -19,7 +19,12 @@ class StudioScaffold extends StatelessWidget {
     required this.body,
     this.actions = const [],
     this.maxWidth = 1200,
+    this.onBack,
   });
+
+  /// Explicit back action (e.g. `go` to the parent page). When null, a back
+  /// button is shown only if the navigator can pop.
+  final VoidCallback? onBack;
 
   /// Upper-case screen title shown in the top bar.
   final String title;
@@ -48,7 +53,9 @@ class StudioScaffold extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  if (canPop)
+                  if (onBack != null)
+                    BackButton(onPressed: onBack)
+                  else if (canPop)
                     const BackButton()
                   else
                     BrandMark(showWordmark: !narrow),

@@ -1,0 +1,5 @@
+### Input for changing a project's tempo (owner or write member).
+class: UpdateProjectTempoRequest
+fields:
+  ### Tempo in beats per minute, 20–999; rounded to 2 decimals.
+  bpm: double

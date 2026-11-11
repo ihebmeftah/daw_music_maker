@@ -80,6 +80,26 @@ abstract final class ProjectRules {
     );
   }
 
+  /// Validates a tempo and rounds it to 2 decimals.
+  ///
+  /// Throws [AppException] with [ErrorCode.validation] (`bpm` field) when it
+  /// is not a finite number within [ValidationRules.bpmMin]–
+  /// [ValidationRules.bpmMax].
+  static double validateBpm(double bpm) {
+    final v = Validator();
+    if (!bpm.isFinite ||
+        bpm < ValidationRules.bpmMin ||
+        bpm > ValidationRules.bpmMax) {
+      v.add(
+        'bpm',
+        'Tempo must be between ${ValidationRules.bpmMin.toInt()} and '
+            '${ValidationRules.bpmMax.toInt()} BPM',
+      );
+    }
+    v.throwIfInvalid();
+    return (bpm * 100).roundToDouble() / 100;
+  }
+
   /// Validates and normalizes an invitee email.
   ///
   /// Throws [AppException] with [ErrorCode.validation] (`email` field).

@@ -29,6 +29,7 @@ import 'features/projects/dtos/invite_member_request.dart' as _i5w541ev;
 import 'features/projects/dtos/join_project_request.dart' as _i0ycjkhg;
 import 'features/projects/dtos/update_member_role_request.dart' as _i3b4trqk;
 import 'features/projects/dtos/update_project_request.dart' as _irgz1vpl;
+import 'features/projects/dtos/update_project_tempo_request.dart' as _i9oua2ep;
 import 'features/projects/enums/project_access.dart' as _i6vudz19;
 import 'features/projects/enums/project_role.dart' as _ila8m0sm;
 import 'features/projects/enums/project_visibility.dart' as _idtmlsij;
@@ -46,6 +47,7 @@ export 'features/projects/dtos/invite_member_request.dart';
 export 'features/projects/dtos/join_project_request.dart';
 export 'features/projects/dtos/update_member_role_request.dart';
 export 'features/projects/dtos/update_project_request.dart';
+export 'features/projects/dtos/update_project_tempo_request.dart';
 export 'features/projects/enums/project_access.dart';
 export 'features/projects/enums/project_role.dart';
 export 'features/projects/enums/project_visibility.dart';
@@ -77,6 +79,7 @@ class Protocol extends _isc.SerializationManager
           _isc.getType<_i0ycjkhg.JoinProjectRequest>,
           _isc.getType<_i3b4trqk.UpdateMemberRoleRequest>,
           _isc.getType<_irgz1vpl.UpdateProjectRequest>,
+          _isc.getType<_i9oua2ep.UpdateProjectTempoRequest>,
           _isc.getType<_i6vudz19.ProjectAccess>,
           _isc.getType<_ila8m0sm.ProjectRole>,
           _isc.getType<_idtmlsij.ProjectVisibility>,
@@ -93,6 +96,7 @@ class Protocol extends _isc.SerializationManager
           _isc.getType<_i0ycjkhg.JoinProjectRequest?>,
           _isc.getType<_i3b4trqk.UpdateMemberRoleRequest?>,
           _isc.getType<_irgz1vpl.UpdateProjectRequest?>,
+          _isc.getType<_i9oua2ep.UpdateProjectTempoRequest?>,
           _isc.getType<_i6vudz19.ProjectAccess?>,
           _isc.getType<_ila8m0sm.ProjectRole?>,
           _isc.getType<_idtmlsij.ProjectVisibility?>,
@@ -122,6 +126,7 @@ class Protocol extends _isc.SerializationManager
           'JoinProjectRequest',
           'UpdateMemberRoleRequest',
           'UpdateProjectRequest',
+          'UpdateProjectTempoRequest',
           'ProjectAccess',
           'ProjectRole',
           'ProjectVisibility',
@@ -178,6 +183,9 @@ class Protocol extends _isc.SerializationManager
     }
     if (t == _irgz1vpl.UpdateProjectRequest) {
       return _irgz1vpl.UpdateProjectRequest.fromJson(data) as T;
+    }
+    if (t == _i9oua2ep.UpdateProjectTempoRequest) {
+      return _i9oua2ep.UpdateProjectTempoRequest.fromJson(data) as T;
     }
     if (t == _i6vudz19.ProjectAccess) {
       return _i6vudz19.ProjectAccess.fromJson(data) as T;
@@ -237,6 +245,12 @@ class Protocol extends _isc.SerializationManager
     if (t == _isc.getType<_irgz1vpl.UpdateProjectRequest?>()) {
       return (data != null
               ? _irgz1vpl.UpdateProjectRequest.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_i9oua2ep.UpdateProjectTempoRequest?>()) {
+      return (data != null
+              ? _i9oua2ep.UpdateProjectTempoRequest.fromJson(data)
               : null)
           as T;
     }
@@ -346,6 +360,7 @@ class Protocol extends _isc.SerializationManager
       _i0ycjkhg.JoinProjectRequest => 'JoinProjectRequest',
       _i3b4trqk.UpdateMemberRoleRequest => 'UpdateMemberRoleRequest',
       _irgz1vpl.UpdateProjectRequest => 'UpdateProjectRequest',
+      _i9oua2ep.UpdateProjectTempoRequest => 'UpdateProjectTempoRequest',
       _i6vudz19.ProjectAccess => 'ProjectAccess',
       _ila8m0sm.ProjectRole => 'ProjectRole',
       _idtmlsij.ProjectVisibility => 'ProjectVisibility',
@@ -386,6 +401,8 @@ class Protocol extends _isc.SerializationManager
         return 'UpdateMemberRoleRequest';
       case _irgz1vpl.UpdateProjectRequest():
         return 'UpdateProjectRequest';
+      case _i9oua2ep.UpdateProjectTempoRequest():
+        return 'UpdateProjectTempoRequest';
       case _i6vudz19.ProjectAccess():
         return 'ProjectAccess';
       case _ila8m0sm.ProjectRole():
@@ -446,6 +463,9 @@ class Protocol extends _isc.SerializationManager
     }
     if (dataClassName == 'UpdateProjectRequest') {
       return deserialize<_irgz1vpl.UpdateProjectRequest>(data['data']);
+    }
+    if (dataClassName == 'UpdateProjectTempoRequest') {
+      return deserialize<_i9oua2ep.UpdateProjectTempoRequest>(data['data']);
     }
     if (dataClassName == 'ProjectAccess') {
       return deserialize<_i6vudz19.ProjectAccess>(data['data']);

@@ -99,9 +99,9 @@ RouteBase get $projectsRoute => GoRouteData.$route(
   factory: $ProjectsRoute._fromState,
   routes: [
     GoRouteData.$route(
-      path: 'new',
+      path: 'form',
       hasOverriddenOnExit: false,
-      factory: $NewProjectRoute._fromState,
+      factory: $ProjectFormRoute._fromState,
     ),
     GoRouteData.$route(
       path: ':id',
@@ -109,9 +109,9 @@ RouteBase get $projectsRoute => GoRouteData.$route(
       factory: $ProjectDetailRoute._fromState,
       routes: [
         GoRouteData.$route(
-          path: 'edit',
+          path: 'studio',
           hasOverriddenOnExit: false,
-          factory: $EditProjectRoute._fromState,
+          factory: $StudioRoute._fromState,
         ),
       ],
     ),
@@ -138,12 +138,17 @@ mixin $ProjectsRoute on GoRouteData {
   void replace(BuildContext context) => context.replace(location);
 }
 
-mixin $NewProjectRoute on GoRouteData {
-  static NewProjectRoute _fromState(GoRouterState state) =>
-      const NewProjectRoute();
+mixin $ProjectFormRoute on GoRouteData {
+  static ProjectFormRoute _fromState(GoRouterState state) =>
+      ProjectFormRoute(id: state.uri.queryParameters['id']);
+
+  ProjectFormRoute get _self => this as ProjectFormRoute;
 
   @override
-  String get location => GoRouteData.$location('/projects/new');
+  String get location => GoRouteData.$location(
+    '/projects/form',
+    queryParams: {if (_self.id != null) 'id': _self.id},
+  );
 
   @override
   void go(BuildContext context) => context.go(location);
@@ -183,15 +188,16 @@ mixin $ProjectDetailRoute on GoRouteData {
   void replace(BuildContext context) => context.replace(location);
 }
 
-mixin $EditProjectRoute on GoRouteData {
-  static EditProjectRoute _fromState(GoRouterState state) =>
-      EditProjectRoute(id: state.pathParameters['id']!);
+mixin $StudioRoute on GoRouteData {
+  static StudioRoute _fromState(GoRouterState state) =>
+      StudioRoute(id: state.pathParameters['id']!);
 
-  EditProjectRoute get _self => this as EditProjectRoute;
+  StudioRoute get _self => this as StudioRoute;
 
   @override
-  String get location =>
-      GoRouteData.$location('/projects/${Uri.encodeComponent(_self.id)}/edit');
+  String get location => GoRouteData.$location(
+    '/projects/${Uri.encodeComponent(_self.id)}/studio',
+  );
 
   @override
   void go(BuildContext context) => context.go(location);

@@ -17,6 +17,8 @@ fields:
   visibility: ProjectVisibility, default=private
   ### Whether the owner accepts collaborators (invitations and join requests).
   allowContributions: bool, default=false
+  ### Tempo in beats per minute (20–999, up to 2 decimals).
+  bpm: double, default=120.0
   ### Members of the project (excluding the owner).
   members: List<ProjectMember>?, relation(name=project_members)
   ### Creation time.

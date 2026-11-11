@@ -33,6 +33,7 @@ class InboxView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return StudioScaffold(
       title: 'INBOX',
+      onBack: () => const ProjectsRoute().go(context),
       maxWidth: 760,
       body: switch (ref.watch(inboxViewModelProvider)) {
         AsyncData(:final value) => _Inbox(state: value),
@@ -130,7 +131,7 @@ class _Inbox extends ConsumerWidget {
                   InkWell(
                     onTap: () => ProjectDetailRoute(
                       id: r.projectId.toString(),
-                    ).push(context),
+                    ).go(context),
                     child: PersonTile(
                       title: r.projectName,
                       subtitle:

@@ -21,6 +21,8 @@ import 'package:daw_music_maker_client/src/protocol/features/projects/dtos/updat
     as _ig0a8nmn;
 import 'package:daw_music_maker_client/src/protocol/features/projects/dtos/update_project_request.dart'
     as _i4ow79ga;
+import 'package:daw_music_maker_client/src/protocol/features/projects/dtos/update_project_tempo_request.dart'
+    as _if2prfhr;
 import 'package:daw_music_maker_client/src/protocol/features/projects/responses/join_request_response.dart'
     as _i9kix0wi;
 import 'package:daw_music_maker_client/src/protocol/features/projects/responses/project_invitation_response.dart'
@@ -599,6 +601,20 @@ class EndpointProject extends _isc.EndpointRef {
   ) => caller.callServerEndpoint<_ia3hvpml.ProjectResponse>(
     'project',
     'update',
+    {
+      'projectId': projectId,
+      'request': request,
+    },
+  );
+
+  /// Sets the project's tempo (20–999 BPM, rounded to 2 decimals). Owner and
+  /// write members only.
+  _ida.Future<_ia3hvpml.ProjectResponse> updateTempo(
+    _isc.UuidValue projectId,
+    _if2prfhr.UpdateProjectTempoRequest request,
+  ) => caller.callServerEndpoint<_ia3hvpml.ProjectResponse>(
+    'project',
+    'updateTempo',
     {
       'projectId': projectId,
       'request': request,

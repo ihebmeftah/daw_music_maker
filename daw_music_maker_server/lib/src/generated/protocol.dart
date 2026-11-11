@@ -30,6 +30,7 @@ import 'features/projects/dtos/invite_member_request.dart' as _i5w541ev;
 import 'features/projects/dtos/join_project_request.dart' as _i0ycjkhg;
 import 'features/projects/dtos/update_member_role_request.dart' as _i3b4trqk;
 import 'features/projects/dtos/update_project_request.dart' as _irgz1vpl;
+import 'features/projects/dtos/update_project_tempo_request.dart' as _i9oua2ep;
 import 'features/projects/entities/project.dart' as _ie16xf8k;
 import 'features/projects/entities/project_invitation.dart' as _irpprho8;
 import 'features/projects/entities/project_join_request.dart' as _idf344jl;
@@ -51,6 +52,7 @@ export 'features/projects/dtos/invite_member_request.dart';
 export 'features/projects/dtos/join_project_request.dart';
 export 'features/projects/dtos/update_member_role_request.dart';
 export 'features/projects/dtos/update_project_request.dart';
+export 'features/projects/dtos/update_project_tempo_request.dart';
 export 'features/projects/entities/project.dart';
 export 'features/projects/entities/project_invitation.dart';
 export 'features/projects/entities/project_join_request.dart';
@@ -85,6 +87,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_i0ycjkhg.JoinProjectRequest>,
           _is.getType<_i3b4trqk.UpdateMemberRoleRequest>,
           _is.getType<_irgz1vpl.UpdateProjectRequest>,
+          _is.getType<_i9oua2ep.UpdateProjectTempoRequest>,
           _is.getType<_ie16xf8k.Project>,
           _is.getType<_irpprho8.ProjectInvitation>,
           _is.getType<_idf344jl.ProjectJoinRequest>,
@@ -105,6 +108,7 @@ class Protocol extends _is.DatabaseSerializationManager
           _is.getType<_i0ycjkhg.JoinProjectRequest?>,
           _is.getType<_i3b4trqk.UpdateMemberRoleRequest?>,
           _is.getType<_irgz1vpl.UpdateProjectRequest?>,
+          _is.getType<_i9oua2ep.UpdateProjectTempoRequest?>,
           _is.getType<_ie16xf8k.Project?>,
           _is.getType<_irpprho8.ProjectInvitation?>,
           _is.getType<_idf344jl.ProjectJoinRequest?>,
@@ -141,6 +145,7 @@ class Protocol extends _is.DatabaseSerializationManager
           'JoinProjectRequest',
           'UpdateMemberRoleRequest',
           'UpdateProjectRequest',
+          'UpdateProjectTempoRequest',
           'Project',
           'ProjectInvitation',
           'ProjectJoinRequest',
@@ -209,6 +214,13 @@ class Protocol extends _is.DatabaseSerializationManager
           isNullable: false,
           dartType: 'bool',
           columnDefault: 'false',
+        ),
+        _isp.ColumnDefinition(
+          name: 'bpm',
+          columnType: _isp.ColumnType.doublePrecision,
+          isNullable: false,
+          dartType: 'double',
+          columnDefault: '120.0',
         ),
         _isp.ColumnDefinition(
           name: 'createdAt',
@@ -592,6 +604,9 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _irgz1vpl.UpdateProjectRequest) {
       return _irgz1vpl.UpdateProjectRequest.fromJson(data) as T;
     }
+    if (t == _i9oua2ep.UpdateProjectTempoRequest) {
+      return _i9oua2ep.UpdateProjectTempoRequest.fromJson(data) as T;
+    }
     if (t == _ie16xf8k.Project) {
       return _ie16xf8k.Project.fromJson(data) as T;
     }
@@ -662,6 +677,12 @@ class Protocol extends _is.DatabaseSerializationManager
     if (t == _is.getType<_irgz1vpl.UpdateProjectRequest?>()) {
       return (data != null
               ? _irgz1vpl.UpdateProjectRequest.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _is.getType<_i9oua2ep.UpdateProjectTempoRequest?>()) {
+      return (data != null
+              ? _i9oua2ep.UpdateProjectTempoRequest.fromJson(data)
               : null)
           as T;
     }
@@ -800,6 +821,7 @@ class Protocol extends _is.DatabaseSerializationManager
       _i0ycjkhg.JoinProjectRequest => 'JoinProjectRequest',
       _i3b4trqk.UpdateMemberRoleRequest => 'UpdateMemberRoleRequest',
       _irgz1vpl.UpdateProjectRequest => 'UpdateProjectRequest',
+      _i9oua2ep.UpdateProjectTempoRequest => 'UpdateProjectTempoRequest',
       _ie16xf8k.Project => 'Project',
       _irpprho8.ProjectInvitation => 'ProjectInvitation',
       _idf344jl.ProjectJoinRequest => 'ProjectJoinRequest',
@@ -844,6 +866,8 @@ class Protocol extends _is.DatabaseSerializationManager
         return 'UpdateMemberRoleRequest';
       case _irgz1vpl.UpdateProjectRequest():
         return 'UpdateProjectRequest';
+      case _i9oua2ep.UpdateProjectTempoRequest():
+        return 'UpdateProjectTempoRequest';
       case _ie16xf8k.Project():
         return 'Project';
       case _irpprho8.ProjectInvitation():
@@ -916,6 +940,9 @@ class Protocol extends _is.DatabaseSerializationManager
     }
     if (dataClassName == 'UpdateProjectRequest') {
       return deserialize<_irgz1vpl.UpdateProjectRequest>(data['data']);
+    }
+    if (dataClassName == 'UpdateProjectTempoRequest') {
+      return deserialize<_i9oua2ep.UpdateProjectTempoRequest>(data['data']);
     }
     if (dataClassName == 'Project') {
       return deserialize<_ie16xf8k.Project>(data['data']);

@@ -20,17 +20,25 @@ A project is a music session owned by one user, with collaborators.
 | Route                 | View                 | ViewModel                         |
 | --------------------- | -------------------- | --------------------------------- |
 | `/projects`           | `ProjectsView` — tabs Mine / Shared / Discover (search), inbox badge, sign out | `ProjectListViewModel(kind)`, `InboxViewModel` (badge), `ProjectsViewModel` (sign out) |
-| `/projects/new`       | `ProjectFormView`    | `ProjectFormViewModel(null)`      |
+| `/projects/form`      | `ProjectFormView` (create) | `ProjectFormViewModel(null)` |
+| `/projects/form?id=<uuid>` | `ProjectFormView` (edit) | `ProjectFormViewModel(id)` |
 | `/projects/:id`       | `ProjectDetailView`  | `ProjectDetailViewModel(id)`      |
-| `/projects/:id/edit`  | `ProjectFormView`    | `ProjectFormViewModel(id)`        |
 | `/inbox`              | `InboxView`          | `InboxViewModel`                  |
+| `/projects/:id/studio`| `StudioView` (see [studio.md](studio.md)) | `StudioViewModel(id)` |
 
-Invalid UUIDs in the URL show `NotFoundView`. All routes require sign-in (route guard).
+Navigation uses `go` everywhere, so the browser URL always matches the screen (refresh,
+deep links and sharing work). Nested routes give a back button through their parent page
+(`/projects/:id/studio` → `/projects/:id` → `/projects`); the inbox and the edit form use
+an explicit `StudioScaffold.onBack` (inbox → `/projects`, edit → the project page). Each
+project card has a **Studio** button (icon-only on narrow cards) next to opening the
+project page.
+
+Invalid UUIDs (path or `id` query) show `NotFoundView`. `form` is declared before `:id`, so it is never read as a project id. All routes require sign-in (route guard).
 
 Server endpoints (`requireLogin`, caller id only from the session):
 
 - `client.project` (`ProjectEndpoint`): `create`, `getById`, `listMine`, `listShared`,
-  `discover(query?)`, `update`, `delete`. Lists are paginated (`limit` ≤ 50, default 20,
+  `discover(query?)`, `update`, `updateTempo` (see [studio.md](studio.md)), `delete`. Lists are paginated (`limit` ≤ 50, default 20,
   `offset`) and return `ProjectPageResponse { items, hasMore }`.
 - `client.projectCollaboration` (`ProjectCollaborationEndpoint`): `listMembers`,
   `updateMemberRole`, `removeMember`, `leave`, `invite`, `listProjectInvitations`,
@@ -49,7 +57,7 @@ Serverpod generates `ProjectRepository` etc. for the ORM). Pure rules live in
 Entities (`serverOnly`, UUID v7 ids, `createdAt`/`updatedAt`):
 
 - `Project` (`project`): `ownerId`, `name`, `description`, `genres: List<String>`,
-  `visibility`, `allowContributions`.
+  `visibility`, `allowContributions`, `bpm` (tempo, see [studio.md](studio.md)).
 - `ProjectMember` (`project_member`): `projectId` (cascade), `userId`, `role`; unique
   `(projectId, userId)`. The owner is **not** a member row.
 - `ProjectInvitation` (`project_invitation`): `projectId` (cascade), `email` (normalized),
@@ -128,7 +136,9 @@ Flutter (`daw_music_maker_flutter/test/`):
 - Widget: `projects_view_test`, `project_form_view_test`, `project_detail_view_test`,
   `inbox_view_test` drive the real router with mocked repositories (create/edit flows,
   server field errors, invite dialog, join requests, member menu, delete/leave confirms,
-  visitor join flow, not-found ids, phone layout). Shared widgets (`Panel`,
+  visitor join flow, not-found ids, phone layout). `app/router/navigation_urls_test.dart`
+  asserts the URL after every navigation (card, card Studio button, new project, inbox and
+  back, studio, edit and back). Shared widgets (`Panel`,
   `StudioScaffold`, `DawSegmentedControl`, `TagChip`, `EmptyState`, `ErrorView`,
   `LoadingView`, `NotFoundView`, `BrandMark`, `showConfirmDialog`) and feature widgets
   (`GenreTagsField`, `ProjectCard`) have their own tests.

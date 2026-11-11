@@ -103,4 +103,17 @@ abstract final class Validators {
     }
     return null;
   }
+
+  /// Validates a typed tempo (20–999 BPM, decimals allowed).
+  static String? bpm(String? value) {
+    final text = value?.trim().replaceAll(',', '.') ?? '';
+    if (text.isEmpty) return 'Enter a tempo';
+    final bpm = double.tryParse(text);
+    if (bpm == null || !bpm.isFinite) return 'Enter a number';
+    if (bpm < ValidationRules.bpmMin || bpm > ValidationRules.bpmMax) {
+      return '${ValidationRules.bpmMin.toInt()}–'
+          '${ValidationRules.bpmMax.toInt()} BPM';
+    }
+    return null;
+  }
 }

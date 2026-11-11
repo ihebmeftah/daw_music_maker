@@ -27,6 +27,7 @@ abstract class ProjectResponse
     required this.genres,
     required this.visibility,
     required this.allowContributions,
+    required this.bpm,
     required this.access,
     required this.memberCount,
     required this.hasPendingJoinRequest,
@@ -42,6 +43,7 @@ abstract class ProjectResponse
     required List<String> genres,
     required _iih43j5r.ProjectVisibility visibility,
     required bool allowContributions,
+    required double bpm,
     required _ij4p9moa.ProjectAccess access,
     required int memberCount,
     required bool hasPendingJoinRequest,
@@ -66,6 +68,7 @@ abstract class ProjectResponse
       allowContributions: _is.BoolJsonExtension.fromJson(
         jsonSerialization['allowContributions'],
       ),
+      bpm: (jsonSerialization['bpm'] as num).toDouble(),
       access: _ij4p9moa.ProjectAccess.fromJson(
         (jsonSerialization['access'] as String),
       ),
@@ -103,6 +106,9 @@ abstract class ProjectResponse
   /// Whether collaborators can be invited / request to join.
   bool allowContributions;
 
+  /// Tempo in beats per minute.
+  double bpm;
+
   /// The caller's relationship to the project.
   _ij4p9moa.ProjectAccess access;
 
@@ -129,6 +135,7 @@ abstract class ProjectResponse
     List<String>? genres,
     _iih43j5r.ProjectVisibility? visibility,
     bool? allowContributions,
+    double? bpm,
     _ij4p9moa.ProjectAccess? access,
     int? memberCount,
     bool? hasPendingJoinRequest,
@@ -146,6 +153,7 @@ abstract class ProjectResponse
       'genres': genres.toJson(),
       'visibility': visibility.toJson(),
       'allowContributions': allowContributions,
+      'bpm': bpm,
       'access': access.toJson(),
       'memberCount': memberCount,
       'hasPendingJoinRequest': hasPendingJoinRequest,
@@ -165,6 +173,7 @@ abstract class ProjectResponse
       'genres': genres.toJson(),
       'visibility': visibility.toJson(),
       'allowContributions': allowContributions,
+      'bpm': bpm,
       'access': access.toJson(),
       'memberCount': memberCount,
       'hasPendingJoinRequest': hasPendingJoinRequest,
@@ -188,6 +197,7 @@ class _ProjectResponseImpl extends ProjectResponse {
     required List<String> genres,
     required _iih43j5r.ProjectVisibility visibility,
     required bool allowContributions,
+    required double bpm,
     required _ij4p9moa.ProjectAccess access,
     required int memberCount,
     required bool hasPendingJoinRequest,
@@ -201,6 +211,7 @@ class _ProjectResponseImpl extends ProjectResponse {
          genres: genres,
          visibility: visibility,
          allowContributions: allowContributions,
+         bpm: bpm,
          access: access,
          memberCount: memberCount,
          hasPendingJoinRequest: hasPendingJoinRequest,
@@ -220,6 +231,7 @@ class _ProjectResponseImpl extends ProjectResponse {
     List<String>? genres,
     _iih43j5r.ProjectVisibility? visibility,
     bool? allowContributions,
+    double? bpm,
     _ij4p9moa.ProjectAccess? access,
     int? memberCount,
     bool? hasPendingJoinRequest,
@@ -234,6 +246,7 @@ class _ProjectResponseImpl extends ProjectResponse {
       genres: genres ?? this.genres.map((e0) => e0).toList(),
       visibility: visibility ?? this.visibility,
       allowContributions: allowContributions ?? this.allowContributions,
+      bpm: bpm ?? this.bpm,
       access: access ?? this.access,
       memberCount: memberCount ?? this.memberCount,
       hasPendingJoinRequest:

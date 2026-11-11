@@ -117,7 +117,7 @@ class _ProjectsViewState extends ConsumerState<ProjectsView> {
                       key: ProjectsView.newProjectKey,
                       label: narrow ? 'New' : 'New project',
                       icon: Icons.add_rounded,
-                      onPressed: () => const NewProjectRoute().push(context),
+                      onPressed: () => const ProjectFormRoute().go(context),
                     ),
                   ),
                 ],
@@ -191,7 +191,7 @@ class _InboxButton extends ConsumerWidget {
     return IconButton(
       key: ProjectsView.inboxKey,
       tooltip: 'Inbox',
-      onPressed: () => const InboxRoute().push(context),
+      onPressed: () => const InboxRoute().go(context),
       icon: Badge(
         isLabelVisible: count > 0,
         backgroundColor: context.dawColors.record,

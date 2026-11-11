@@ -1,0 +1,350 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
+import '../../../../core/theme/app_radii.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/theme_context.dart';
+import '../../../../shared/widgets/buttons/theme_mode_toggle.dart';
+import '../../../../shared/widgets/feedback/equalizer_loader.dart';
+import '../state/studio_state.dart';
+import 'beat_lights.dart';
+import 'bpm_display.dart';
+import 'play_button.dart';
+
+/// DAW-style transport bar (the studio has no app bar): back to the
+/// project, play/pause, metronome sound on/off, the tempo LCD with nudge
+/// arrows, beat LEDs, tap tempo, the save status and the theme toggle.
+///
+/// Controls scroll horizontally when space runs out; the status chip and
+/// theme toggle stay pinned (below the controls on phones).
+class TransportToolbar extends StatelessWidget {
+  /// Creates the toolbar.
+  const TransportToolbar({
+    super.key,
+    required this.state,
+    required this.beat,
+    required this.onBack,
+    required this.onTogglePlay,
+    required this.onToggleMute,
+    required this.onAdjust,
+    required this.onCommit,
+    required this.onNudge,
+    required this.onTap,
+    required this.onSubmitted,
+  });
+
+  /// Key of the "back to project" button.
+  static const backKey = Key('studio.back');
+
+  /// Key of the metronome sound toggle.
+  static const muteKey = Key('studio.mute');
+
+  /// Key of the play/pause button.
+  static const playKey = Key('studio.play');
+
+  /// Key of the +1 arrow.
+  static const upKey = Key('studio.up');
+
+  /// Key of the −1 arrow.
+  static const downKey = Key('studio.down');
+
+  /// Key of the tap tempo button.
+  static const tapKey = Key('studio.tap');
+
+  /// Studio state.
+  final StudioState state;
+
+  /// Current beat (null when stopped).
+  final ValueListenable<int?> beat;
+
+  /// Back to the project page.
+  final VoidCallback onBack;
+
+  /// Play / pause.
+  final VoidCallback onTogglePlay;
+
+  /// Metronome sound on / off.
+  final VoidCallback onToggleMute;
+
+  /// Live tempo change (hold + scroll / drag).
+  final ValueChanged<double> onAdjust;
+
+  /// Persist after adjusting.
+  final VoidCallback onCommit;
+
+  /// ±1 arrows.
+  final ValueChanged<double> onNudge;
+
+  /// Tap tempo.
+  final VoidCallback onTap;
+
+  /// Exact value typed.
+  final ValueChanged<double> onSubmitted;
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = state.canEdit;
+    final items = <Widget>[
+      _BackToProject(name: state.project.name, onBack: onBack),
+      const _Divider(),
+      PlayButton(
+        key: playKey,
+        size: AppSpacing.xxl + AppSpacing.xs,
+        isPlaying: state.isPlaying,
+        onPressed: onTogglePlay,
+      ),
+      const SizedBox(width: AppSpacing.sm),
+      _SoundToggle(muted: state.isMuted, onToggle: onToggleMute),
+      const _Divider(),
+      BpmDisplay(
+        bpm: state.bpm,
+        enabled: enabled,
+        onAdjust: onAdjust,
+        onCommit: onCommit,
+        onSubmitted: onSubmitted,
+      ),
+      const SizedBox(width: AppSpacing.xs),
+      _NudgeArrows(enabled: enabled, onNudge: onNudge),
+      const _Divider(),
+      BeatLights(beat: beat, compact: true),
+      const _Divider(),
+      _TapButton(enabled: enabled, onTap: onTap),
+    ];
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.smd,
+      ),
+      decoration: BoxDecoration(
+        color: context.dawColors.panel,
+        borderRadius: AppRadii.lgAll,
+        border: Border.all(color: context.dawColors.panelBorder),
+        boxShadow: [
+          BoxShadow(
+            color: context.dawColors.shadow,
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // The controls scroll sideways if they don't fit; the status and
+          // theme toggle stay pinned, so the bar never overflows.
+          final controls = SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(children: items),
+          );
+          if (constraints.maxWidth >= 600) {
+            return Row(
+              children: [
+                Expanded(child: controls),
+                const SizedBox(width: AppSpacing.sm),
+                SaveStatusChip(state: state),
+                const SizedBox(width: AppSpacing.xs),
+                const ThemeModeToggle(),
+              ],
+            );
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              controls,
+              const SizedBox(height: AppSpacing.sm),
+              Row(
+                children: [
+                  SaveStatusChip(state: state),
+                  const Spacer(),
+                  const ThemeModeToggle(),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _Divider extends StatelessWidget {
+  const _Divider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1,
+      height: AppSpacing.xl,
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      color: context.colors.outlineVariant,
+    );
+  }
+}
+
+class _NudgeArrows extends StatelessWidget {
+  const _NudgeArrows({required this.enabled, required this.onNudge});
+
+  final bool enabled;
+  final ValueChanged<double> onNudge;
+
+  @override
+  Widget build(BuildContext context) {
+    const constraints = BoxConstraints.tightFor(
+      width: AppSpacing.xl,
+      height: AppSpacing.lg,
+    );
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          key: TransportToolbar.upKey,
+          tooltip: '+1 BPM (↑)',
+          constraints: constraints,
+          padding: EdgeInsets.zero,
+          iconSize: 20,
+          onPressed: enabled ? () => onNudge(1) : null,
+          icon: const Icon(Icons.keyboard_arrow_up_rounded),
+        ),
+        IconButton(
+          key: TransportToolbar.downKey,
+          tooltip: '−1 BPM (↓)',
+          constraints: constraints,
+          padding: EdgeInsets.zero,
+          iconSize: 20,
+          onPressed: enabled ? () => onNudge(-1) : null,
+          icon: const Icon(Icons.keyboard_arrow_down_rounded),
+        ),
+      ],
+    );
+  }
+}
+
+class _TapButton extends StatelessWidget {
+  const _TapButton({required this.enabled, required this.onTap});
+
+  final bool enabled;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton.outlined(
+      key: TransportToolbar.tapKey,
+      tooltip: 'Tap tempo',
+      onPressed: enabled ? onTap : null,
+      icon: const Icon(Icons.touch_app_outlined),
+    );
+  }
+}
+
+/// Speaker toggle: selected (sound on) or not (muted).
+class _SoundToggle extends StatelessWidget {
+  const _SoundToggle({required this.muted, required this.onToggle});
+
+  final bool muted;
+  final VoidCallback onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton.filledTonal(
+      key: TransportToolbar.muteKey,
+      isSelected: !muted,
+      tooltip: muted ? 'Unmute metronome (M)' : 'Mute metronome (M)',
+      onPressed: onToggle,
+      icon: Icon(Icons.volume_off_rounded, color: context.colors.error),
+      selectedIcon: const Icon(Icons.volume_up_rounded),
+    );
+  }
+}
+
+/// Back arrow + project name, returning to the project page.
+class _BackToProject extends StatelessWidget {
+  const _BackToProject({required this.name, required this.onBack});
+
+  final String name;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          key: TransportToolbar.backKey,
+          tooltip: 'Back to project',
+          onPressed: onBack,
+          icon: const Icon(Icons.arrow_back_rounded),
+        ),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 160),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'STUDIO',
+                style: context.textStyles.eyebrow.copyWith(
+                  fontSize: 9,
+                  color: context.colors.primary,
+                ),
+              ),
+              Text(
+                name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.textStyles.title,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// "SAVED" / saving equalizer / "UNSAVED" / "READ ONLY" chip.
+class SaveStatusChip extends StatelessWidget {
+  /// Creates the chip for [state].
+  const SaveStatusChip({super.key, required this.state});
+
+  /// Studio state.
+  final StudioState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final daw = context.dawColors;
+    final (label, color) = !state.canEdit
+        ? ('READ ONLY', colors.onSurfaceVariant)
+        : state.isSaving
+        ? ('SAVING', colors.primary)
+        : state.isDirty
+        ? ('UNSAVED', colors.error)
+        : ('SAVED', daw.meterLow);
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xxs + 1,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: AppRadii.smAll,
+        border: Border.all(color: color.withValues(alpha: 0.6)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (state.isSaving) ...[
+            EqualizerLoader(color: color, bars: 3, height: 10),
+            const SizedBox(width: AppSpacing.xs),
+          ],
+          Text(
+            label,
+            style: context.textStyles.eyebrow.copyWith(
+              fontSize: 10,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

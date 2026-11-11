@@ -229,4 +229,26 @@ void main() {
       );
     });
   });
+
+  group('Given ProjectRules.validateBpm', () {
+    test('when within range, then rounds to 2 decimals', () {
+      expect(ProjectRules.validateBpm(128.456), 128.46);
+      expect(ProjectRules.validateBpm(20), 20);
+      expect(ProjectRules.validateBpm(999), 999);
+    });
+
+    test('when out of range or not finite, then throws validation', () {
+      for (final bpm in [19.99, 999.01, -1.0, double.nan, double.infinity]) {
+        expect(
+          () => ProjectRules.validateBpm(bpm),
+          throwsA(
+            isA<AppException>()
+                .having((e) => e.code, 'code', ErrorCode.validation)
+                .having((e) => e.fieldErrors?['bpm'], 'bpm error', isNotNull),
+          ),
+          reason: '$bpm',
+        );
+      }
+    });
+  });
 }

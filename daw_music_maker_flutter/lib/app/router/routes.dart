@@ -10,6 +10,7 @@ import '../../features/projects/presentation/views/inbox_view.dart';
 import '../../features/projects/presentation/views/project_detail_view.dart';
 import '../../features/projects/presentation/views/project_form_view.dart';
 import '../../features/projects/presentation/views/projects_view.dart';
+import '../../features/studio/presentation/views/studio_view.dart';
 import '../../shared/widgets/feedback/not_found_view.dart';
 
 part 'routes.g.dart';
@@ -80,14 +81,15 @@ UuidValue? _parseId(String id) {
 }
 
 /// `/projects` — the signed-in landing screen (lists), with nested
-/// `new`, `:id` and `:id/edit` routes.
+/// `form`, `:id` and `:id/studio` routes.
 @TypedGoRoute<ProjectsRoute>(
   path: '/projects',
   routes: [
-    TypedGoRoute<NewProjectRoute>(path: 'new'),
+    // Declared before ':id' so `/projects/form` is never read as an id.
+    TypedGoRoute<ProjectFormRoute>(path: 'form'),
     TypedGoRoute<ProjectDetailRoute>(
       path: ':id',
-      routes: [TypedGoRoute<EditProjectRoute>(path: 'edit')],
+      routes: [TypedGoRoute<StudioRoute>(path: 'studio')],
     ),
   ],
 )
@@ -100,14 +102,26 @@ class ProjectsRoute extends GoRouteData with $ProjectsRoute {
       _fadePage(state, const ProjectsView());
 }
 
-/// `/projects/new` — create a project.
-class NewProjectRoute extends GoRouteData with $NewProjectRoute {
-  /// Creates the route.
-  const NewProjectRoute();
+/// `/projects/form` — create a project; `/projects/form?id=<uuid>` — edit
+/// the project [id]. A malformed [id] shows the not-found screen.
+class ProjectFormRoute extends GoRouteData with $ProjectFormRoute {
+  /// Creates the route; pass [id] to edit an existing project.
+  const ProjectFormRoute({this.id});
+
+  /// Id of the project to edit (query parameter), or null to create one.
+  final String? id;
 
   @override
-  Page<void> buildPage(BuildContext context, GoRouterState state) =>
-      _fadePage(state, const ProjectFormView());
+  Page<void> buildPage(BuildContext context, GoRouterState state) {
+    if (id == null) return _fadePage(state, const ProjectFormView());
+    final projectId = _parseId(id!);
+    return _fadePage(
+      state,
+      projectId == null
+          ? const NotFoundView()
+          : ProjectFormView(projectId: projectId),
+    );
+  }
 }
 
 /// `/projects/:id` — project detail. [id] must be a UUID.
@@ -130,10 +144,10 @@ class ProjectDetailRoute extends GoRouteData with $ProjectDetailRoute {
   }
 }
 
-/// `/projects/:id/edit` — edit a project. [id] must be a UUID.
-class EditProjectRoute extends GoRouteData with $EditProjectRoute {
+/// `/projects/:id/studio` — the project's studio (tempo + metronome).
+class StudioRoute extends GoRouteData with $StudioRoute {
   /// Creates the route for the project [id].
-  const EditProjectRoute({required this.id});
+  const StudioRoute({required this.id});
 
   /// Project id (UUID string).
   final String id;
@@ -145,7 +159,7 @@ class EditProjectRoute extends GoRouteData with $EditProjectRoute {
       state,
       projectId == null
           ? const NotFoundView()
-          : ProjectFormView(projectId: projectId),
+          : StudioView(projectId: projectId),
     );
   }
 }

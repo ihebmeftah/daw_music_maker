@@ -12,13 +12,25 @@ import 'access_badge.dart';
 /// description, genres and member count. Lifts and glows on hover.
 class ProjectCard extends StatefulWidget {
   /// Creates a card for [project].
-  const ProjectCard({super.key, required this.project, required this.onTap});
+  const ProjectCard({
+    super.key,
+    required this.project,
+    required this.onTap,
+    required this.onOpenStudio,
+  });
+
+  /// Key of the "Studio" button of the card for [projectId].
+  static Key studioKey(UuidValue projectId) =>
+      Key('projectCard.studio.$projectId');
 
   /// The project.
   final ProjectResponse project;
 
-  /// Opens the project.
+  /// Opens the project's page.
   final VoidCallback onTap;
+
+  /// Opens the project's studio.
+  final VoidCallback onOpenStudio;
 
   @override
   State<ProjectCard> createState() => _ProjectCardState();
@@ -120,7 +132,10 @@ class _ProjectCardState extends State<ProjectCard> {
                               ],
                             ),
                           const Spacer(),
-                          _CardFooter(project: project),
+                          _CardFooter(
+                            project: project,
+                            onOpenStudio: widget.onOpenStudio,
+                          ),
                         ],
                       ),
                     ),
@@ -136,43 +151,79 @@ class _ProjectCardState extends State<ProjectCard> {
 }
 
 class _CardFooter extends StatelessWidget {
-  const _CardFooter({required this.project});
+  const _CardFooter({required this.project, required this.onOpenStudio});
 
   final ProjectResponse project;
+  final VoidCallback onOpenStudio;
 
   @override
   Widget build(BuildContext context) {
     final styles = context.textStyles;
     final muted = context.colors.onSurfaceVariant;
-    return Row(
-      children: [
-        StatusBadge.visibility(context, project.visibility),
-        const SizedBox(width: AppSpacing.sm),
-        Icon(Icons.group_outlined, size: 14, color: muted),
-        const SizedBox(width: AppSpacing.xs),
-        Text(
-          '${project.memberCount + 1}',
-          style: styles.mono.copyWith(fontSize: 12, color: muted),
-        ),
-        const Spacer(),
-        if (project.hasPendingJoinRequest)
-          Text(
-            'REQUESTED',
-            style: styles.eyebrow.copyWith(
-              fontSize: 10,
-              color: context.colors.primary,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Narrow cards (phones) show an icon-only studio button.
+        final roomy = constraints.maxWidth >= 340;
+        return Row(
+          children: [
+            StatusBadge.visibility(context, project.visibility),
+            const SizedBox(width: AppSpacing.sm),
+            Icon(Icons.group_outlined, size: 14, color: muted),
+            const SizedBox(width: AppSpacing.xs),
+            Text(
+              '${project.memberCount + 1}',
+              style: styles.mono.copyWith(fontSize: 12, color: muted),
             ),
-          )
-        else if (project.allowContributions)
-          Tooltip(
-            message: 'Open to contributors',
-            child: Icon(
-              Icons.handshake_outlined,
-              size: 16,
-              color: context.dawColors.meterLow,
-            ),
-          ),
-      ],
+            const Spacer(),
+            if (project.hasPendingJoinRequest)
+              Flexible(
+                child: Text(
+                  'REQUESTED',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: styles.eyebrow.copyWith(
+                    fontSize: 10,
+                    color: context.colors.primary,
+                  ),
+                ),
+              )
+            else if (project.allowContributions)
+              Tooltip(
+                message: 'Open to contributors',
+                child: Icon(
+                  Icons.handshake_outlined,
+                  size: 16,
+                  color: context.dawColors.meterLow,
+                ),
+              ),
+            const SizedBox(width: AppSpacing.xs),
+            if (roomy)
+              TextButton.icon(
+                key: ProjectCard.studioKey(project.id),
+                onPressed: onOpenStudio,
+                style: TextButton.styleFrom(
+                  foregroundColor: context.colors.primary,
+                  textStyle: styles.eyebrow,
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                  ),
+                ),
+                icon: const Icon(Icons.graphic_eq_rounded, size: 16),
+                label: const Text('STUDIO'),
+              )
+            else
+              IconButton(
+                key: ProjectCard.studioKey(project.id),
+                tooltip: 'Open studio',
+                visualDensity: VisualDensity.compact,
+                color: context.colors.primary,
+                onPressed: onOpenStudio,
+                icon: const Icon(Icons.graphic_eq_rounded, size: 18),
+              ),
+          ],
+        );
+      },
     );
   }
 }

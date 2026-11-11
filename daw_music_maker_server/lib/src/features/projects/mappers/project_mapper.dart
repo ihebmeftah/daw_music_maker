@@ -15,6 +15,7 @@ extension ProjectMapper on Project {
     genres: List.of(genres),
     visibility: visibility,
     allowContributions: allowContributions,
+    bpm: bpm,
     access: access,
     memberCount: memberCount,
     hasPendingJoinRequest: hasPendingJoinRequest,

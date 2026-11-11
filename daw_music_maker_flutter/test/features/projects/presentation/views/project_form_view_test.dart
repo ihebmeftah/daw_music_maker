@@ -44,7 +44,7 @@ void main() {
     testWidgets('when saving without a name, then shows a field error', (
       tester,
     ) async {
-      await open(tester, '/projects/new');
+      await open(tester, '/projects/form');
 
       await tester.ensureVisible(find.byKey(ProjectFormView.saveKey));
       await tester.tap(find.byKey(ProjectFormView.saveKey));
@@ -57,7 +57,7 @@ void main() {
     testWidgets('when adding a duplicate genre, then rejects it', (
       tester,
     ) async {
-      await open(tester, '/projects/new');
+      await open(tester, '/projects/form');
 
       await addGenre(tester, 'Techno');
       await addGenre(tester, 'techno');
@@ -78,7 +78,7 @@ void main() {
         when(
           () => projects.getById(created.id),
         ).thenAnswer((_) async => created);
-        await open(tester, '/projects/new');
+        await open(tester, '/projects/form');
 
         await tester.enterText(
           find.byKey(ProjectFormView.nameFieldKey),
@@ -118,7 +118,7 @@ void main() {
           fieldErrors: {'name': 'Name is taken by the server'},
         ),
       );
-      await open(tester, '/projects/new');
+      await open(tester, '/projects/form');
 
       await tester.enterText(find.byKey(ProjectFormView.nameFieldKey), 'Dup');
       await tester.ensureVisible(find.byKey(ProjectFormView.saveKey));
@@ -143,7 +143,7 @@ void main() {
         when(
           () => projects.update(any(), any()),
         ).thenAnswer((_) async => project);
-        await open(tester, '/projects/${project.id}/edit');
+        await open(tester, '/projects/form?id=${project.id}');
 
         expect(find.text('Old Name'), findsOneWidget);
         expect(find.text('#dub'), findsOneWidget);
@@ -171,7 +171,7 @@ void main() {
     ) async {
       final project = testProject(access: ProjectAccess.write);
       when(() => projects.getById(project.id)).thenAnswer((_) async => project);
-      await open(tester, '/projects/${project.id}/edit');
+      await open(tester, '/projects/form?id=${project.id}');
 
       expect(
         find.text('Only the owner can change sharing settings.'),
@@ -182,7 +182,7 @@ void main() {
     testWidgets('when the id in the URL is not a UUID, then shows not found', (
       tester,
     ) async {
-      await open(tester, '/projects/not-a-uuid/edit');
+      await open(tester, '/projects/form?id=not-a-uuid');
 
       expect(find.text('Nothing here'), findsOneWidget);
     });
