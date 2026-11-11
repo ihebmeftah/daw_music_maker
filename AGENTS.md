@@ -54,9 +54,10 @@ Summary:
 
 Keep this list up to date (one line each, link to `docs/features/<feature>.md`).
 
-- _auth_ — email sign-in via Serverpod auth (scaffolded)
-- _(none built yet)_ — planned: projects, channel rack / step sequencer, piano roll,
-  playlist / arrangement, mixer, sample browser, transport
+- [auth](docs/features/auth.md) — email sign-in, registration and forgot-password flows
+  (Serverpod email provider), animated wave UI, dark/light mode; lands on `/projects`
+- _planned_: projects (`/projects` is a placeholder), channel rack / step sequencer,
+  piano roll, playlist / arrangement, mixer, sample browser, transport
 
 ## Serverpod runner & MCP
 
