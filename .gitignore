@@ -20,3 +20,5 @@ pubspec_overrides.yaml
 
 # Serverpod Cloud CLI
 .scloud/
+# Widget Preview related
+.widget_preview/
