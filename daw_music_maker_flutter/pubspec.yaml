@@ -44,6 +44,8 @@ dependencies:
   serverpod_auth_idp_client: 4.1.1
   audioplayers: ^6.8.1
   clock: ^1.1.3
+  desktop_drop: ^0.8.0
+  file_picker: ^13.0.0
 
 dev_dependencies:
   # Used for agents to drive the app through the Dart MCP
