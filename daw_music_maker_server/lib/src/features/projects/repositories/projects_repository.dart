@@ -22,8 +22,11 @@ class ProjectsRepository {
   }
 
   /// Inserts [project].
-  Future<Project> insert(Session session, Project project) =>
-      Project.db.insertRow(session, project);
+  Future<Project> insert(
+    Session session,
+    Project project, {
+    Transaction? transaction,
+  }) => Project.db.insertRow(session, project, transaction: transaction);
 
   /// Updates [project].
   Future<Project> update(

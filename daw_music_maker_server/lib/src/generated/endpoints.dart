@@ -10,6 +10,20 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:daw_music_maker_server/src/generated/features/channels/dtos/chop_channel_request.dart'
+    as _itu3v1bi;
+import 'package:daw_music_maker_server/src/generated/features/channels/dtos/create_channel_request.dart'
+    as _irlycisz;
+import 'package:daw_music_maker_server/src/generated/features/channels/dtos/update_channel_request.dart'
+    as _ixxw5pq0;
+import 'package:daw_music_maker_server/src/generated/features/patterns/dtos/create_pattern_request.dart'
+    as _imwjcbyb;
+import 'package:daw_music_maker_server/src/generated/features/patterns/dtos/save_pattern_notes_request.dart'
+    as _iiba76m5;
+import 'package:daw_music_maker_server/src/generated/features/patterns/dtos/update_pattern_request.dart'
+    as _ii8qu4lm;
+import 'package:daw_music_maker_server/src/generated/features/playlist/dtos/save_playlist_request.dart'
+    as _i0cr8q5v;
 import 'package:daw_music_maker_server/src/generated/features/projects/dtos/create_project_request.dart'
     as _i81edeh2;
 import 'package:daw_music_maker_server/src/generated/features/projects/dtos/invite_member_request.dart'
@@ -22,6 +36,10 @@ import 'package:daw_music_maker_server/src/generated/features/projects/dtos/upda
     as _ido95wja;
 import 'package:daw_music_maker_server/src/generated/features/projects/dtos/update_project_tempo_request.dart'
     as _ipesbjbp;
+import 'package:daw_music_maker_server/src/generated/features/samples/dtos/finish_sample_upload_request.dart'
+    as _islo2yap;
+import 'package:daw_music_maker_server/src/generated/features/samples/dtos/request_sample_upload_request.dart'
+    as _inm8vvkw;
 import 'package:serverpod/serverpod.dart' as _is;
 import 'package:serverpod_auth_core_server/serverpod_auth_core_server.dart'
     as _iacs;
@@ -29,9 +47,13 @@ import 'package:serverpod_auth_idp_server/serverpod_auth_idp_server.dart'
     as _iais;
 import '../auth/email_idp_endpoint.dart' as _iuc1hd5t;
 import '../auth/jwt_refresh_endpoint.dart' as _inwq3ztq;
+import '../features/channels/endpoints/channel_endpoint.dart' as _ip0u7shr;
+import '../features/patterns/endpoints/pattern_endpoint.dart' as _id08qiz9;
+import '../features/playlist/endpoints/playlist_endpoint.dart' as _iac13vr7;
 import '../features/projects/endpoints/project_collaboration_endpoint.dart'
     as _ipatzhet;
 import '../features/projects/endpoints/project_endpoint.dart' as _inmisbug;
+import '../features/samples/endpoints/sample_endpoint.dart' as _ifo0hjx7;
 import '../greetings/greeting_endpoint.dart' as _il624ik7;
 
 class Endpoints extends _is.EndpointDispatch {
@@ -50,6 +72,24 @@ class Endpoints extends _is.EndpointDispatch {
           'jwtRefresh',
           null,
         ),
+      'channel': _ip0u7shr.ChannelEndpoint()
+        ..initialize(
+          server,
+          'channel',
+          null,
+        ),
+      'pattern': _id08qiz9.PatternEndpoint()
+        ..initialize(
+          server,
+          'pattern',
+          null,
+        ),
+      'playlist': _iac13vr7.PlaylistEndpoint()
+        ..initialize(
+          server,
+          'playlist',
+          null,
+        ),
       'projectCollaboration': _ipatzhet.ProjectCollaborationEndpoint()
         ..initialize(
           server,
@@ -60,6 +100,12 @@ class Endpoints extends _is.EndpointDispatch {
         ..initialize(
           server,
           'project',
+          null,
+        ),
+      'sample': _ifo0hjx7.SampleEndpoint()
+        ..initialize(
+          server,
+          'sample',
           null,
         ),
       'greeting': _il624ik7.GreetingEndpoint()
@@ -360,6 +406,320 @@ class Endpoints extends _is.EndpointDispatch {
                         session,
                         refreshToken: params['refreshToken'],
                       ),
+        ),
+      },
+    );
+    connectors['channel'] = _is.EndpointConnector(
+      name: 'channel',
+      endpoint: endpoints['channel']!,
+      methodConnectors: {
+        'list': _is.MethodConnector(
+          name: 'list',
+          params: {
+            'projectId': _is.ParameterDescription(
+              name: 'projectId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['channel'] as _ip0u7shr.ChannelEndpoint).list(
+                    session,
+                    params['projectId'],
+                  ),
+        ),
+        'create': _is.MethodConnector(
+          name: 'create',
+          params: {
+            'request': _is.ParameterDescription(
+              name: 'request',
+              type: _is.getType<_irlycisz.CreateChannelRequest>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['channel'] as _ip0u7shr.ChannelEndpoint).create(
+                    session,
+                    params['request'],
+                  ),
+        ),
+        'update': _is.MethodConnector(
+          name: 'update',
+          params: {
+            'channelId': _is.ParameterDescription(
+              name: 'channelId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+            'request': _is.ParameterDescription(
+              name: 'request',
+              type: _is.getType<_ixxw5pq0.UpdateChannelRequest>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['channel'] as _ip0u7shr.ChannelEndpoint).update(
+                    session,
+                    params['channelId'],
+                    params['request'],
+                  ),
+        ),
+        'chop': _is.MethodConnector(
+          name: 'chop',
+          params: {
+            'channelId': _is.ParameterDescription(
+              name: 'channelId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+            'request': _is.ParameterDescription(
+              name: 'request',
+              type: _is.getType<_itu3v1bi.ChopChannelRequest>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['channel'] as _ip0u7shr.ChannelEndpoint).chop(
+                    session,
+                    params['channelId'],
+                    params['request'],
+                  ),
+        ),
+        'delete': _is.MethodConnector(
+          name: 'delete',
+          params: {
+            'channelId': _is.ParameterDescription(
+              name: 'channelId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['channel'] as _ip0u7shr.ChannelEndpoint).delete(
+                    session,
+                    params['channelId'],
+                  ),
+        ),
+      },
+    );
+    connectors['pattern'] = _is.EndpointConnector(
+      name: 'pattern',
+      endpoint: endpoints['pattern']!,
+      methodConnectors: {
+        'list': _is.MethodConnector(
+          name: 'list',
+          params: {
+            'projectId': _is.ParameterDescription(
+              name: 'projectId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['pattern'] as _id08qiz9.PatternEndpoint).list(
+                    session,
+                    params['projectId'],
+                  ),
+        ),
+        'create': _is.MethodConnector(
+          name: 'create',
+          params: {
+            'request': _is.ParameterDescription(
+              name: 'request',
+              type: _is.getType<_imwjcbyb.CreatePatternRequest>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['pattern'] as _id08qiz9.PatternEndpoint).create(
+                    session,
+                    params['request'],
+                  ),
+        ),
+        'update': _is.MethodConnector(
+          name: 'update',
+          params: {
+            'patternId': _is.ParameterDescription(
+              name: 'patternId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+            'request': _is.ParameterDescription(
+              name: 'request',
+              type: _is.getType<_ii8qu4lm.UpdatePatternRequest>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['pattern'] as _id08qiz9.PatternEndpoint).update(
+                    session,
+                    params['patternId'],
+                    params['request'],
+                  ),
+        ),
+        'clone': _is.MethodConnector(
+          name: 'clone',
+          params: {
+            'patternId': _is.ParameterDescription(
+              name: 'patternId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['pattern'] as _id08qiz9.PatternEndpoint).clone(
+                    session,
+                    params['patternId'],
+                  ),
+        ),
+        'listNotes': _is.MethodConnector(
+          name: 'listNotes',
+          params: {
+            'patternId': _is.ParameterDescription(
+              name: 'patternId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['pattern'] as _id08qiz9.PatternEndpoint).listNotes(
+                    session,
+                    params['patternId'],
+                  ),
+        ),
+        'saveNotes': _is.MethodConnector(
+          name: 'saveNotes',
+          params: {
+            'patternId': _is.ParameterDescription(
+              name: 'patternId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+            'request': _is.ParameterDescription(
+              name: 'request',
+              type: _is.getType<_iiba76m5.SavePatternNotesRequest>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['pattern'] as _id08qiz9.PatternEndpoint).saveNotes(
+                    session,
+                    params['patternId'],
+                    params['request'],
+                  ),
+        ),
+        'delete': _is.MethodConnector(
+          name: 'delete',
+          params: {
+            'patternId': _is.ParameterDescription(
+              name: 'patternId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['pattern'] as _id08qiz9.PatternEndpoint).delete(
+                    session,
+                    params['patternId'],
+                  ),
+        ),
+      },
+    );
+    connectors['playlist'] = _is.EndpointConnector(
+      name: 'playlist',
+      endpoint: endpoints['playlist']!,
+      methodConnectors: {
+        'list': _is.MethodConnector(
+          name: 'list',
+          params: {
+            'projectId': _is.ParameterDescription(
+              name: 'projectId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['playlist'] as _iac13vr7.PlaylistEndpoint).list(
+                    session,
+                    params['projectId'],
+                  ),
+        ),
+        'save': _is.MethodConnector(
+          name: 'save',
+          params: {
+            'projectId': _is.ParameterDescription(
+              name: 'projectId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+            'request': _is.ParameterDescription(
+              name: 'request',
+              type: _is.getType<_i0cr8q5v.SavePlaylistRequest>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['playlist'] as _iac13vr7.PlaylistEndpoint).save(
+                    session,
+                    params['projectId'],
+                    params['request'],
+                  ),
         ),
       },
     );
@@ -853,6 +1213,87 @@ class Endpoints extends _is.EndpointDispatch {
                   (endpoints['project'] as _inmisbug.ProjectEndpoint).delete(
                     session,
                     params['projectId'],
+                  ),
+        ),
+      },
+    );
+    connectors['sample'] = _is.EndpointConnector(
+      name: 'sample',
+      endpoint: endpoints['sample']!,
+      methodConnectors: {
+        'requestUpload': _is.MethodConnector(
+          name: 'requestUpload',
+          params: {
+            'request': _is.ParameterDescription(
+              name: 'request',
+              type: _is.getType<_inm8vvkw.RequestSampleUploadRequest>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['sample'] as _ifo0hjx7.SampleEndpoint)
+                  .requestUpload(
+                    session,
+                    params['request'],
+                  ),
+        ),
+        'finishUpload': _is.MethodConnector(
+          name: 'finishUpload',
+          params: {
+            'request': _is.ParameterDescription(
+              name: 'request',
+              type: _is.getType<_islo2yap.FinishSampleUploadRequest>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['sample'] as _ifo0hjx7.SampleEndpoint)
+                  .finishUpload(
+                    session,
+                    params['request'],
+                  ),
+        ),
+        'list': _is.MethodConnector(
+          name: 'list',
+          params: {
+            'projectId': _is.ParameterDescription(
+              name: 'projectId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async => (endpoints['sample'] as _ifo0hjx7.SampleEndpoint).list(
+                session,
+                params['projectId'],
+              ),
+        ),
+        'delete': _is.MethodConnector(
+          name: 'delete',
+          params: {
+            'sampleId': _is.ParameterDescription(
+              name: 'sampleId',
+              type: _is.getType<_is.UuidValue>(),
+              nullable: false,
+            ),
+          },
+          call:
+              (
+                _is.Session session,
+                Map<String, dynamic> params,
+              ) async =>
+                  (endpoints['sample'] as _ifo0hjx7.SampleEndpoint).delete(
+                    session,
+                    params['sampleId'],
                   ),
         ),
       },

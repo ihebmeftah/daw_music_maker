@@ -13,6 +13,23 @@ emailIdp:
   - hasAccount:
 jwtRefresh:
   - refreshAccessToken:
+channel:
+  - list:
+  - create:
+  - update:
+  - chop:
+  - delete:
+pattern:
+  - list:
+  - create:
+  - update:
+  - clone:
+  - listNotes:
+  - saveNotes:
+  - delete:
+playlist:
+  - list:
+  - save:
 projectCollaboration:
   - listMembers:
   - updateMemberRole:
@@ -36,6 +53,11 @@ project:
   - discover:
   - update:
   - updateTempo:
+  - delete:
+sample:
+  - requestUpload:
+  - finishUpload:
+  - list:
   - delete:
 greeting:
   - hello:

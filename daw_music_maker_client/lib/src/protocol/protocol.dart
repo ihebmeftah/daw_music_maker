@@ -11,12 +11,22 @@
 // ignore_for_file: dead_code, unnecessary_type_check
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:daw_music_maker_client/src/protocol/features/channels/responses/channel_response.dart'
+    as _io54avb8;
+import 'package:daw_music_maker_client/src/protocol/features/patterns/responses/note_response.dart'
+    as _ij5vkych;
+import 'package:daw_music_maker_client/src/protocol/features/patterns/responses/pattern_response.dart'
+    as _idk43ht2;
+import 'package:daw_music_maker_client/src/protocol/features/playlist/responses/clip_response.dart'
+    as _i0zaexo5;
 import 'package:daw_music_maker_client/src/protocol/features/projects/responses/join_request_response.dart'
     as _i9kix0wi;
 import 'package:daw_music_maker_client/src/protocol/features/projects/responses/project_invitation_response.dart'
     as _inz5k6t4;
 import 'package:daw_music_maker_client/src/protocol/features/projects/responses/project_member_response.dart'
     as _ic4cvzfq;
+import 'package:daw_music_maker_client/src/protocol/features/samples/responses/sample_response.dart'
+    as _ilv1w5af;
 import 'package:serverpod_auth_core_client/serverpod_auth_core_client.dart'
     as _iacc;
 import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
@@ -24,6 +34,20 @@ import 'package:serverpod_auth_idp_client/serverpod_auth_idp_client.dart'
 import 'package:serverpod_client/serverpod_client.dart' as _isc;
 import 'core/exceptions/app_exception.dart' as _i6tx3c89;
 import 'core/exceptions/error_code.dart' as _io9cb3tb;
+import 'features/channels/dtos/chop_channel_request.dart' as _iy34xg5v;
+import 'features/channels/dtos/create_channel_request.dart' as _id4clhx3;
+import 'features/channels/dtos/update_channel_request.dart' as _ilow414e;
+import 'features/channels/enums/sample_kind.dart' as _ifulnrpk;
+import 'features/channels/responses/channel_response.dart' as _i10ps8ah;
+import 'features/patterns/dtos/create_pattern_request.dart' as _itx0jlus;
+import 'features/patterns/dtos/note_input.dart' as _it24l6jz;
+import 'features/patterns/dtos/save_pattern_notes_request.dart' as _i94a5nv7;
+import 'features/patterns/dtos/update_pattern_request.dart' as _ijqlx5cm;
+import 'features/patterns/responses/note_response.dart' as _ixbtfmd4;
+import 'features/patterns/responses/pattern_response.dart' as _igqezmee;
+import 'features/playlist/dtos/clip_input.dart' as _iyf4rlk9;
+import 'features/playlist/dtos/save_playlist_request.dart' as _ibthtwn5;
+import 'features/playlist/responses/clip_response.dart' as _i1hvruqf;
 import 'features/projects/dtos/create_project_request.dart' as _i0xj56nk;
 import 'features/projects/dtos/invite_member_request.dart' as _i5w541ev;
 import 'features/projects/dtos/join_project_request.dart' as _i0ycjkhg;
@@ -39,9 +63,28 @@ import 'features/projects/responses/project_invitation_response.dart'
 import 'features/projects/responses/project_member_response.dart' as _igc9pbfz;
 import 'features/projects/responses/project_page_response.dart' as _i9wl0ad1;
 import 'features/projects/responses/project_response.dart' as _iefrfged;
+import 'features/samples/dtos/finish_sample_upload_request.dart' as _ivyd8fkl;
+import 'features/samples/dtos/request_sample_upload_request.dart' as _i2fe4muu;
+import 'features/samples/enums/audio_format.dart' as _imcw5m05;
+import 'features/samples/responses/sample_response.dart' as _ik3o3wfy;
+import 'features/samples/responses/sample_upload_ticket.dart' as _is3b4l09;
 import 'greetings/greeting.dart' as _izw8z7ou;
 export 'core/exceptions/app_exception.dart';
 export 'core/exceptions/error_code.dart';
+export 'features/channels/dtos/chop_channel_request.dart';
+export 'features/channels/dtos/create_channel_request.dart';
+export 'features/channels/dtos/update_channel_request.dart';
+export 'features/channels/enums/sample_kind.dart';
+export 'features/channels/responses/channel_response.dart';
+export 'features/patterns/dtos/create_pattern_request.dart';
+export 'features/patterns/dtos/note_input.dart';
+export 'features/patterns/dtos/save_pattern_notes_request.dart';
+export 'features/patterns/dtos/update_pattern_request.dart';
+export 'features/patterns/responses/note_response.dart';
+export 'features/patterns/responses/pattern_response.dart';
+export 'features/playlist/dtos/clip_input.dart';
+export 'features/playlist/dtos/save_playlist_request.dart';
+export 'features/playlist/responses/clip_response.dart';
 export 'features/projects/dtos/create_project_request.dart';
 export 'features/projects/dtos/invite_member_request.dart';
 export 'features/projects/dtos/join_project_request.dart';
@@ -56,6 +99,11 @@ export 'features/projects/responses/project_invitation_response.dart';
 export 'features/projects/responses/project_member_response.dart';
 export 'features/projects/responses/project_page_response.dart';
 export 'features/projects/responses/project_response.dart';
+export 'features/samples/dtos/finish_sample_upload_request.dart';
+export 'features/samples/dtos/request_sample_upload_request.dart';
+export 'features/samples/enums/audio_format.dart';
+export 'features/samples/responses/sample_response.dart';
+export 'features/samples/responses/sample_upload_ticket.dart';
 export 'greetings/greeting.dart';
 export 'client.dart';
 
@@ -74,6 +122,20 @@ class Protocol extends _isc.SerializationManager
         types: const [
           _isc.getType<_i6tx3c89.AppException>,
           _isc.getType<_io9cb3tb.ErrorCode>,
+          _isc.getType<_iy34xg5v.ChopChannelRequest>,
+          _isc.getType<_id4clhx3.CreateChannelRequest>,
+          _isc.getType<_ilow414e.UpdateChannelRequest>,
+          _isc.getType<_ifulnrpk.SampleKind>,
+          _isc.getType<_i10ps8ah.ChannelResponse>,
+          _isc.getType<_itx0jlus.CreatePatternRequest>,
+          _isc.getType<_it24l6jz.NoteInput>,
+          _isc.getType<_i94a5nv7.SavePatternNotesRequest>,
+          _isc.getType<_ijqlx5cm.UpdatePatternRequest>,
+          _isc.getType<_ixbtfmd4.NoteResponse>,
+          _isc.getType<_igqezmee.PatternResponse>,
+          _isc.getType<_iyf4rlk9.ClipInput>,
+          _isc.getType<_ibthtwn5.SavePlaylistRequest>,
+          _isc.getType<_i1hvruqf.ClipResponse>,
           _isc.getType<_i0xj56nk.CreateProjectRequest>,
           _isc.getType<_i5w541ev.InviteMemberRequest>,
           _isc.getType<_i0ycjkhg.JoinProjectRequest>,
@@ -88,9 +150,28 @@ class Protocol extends _isc.SerializationManager
           _isc.getType<_igc9pbfz.ProjectMemberResponse>,
           _isc.getType<_i9wl0ad1.ProjectPageResponse>,
           _isc.getType<_iefrfged.ProjectResponse>,
+          _isc.getType<_ivyd8fkl.FinishSampleUploadRequest>,
+          _isc.getType<_i2fe4muu.RequestSampleUploadRequest>,
+          _isc.getType<_imcw5m05.AudioFormat>,
+          _isc.getType<_ik3o3wfy.SampleResponse>,
+          _isc.getType<_is3b4l09.SampleUploadTicket>,
           _isc.getType<_izw8z7ou.Greeting>,
           _isc.getType<_i6tx3c89.AppException?>,
           _isc.getType<_io9cb3tb.ErrorCode?>,
+          _isc.getType<_iy34xg5v.ChopChannelRequest?>,
+          _isc.getType<_id4clhx3.CreateChannelRequest?>,
+          _isc.getType<_ilow414e.UpdateChannelRequest?>,
+          _isc.getType<_ifulnrpk.SampleKind?>,
+          _isc.getType<_i10ps8ah.ChannelResponse?>,
+          _isc.getType<_itx0jlus.CreatePatternRequest?>,
+          _isc.getType<_it24l6jz.NoteInput?>,
+          _isc.getType<_i94a5nv7.SavePatternNotesRequest?>,
+          _isc.getType<_ijqlx5cm.UpdatePatternRequest?>,
+          _isc.getType<_ixbtfmd4.NoteResponse?>,
+          _isc.getType<_igqezmee.PatternResponse?>,
+          _isc.getType<_iyf4rlk9.ClipInput?>,
+          _isc.getType<_ibthtwn5.SavePlaylistRequest?>,
+          _isc.getType<_i1hvruqf.ClipResponse?>,
           _isc.getType<_i0xj56nk.CreateProjectRequest?>,
           _isc.getType<_i5w541ev.InviteMemberRequest?>,
           _isc.getType<_i0ycjkhg.JoinProjectRequest?>,
@@ -105,14 +186,28 @@ class Protocol extends _isc.SerializationManager
           _isc.getType<_igc9pbfz.ProjectMemberResponse?>,
           _isc.getType<_i9wl0ad1.ProjectPageResponse?>,
           _isc.getType<_iefrfged.ProjectResponse?>,
+          _isc.getType<_ivyd8fkl.FinishSampleUploadRequest?>,
+          _isc.getType<_i2fe4muu.RequestSampleUploadRequest?>,
+          _isc.getType<_imcw5m05.AudioFormat?>,
+          _isc.getType<_ik3o3wfy.SampleResponse?>,
+          _isc.getType<_is3b4l09.SampleUploadTicket?>,
           _isc.getType<_izw8z7ou.Greeting?>,
           _isc.getType<Map<String, String>>,
           _isc.getType<Map<String, String>?>,
+          _isc.getType<List<_it24l6jz.NoteInput>>,
+          _isc.getType<List<_iyf4rlk9.ClipInput>>,
           _isc.getType<List<String>>,
           _isc.getType<List<_iefrfged.ProjectResponse>>,
+          _isc.getType<List<double>>,
+          _isc.getType<List<double>?>,
+          _isc.getType<List<_io54avb8.ChannelResponse>>,
+          _isc.getType<List<_idk43ht2.PatternResponse>>,
+          _isc.getType<List<_ij5vkych.NoteResponse>>,
+          _isc.getType<List<_i0zaexo5.ClipResponse>>,
           _isc.getType<List<_ic4cvzfq.ProjectMemberResponse>>,
           _isc.getType<List<_inz5k6t4.ProjectInvitationResponse>>,
           _isc.getType<List<_i9kix0wi.JoinRequestResponse>>,
+          _isc.getType<List<_ilv1w5af.SampleResponse>>,
         ],
         modules: const [
           _iaic.Protocol.new,
@@ -121,6 +216,20 @@ class Protocol extends _isc.SerializationManager
         classNames: const [
           'AppException',
           'ErrorCode',
+          'ChopChannelRequest',
+          'CreateChannelRequest',
+          'UpdateChannelRequest',
+          'SampleKind',
+          'ChannelResponse',
+          'CreatePatternRequest',
+          'NoteInput',
+          'SavePatternNotesRequest',
+          'UpdatePatternRequest',
+          'NoteResponse',
+          'PatternResponse',
+          'ClipInput',
+          'SavePlaylistRequest',
+          'ClipResponse',
           'CreateProjectRequest',
           'InviteMemberRequest',
           'JoinProjectRequest',
@@ -135,6 +244,11 @@ class Protocol extends _isc.SerializationManager
           'ProjectMemberResponse',
           'ProjectPageResponse',
           'ProjectResponse',
+          'FinishSampleUploadRequest',
+          'RequestSampleUploadRequest',
+          'AudioFormat',
+          'SampleResponse',
+          'SampleUploadTicket',
           'Greeting',
         ],
       );
@@ -168,6 +282,48 @@ class Protocol extends _isc.SerializationManager
     }
     if (t == _io9cb3tb.ErrorCode) {
       return _io9cb3tb.ErrorCode.fromJson(data) as T;
+    }
+    if (t == _iy34xg5v.ChopChannelRequest) {
+      return _iy34xg5v.ChopChannelRequest.fromJson(data) as T;
+    }
+    if (t == _id4clhx3.CreateChannelRequest) {
+      return _id4clhx3.CreateChannelRequest.fromJson(data) as T;
+    }
+    if (t == _ilow414e.UpdateChannelRequest) {
+      return _ilow414e.UpdateChannelRequest.fromJson(data) as T;
+    }
+    if (t == _ifulnrpk.SampleKind) {
+      return _ifulnrpk.SampleKind.fromJson(data) as T;
+    }
+    if (t == _i10ps8ah.ChannelResponse) {
+      return _i10ps8ah.ChannelResponse.fromJson(data) as T;
+    }
+    if (t == _itx0jlus.CreatePatternRequest) {
+      return _itx0jlus.CreatePatternRequest.fromJson(data) as T;
+    }
+    if (t == _it24l6jz.NoteInput) {
+      return _it24l6jz.NoteInput.fromJson(data) as T;
+    }
+    if (t == _i94a5nv7.SavePatternNotesRequest) {
+      return _i94a5nv7.SavePatternNotesRequest.fromJson(data) as T;
+    }
+    if (t == _ijqlx5cm.UpdatePatternRequest) {
+      return _ijqlx5cm.UpdatePatternRequest.fromJson(data) as T;
+    }
+    if (t == _ixbtfmd4.NoteResponse) {
+      return _ixbtfmd4.NoteResponse.fromJson(data) as T;
+    }
+    if (t == _igqezmee.PatternResponse) {
+      return _igqezmee.PatternResponse.fromJson(data) as T;
+    }
+    if (t == _iyf4rlk9.ClipInput) {
+      return _iyf4rlk9.ClipInput.fromJson(data) as T;
+    }
+    if (t == _ibthtwn5.SavePlaylistRequest) {
+      return _ibthtwn5.SavePlaylistRequest.fromJson(data) as T;
+    }
+    if (t == _i1hvruqf.ClipResponse) {
+      return _i1hvruqf.ClipResponse.fromJson(data) as T;
     }
     if (t == _i0xj56nk.CreateProjectRequest) {
       return _i0xj56nk.CreateProjectRequest.fromJson(data) as T;
@@ -211,6 +367,21 @@ class Protocol extends _isc.SerializationManager
     if (t == _iefrfged.ProjectResponse) {
       return _iefrfged.ProjectResponse.fromJson(data) as T;
     }
+    if (t == _ivyd8fkl.FinishSampleUploadRequest) {
+      return _ivyd8fkl.FinishSampleUploadRequest.fromJson(data) as T;
+    }
+    if (t == _i2fe4muu.RequestSampleUploadRequest) {
+      return _i2fe4muu.RequestSampleUploadRequest.fromJson(data) as T;
+    }
+    if (t == _imcw5m05.AudioFormat) {
+      return _imcw5m05.AudioFormat.fromJson(data) as T;
+    }
+    if (t == _ik3o3wfy.SampleResponse) {
+      return _ik3o3wfy.SampleResponse.fromJson(data) as T;
+    }
+    if (t == _is3b4l09.SampleUploadTicket) {
+      return _is3b4l09.SampleUploadTicket.fromJson(data) as T;
+    }
     if (t == _izw8z7ou.Greeting) {
       return _izw8z7ou.Greeting.fromJson(data) as T;
     }
@@ -219,6 +390,69 @@ class Protocol extends _isc.SerializationManager
     }
     if (t == _isc.getType<_io9cb3tb.ErrorCode?>()) {
       return (data != null ? _io9cb3tb.ErrorCode.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_iy34xg5v.ChopChannelRequest?>()) {
+      return (data != null ? _iy34xg5v.ChopChannelRequest.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_id4clhx3.CreateChannelRequest?>()) {
+      return (data != null
+              ? _id4clhx3.CreateChannelRequest.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_ilow414e.UpdateChannelRequest?>()) {
+      return (data != null
+              ? _ilow414e.UpdateChannelRequest.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_ifulnrpk.SampleKind?>()) {
+      return (data != null ? _ifulnrpk.SampleKind.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i10ps8ah.ChannelResponse?>()) {
+      return (data != null ? _i10ps8ah.ChannelResponse.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_itx0jlus.CreatePatternRequest?>()) {
+      return (data != null
+              ? _itx0jlus.CreatePatternRequest.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_it24l6jz.NoteInput?>()) {
+      return (data != null ? _it24l6jz.NoteInput.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_i94a5nv7.SavePatternNotesRequest?>()) {
+      return (data != null
+              ? _i94a5nv7.SavePatternNotesRequest.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_ijqlx5cm.UpdatePatternRequest?>()) {
+      return (data != null
+              ? _ijqlx5cm.UpdatePatternRequest.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_ixbtfmd4.NoteResponse?>()) {
+      return (data != null ? _ixbtfmd4.NoteResponse.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_igqezmee.PatternResponse?>()) {
+      return (data != null ? _igqezmee.PatternResponse.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_iyf4rlk9.ClipInput?>()) {
+      return (data != null ? _iyf4rlk9.ClipInput.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_ibthtwn5.SavePlaylistRequest?>()) {
+      return (data != null
+              ? _ibthtwn5.SavePlaylistRequest.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_i1hvruqf.ClipResponse?>()) {
+      return (data != null ? _i1hvruqf.ClipResponse.fromJson(data) : null) as T;
     }
     if (t == _isc.getType<_i0xj56nk.CreateProjectRequest?>()) {
       return (data != null
@@ -293,6 +527,29 @@ class Protocol extends _isc.SerializationManager
       return (data != null ? _iefrfged.ProjectResponse.fromJson(data) : null)
           as T;
     }
+    if (t == _isc.getType<_ivyd8fkl.FinishSampleUploadRequest?>()) {
+      return (data != null
+              ? _ivyd8fkl.FinishSampleUploadRequest.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_i2fe4muu.RequestSampleUploadRequest?>()) {
+      return (data != null
+              ? _i2fe4muu.RequestSampleUploadRequest.fromJson(data)
+              : null)
+          as T;
+    }
+    if (t == _isc.getType<_imcw5m05.AudioFormat?>()) {
+      return (data != null ? _imcw5m05.AudioFormat.fromJson(data) : null) as T;
+    }
+    if (t == _isc.getType<_ik3o3wfy.SampleResponse?>()) {
+      return (data != null ? _ik3o3wfy.SampleResponse.fromJson(data) : null)
+          as T;
+    }
+    if (t == _isc.getType<_is3b4l09.SampleUploadTicket?>()) {
+      return (data != null ? _is3b4l09.SampleUploadTicket.fromJson(data) : null)
+          as T;
+    }
     if (t == _isc.getType<_izw8z7ou.Greeting?>()) {
       return (data != null ? _izw8z7ou.Greeting.fromJson(data) : null) as T;
     }
@@ -311,12 +568,57 @@ class Protocol extends _isc.SerializationManager
               : null)
           as T;
     }
+    if (t == List<_it24l6jz.NoteInput>) {
+      return (data as List)
+              .map((e) => deserialize<_it24l6jz.NoteInput>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_iyf4rlk9.ClipInput>) {
+      return (data as List)
+              .map((e) => deserialize<_iyf4rlk9.ClipInput>(e))
+              .toList()
+          as T;
+    }
     if (t == List<String>) {
       return (data as List).map((e) => deserialize<String>(e)).toList() as T;
     }
     if (t == List<_iefrfged.ProjectResponse>) {
       return (data as List)
               .map((e) => deserialize<_iefrfged.ProjectResponse>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<double>) {
+      return (data as List).map((e) => deserialize<double>(e)).toList() as T;
+    }
+    if (t == _isc.getType<List<double>?>()) {
+      return (data != null
+              ? (data as List).map((e) => deserialize<double>(e)).toList()
+              : null)
+          as T;
+    }
+    if (t == List<_io54avb8.ChannelResponse>) {
+      return (data as List)
+              .map((e) => deserialize<_io54avb8.ChannelResponse>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_idk43ht2.PatternResponse>) {
+      return (data as List)
+              .map((e) => deserialize<_idk43ht2.PatternResponse>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_ij5vkych.NoteResponse>) {
+      return (data as List)
+              .map((e) => deserialize<_ij5vkych.NoteResponse>(e))
+              .toList()
+          as T;
+    }
+    if (t == List<_i0zaexo5.ClipResponse>) {
+      return (data as List)
+              .map((e) => deserialize<_i0zaexo5.ClipResponse>(e))
               .toList()
           as T;
     }
@@ -338,6 +640,12 @@ class Protocol extends _isc.SerializationManager
               .toList()
           as T;
     }
+    if (t == List<_ilv1w5af.SampleResponse>) {
+      return (data as List)
+              .map((e) => deserialize<_ilv1w5af.SampleResponse>(e))
+              .toList()
+          as T;
+    }
     final modules = deserializationMetadata.modulesForDeserialization(
       t,
       className: rawDataClassName,
@@ -355,6 +663,20 @@ class Protocol extends _isc.SerializationManager
     return switch (type) {
       _i6tx3c89.AppException => 'AppException',
       _io9cb3tb.ErrorCode => 'ErrorCode',
+      _iy34xg5v.ChopChannelRequest => 'ChopChannelRequest',
+      _id4clhx3.CreateChannelRequest => 'CreateChannelRequest',
+      _ilow414e.UpdateChannelRequest => 'UpdateChannelRequest',
+      _ifulnrpk.SampleKind => 'SampleKind',
+      _i10ps8ah.ChannelResponse => 'ChannelResponse',
+      _itx0jlus.CreatePatternRequest => 'CreatePatternRequest',
+      _it24l6jz.NoteInput => 'NoteInput',
+      _i94a5nv7.SavePatternNotesRequest => 'SavePatternNotesRequest',
+      _ijqlx5cm.UpdatePatternRequest => 'UpdatePatternRequest',
+      _ixbtfmd4.NoteResponse => 'NoteResponse',
+      _igqezmee.PatternResponse => 'PatternResponse',
+      _iyf4rlk9.ClipInput => 'ClipInput',
+      _ibthtwn5.SavePlaylistRequest => 'SavePlaylistRequest',
+      _i1hvruqf.ClipResponse => 'ClipResponse',
       _i0xj56nk.CreateProjectRequest => 'CreateProjectRequest',
       _i5w541ev.InviteMemberRequest => 'InviteMemberRequest',
       _i0ycjkhg.JoinProjectRequest => 'JoinProjectRequest',
@@ -369,6 +691,11 @@ class Protocol extends _isc.SerializationManager
       _igc9pbfz.ProjectMemberResponse => 'ProjectMemberResponse',
       _i9wl0ad1.ProjectPageResponse => 'ProjectPageResponse',
       _iefrfged.ProjectResponse => 'ProjectResponse',
+      _ivyd8fkl.FinishSampleUploadRequest => 'FinishSampleUploadRequest',
+      _i2fe4muu.RequestSampleUploadRequest => 'RequestSampleUploadRequest',
+      _imcw5m05.AudioFormat => 'AudioFormat',
+      _ik3o3wfy.SampleResponse => 'SampleResponse',
+      _is3b4l09.SampleUploadTicket => 'SampleUploadTicket',
       _izw8z7ou.Greeting => 'Greeting',
       _ => null,
     };
@@ -391,6 +718,34 @@ class Protocol extends _isc.SerializationManager
         return 'AppException';
       case _io9cb3tb.ErrorCode():
         return 'ErrorCode';
+      case _iy34xg5v.ChopChannelRequest():
+        return 'ChopChannelRequest';
+      case _id4clhx3.CreateChannelRequest():
+        return 'CreateChannelRequest';
+      case _ilow414e.UpdateChannelRequest():
+        return 'UpdateChannelRequest';
+      case _ifulnrpk.SampleKind():
+        return 'SampleKind';
+      case _i10ps8ah.ChannelResponse():
+        return 'ChannelResponse';
+      case _itx0jlus.CreatePatternRequest():
+        return 'CreatePatternRequest';
+      case _it24l6jz.NoteInput():
+        return 'NoteInput';
+      case _i94a5nv7.SavePatternNotesRequest():
+        return 'SavePatternNotesRequest';
+      case _ijqlx5cm.UpdatePatternRequest():
+        return 'UpdatePatternRequest';
+      case _ixbtfmd4.NoteResponse():
+        return 'NoteResponse';
+      case _igqezmee.PatternResponse():
+        return 'PatternResponse';
+      case _iyf4rlk9.ClipInput():
+        return 'ClipInput';
+      case _ibthtwn5.SavePlaylistRequest():
+        return 'SavePlaylistRequest';
+      case _i1hvruqf.ClipResponse():
+        return 'ClipResponse';
       case _i0xj56nk.CreateProjectRequest():
         return 'CreateProjectRequest';
       case _i5w541ev.InviteMemberRequest():
@@ -419,6 +774,16 @@ class Protocol extends _isc.SerializationManager
         return 'ProjectPageResponse';
       case _iefrfged.ProjectResponse():
         return 'ProjectResponse';
+      case _ivyd8fkl.FinishSampleUploadRequest():
+        return 'FinishSampleUploadRequest';
+      case _i2fe4muu.RequestSampleUploadRequest():
+        return 'RequestSampleUploadRequest';
+      case _imcw5m05.AudioFormat():
+        return 'AudioFormat';
+      case _ik3o3wfy.SampleResponse():
+        return 'SampleResponse';
+      case _is3b4l09.SampleUploadTicket():
+        return 'SampleUploadTicket';
       case _izw8z7ou.Greeting():
         return 'Greeting';
     }
@@ -448,6 +813,48 @@ class Protocol extends _isc.SerializationManager
     }
     if (dataClassName == 'ErrorCode') {
       return deserialize<_io9cb3tb.ErrorCode>(data['data']);
+    }
+    if (dataClassName == 'ChopChannelRequest') {
+      return deserialize<_iy34xg5v.ChopChannelRequest>(data['data']);
+    }
+    if (dataClassName == 'CreateChannelRequest') {
+      return deserialize<_id4clhx3.CreateChannelRequest>(data['data']);
+    }
+    if (dataClassName == 'UpdateChannelRequest') {
+      return deserialize<_ilow414e.UpdateChannelRequest>(data['data']);
+    }
+    if (dataClassName == 'SampleKind') {
+      return deserialize<_ifulnrpk.SampleKind>(data['data']);
+    }
+    if (dataClassName == 'ChannelResponse') {
+      return deserialize<_i10ps8ah.ChannelResponse>(data['data']);
+    }
+    if (dataClassName == 'CreatePatternRequest') {
+      return deserialize<_itx0jlus.CreatePatternRequest>(data['data']);
+    }
+    if (dataClassName == 'NoteInput') {
+      return deserialize<_it24l6jz.NoteInput>(data['data']);
+    }
+    if (dataClassName == 'SavePatternNotesRequest') {
+      return deserialize<_i94a5nv7.SavePatternNotesRequest>(data['data']);
+    }
+    if (dataClassName == 'UpdatePatternRequest') {
+      return deserialize<_ijqlx5cm.UpdatePatternRequest>(data['data']);
+    }
+    if (dataClassName == 'NoteResponse') {
+      return deserialize<_ixbtfmd4.NoteResponse>(data['data']);
+    }
+    if (dataClassName == 'PatternResponse') {
+      return deserialize<_igqezmee.PatternResponse>(data['data']);
+    }
+    if (dataClassName == 'ClipInput') {
+      return deserialize<_iyf4rlk9.ClipInput>(data['data']);
+    }
+    if (dataClassName == 'SavePlaylistRequest') {
+      return deserialize<_ibthtwn5.SavePlaylistRequest>(data['data']);
+    }
+    if (dataClassName == 'ClipResponse') {
+      return deserialize<_i1hvruqf.ClipResponse>(data['data']);
     }
     if (dataClassName == 'CreateProjectRequest') {
       return deserialize<_i0xj56nk.CreateProjectRequest>(data['data']);
@@ -490,6 +897,21 @@ class Protocol extends _isc.SerializationManager
     }
     if (dataClassName == 'ProjectResponse') {
       return deserialize<_iefrfged.ProjectResponse>(data['data']);
+    }
+    if (dataClassName == 'FinishSampleUploadRequest') {
+      return deserialize<_ivyd8fkl.FinishSampleUploadRequest>(data['data']);
+    }
+    if (dataClassName == 'RequestSampleUploadRequest') {
+      return deserialize<_i2fe4muu.RequestSampleUploadRequest>(data['data']);
+    }
+    if (dataClassName == 'AudioFormat') {
+      return deserialize<_imcw5m05.AudioFormat>(data['data']);
+    }
+    if (dataClassName == 'SampleResponse') {
+      return deserialize<_ik3o3wfy.SampleResponse>(data['data']);
+    }
+    if (dataClassName == 'SampleUploadTicket') {
+      return deserialize<_is3b4l09.SampleUploadTicket>(data['data']);
     }
     if (dataClassName == 'Greeting') {
       return deserialize<_izw8z7ou.Greeting>(data['data']);

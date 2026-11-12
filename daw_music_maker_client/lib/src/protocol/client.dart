@@ -11,6 +11,28 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _ida;
+import 'package:daw_music_maker_client/src/protocol/features/channels/dtos/chop_channel_request.dart'
+    as _iroonklb;
+import 'package:daw_music_maker_client/src/protocol/features/channels/dtos/create_channel_request.dart'
+    as _ix8m1nad;
+import 'package:daw_music_maker_client/src/protocol/features/channels/dtos/update_channel_request.dart'
+    as _itrlqtj1;
+import 'package:daw_music_maker_client/src/protocol/features/channels/responses/channel_response.dart'
+    as _io54avb8;
+import 'package:daw_music_maker_client/src/protocol/features/patterns/dtos/create_pattern_request.dart'
+    as _iyp770n4;
+import 'package:daw_music_maker_client/src/protocol/features/patterns/dtos/save_pattern_notes_request.dart'
+    as _i8a3qaoj;
+import 'package:daw_music_maker_client/src/protocol/features/patterns/dtos/update_pattern_request.dart'
+    as _i29cq5tg;
+import 'package:daw_music_maker_client/src/protocol/features/patterns/responses/note_response.dart'
+    as _ij5vkych;
+import 'package:daw_music_maker_client/src/protocol/features/patterns/responses/pattern_response.dart'
+    as _idk43ht2;
+import 'package:daw_music_maker_client/src/protocol/features/playlist/dtos/save_playlist_request.dart'
+    as _ikmgaklg;
+import 'package:daw_music_maker_client/src/protocol/features/playlist/responses/clip_response.dart'
+    as _i0zaexo5;
 import 'package:daw_music_maker_client/src/protocol/features/projects/dtos/create_project_request.dart'
     as _igj9gzmx;
 import 'package:daw_music_maker_client/src/protocol/features/projects/dtos/invite_member_request.dart'
@@ -33,6 +55,14 @@ import 'package:daw_music_maker_client/src/protocol/features/projects/responses/
     as _iiazmhcc;
 import 'package:daw_music_maker_client/src/protocol/features/projects/responses/project_response.dart'
     as _ia3hvpml;
+import 'package:daw_music_maker_client/src/protocol/features/samples/dtos/finish_sample_upload_request.dart'
+    as _i5duwawj;
+import 'package:daw_music_maker_client/src/protocol/features/samples/dtos/request_sample_upload_request.dart'
+    as _ix1enysx;
+import 'package:daw_music_maker_client/src/protocol/features/samples/responses/sample_response.dart'
+    as _ilv1w5af;
+import 'package:daw_music_maker_client/src/protocol/features/samples/responses/sample_upload_ticket.dart'
+    as _iv3w8q6y;
 import 'package:daw_music_maker_client/src/protocol/greetings/greeting.dart'
     as _iruhsk5y;
 import 'package:http/http.dart' as _i85jenna;
@@ -369,6 +399,192 @@ class EndpointJwtRefresh extends _iacc.EndpointRefreshJwtTokens {
       );
 }
 
+/// The channel rack of a project (`client.channel`).
+///
+/// Requires a signed-in user. Listing needs the project to be visible;
+/// changes need owner or write access. Throws [AppException]:
+/// [ErrorCode.notFound], [ErrorCode.forbidden], [ErrorCode.validation],
+/// [ErrorCode.limitReached] (32 channels).
+/// {@category Endpoint}
+class EndpointChannel extends _isc.EndpointRef {
+  EndpointChannel(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'channel';
+
+  /// Channels of a project, in rack order.
+  _ida.Future<List<_io54avb8.ChannelResponse>> list(_isc.UuidValue projectId) =>
+      caller.callServerEndpoint<List<_io54avb8.ChannelResponse>>(
+        'channel',
+        'list',
+        {'projectId': projectId},
+      );
+
+  /// Adds a channel playing a built-in sample.
+  _ida.Future<_io54avb8.ChannelResponse> create(
+    _ix8m1nad.CreateChannelRequest request,
+  ) => caller.callServerEndpoint<_io54avb8.ChannelResponse>(
+    'channel',
+    'create',
+    {'request': request},
+  );
+
+  /// Renames a channel and sets volume / mute.
+  _ida.Future<_io54avb8.ChannelResponse> update(
+    _isc.UuidValue channelId,
+    _itrlqtj1.UpdateChannelRequest request,
+  ) => caller.callServerEndpoint<_io54avb8.ChannelResponse>(
+    'channel',
+    'update',
+    {
+      'channelId': channelId,
+      'request': request,
+    },
+  );
+
+  /// Chops a channel's region into 2/4/8/16 slices, one new channel each.
+  _ida.Future<List<_io54avb8.ChannelResponse>> chop(
+    _isc.UuidValue channelId,
+    _iroonklb.ChopChannelRequest request,
+  ) => caller.callServerEndpoint<List<_io54avb8.ChannelResponse>>(
+    'channel',
+    'chop',
+    {
+      'channelId': channelId,
+      'request': request,
+    },
+  );
+
+  /// Deletes a channel and its notes.
+  _ida.Future<void> delete(_isc.UuidValue channelId) =>
+      caller.callServerEndpoint<void>(
+        'channel',
+        'delete',
+        {'channelId': channelId},
+      );
+}
+
+/// Patterns of a project (`client.pattern`).
+///
+/// Requires a signed-in user. Listing needs the project to be visible;
+/// changes need owner or write access. Throws [AppException]:
+/// [ErrorCode.notFound] (project/pattern not visible), [ErrorCode.forbidden]
+/// (read member or visitor), [ErrorCode.validation], [ErrorCode.conflict]
+/// (deleting the last pattern), [ErrorCode.limitReached] (99 patterns).
+/// {@category Endpoint}
+class EndpointPattern extends _isc.EndpointRef {
+  EndpointPattern(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'pattern';
+
+  /// Patterns of a project, in order.
+  _ida.Future<List<_idk43ht2.PatternResponse>> list(_isc.UuidValue projectId) =>
+      caller.callServerEndpoint<List<_idk43ht2.PatternResponse>>(
+        'pattern',
+        'list',
+        {'projectId': projectId},
+      );
+
+  /// Adds a pattern (defaults: "Pattern N", next color, 4 bars).
+  _ida.Future<_idk43ht2.PatternResponse> create(
+    _iyp770n4.CreatePatternRequest request,
+  ) => caller.callServerEndpoint<_idk43ht2.PatternResponse>(
+    'pattern',
+    'create',
+    {'request': request},
+  );
+
+  /// Renames / recolors / resizes a pattern.
+  _ida.Future<_idk43ht2.PatternResponse> update(
+    _isc.UuidValue patternId,
+    _i29cq5tg.UpdatePatternRequest request,
+  ) => caller.callServerEndpoint<_idk43ht2.PatternResponse>(
+    'pattern',
+    'update',
+    {
+      'patternId': patternId,
+      'request': request,
+    },
+  );
+
+  /// Duplicates a pattern at the end of the list.
+  _ida.Future<_idk43ht2.PatternResponse> clone(_isc.UuidValue patternId) =>
+      caller.callServerEndpoint<_idk43ht2.PatternResponse>(
+        'pattern',
+        'clone',
+        {'patternId': patternId},
+      );
+
+  /// Notes of a pattern (anyone who can see the project).
+  _ida.Future<List<_ij5vkych.NoteResponse>> listNotes(
+    _isc.UuidValue patternId,
+  ) => caller.callServerEndpoint<List<_ij5vkych.NoteResponse>>(
+    'pattern',
+    'listNotes',
+    {'patternId': patternId},
+  );
+
+  /// Replaces all notes of a pattern (owner or write member). Notes must
+  /// fit in the pattern, use the project's channels, pitch 0–127 and
+  /// velocity 1–127; at most 4096 notes.
+  _ida.Future<List<_ij5vkych.NoteResponse>> saveNotes(
+    _isc.UuidValue patternId,
+    _i8a3qaoj.SavePatternNotesRequest request,
+  ) => caller.callServerEndpoint<List<_ij5vkych.NoteResponse>>(
+    'pattern',
+    'saveNotes',
+    {
+      'patternId': patternId,
+      'request': request,
+    },
+  );
+
+  /// Deletes a pattern (never the last one).
+  _ida.Future<void> delete(_isc.UuidValue patternId) =>
+      caller.callServerEndpoint<void>(
+        'pattern',
+        'delete',
+        {'patternId': patternId},
+      );
+}
+
+/// The playlist (song arrangement) of a project (`client.playlist`).
+///
+/// Requires a signed-in user. Listing needs the project to be visible;
+/// saving needs owner or write access. Throws [AppException]:
+/// [ErrorCode.notFound], [ErrorCode.forbidden], [ErrorCode.validation]
+/// (unknown pattern, out of range, overlapping clips),
+/// [ErrorCode.limitReached] (2048 clips).
+/// {@category Endpoint}
+class EndpointPlaylist extends _isc.EndpointRef {
+  EndpointPlaylist(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'playlist';
+
+  /// Clips of the project's playlist, ordered by track then start bar.
+  _ida.Future<List<_i0zaexo5.ClipResponse>> list(_isc.UuidValue projectId) =>
+      caller.callServerEndpoint<List<_i0zaexo5.ClipResponse>>(
+        'playlist',
+        'list',
+        {'projectId': projectId},
+      );
+
+  /// Replaces the whole playlist.
+  _ida.Future<List<_i0zaexo5.ClipResponse>> save(
+    _isc.UuidValue projectId,
+    _ikmgaklg.SavePlaylistRequest request,
+  ) => caller.callServerEndpoint<List<_i0zaexo5.ClipResponse>>(
+    'playlist',
+    'save',
+    {
+      'projectId': projectId,
+      'request': request,
+    },
+  );
+}
+
 /// Members, invitations and join requests (`client.projectCollaboration`).
 ///
 /// Requires a signed-in user. Throws [AppException]: [ErrorCode.notFound]
@@ -631,6 +847,56 @@ class EndpointProject extends _isc.EndpointRef {
       );
 }
 
+/// Audio uploads of a project (`client.sample`).
+///
+/// Upload flow: [requestUpload] → `FileUploader(ticket.uploadDescription)`
+/// → [finishUpload]. Requires a signed-in user; listing needs the project to
+/// be visible, changes need owner or write access. Throws [AppException]:
+/// [ErrorCode.notFound], [ErrorCode.forbidden], [ErrorCode.validation]
+/// (type, size > 10 MB, bytes not matching the format),
+/// [ErrorCode.limitReached] (64 samples).
+/// {@category Endpoint}
+class EndpointSample extends _isc.EndpointRef {
+  EndpointSample(_isc.EndpointCaller caller) : super(caller);
+
+  @override
+  String get name => 'sample';
+
+  /// Issues an upload description for one file (WAV/MP3/OGG/FLAC, ≤ 10 MB).
+  _ida.Future<_iv3w8q6y.SampleUploadTicket> requestUpload(
+    _ix1enysx.RequestSampleUploadRequest request,
+  ) => caller.callServerEndpoint<_iv3w8q6y.SampleUploadTicket>(
+    'sample',
+    'requestUpload',
+    {'request': request},
+  );
+
+  /// Verifies and registers an uploaded file.
+  _ida.Future<_ilv1w5af.SampleResponse> finishUpload(
+    _i5duwawj.FinishSampleUploadRequest request,
+  ) => caller.callServerEndpoint<_ilv1w5af.SampleResponse>(
+    'sample',
+    'finishUpload',
+    {'request': request},
+  );
+
+  /// Samples of a project, newest first, with 12-hour download URLs.
+  _ida.Future<List<_ilv1w5af.SampleResponse>> list(_isc.UuidValue projectId) =>
+      caller.callServerEndpoint<List<_ilv1w5af.SampleResponse>>(
+        'sample',
+        'list',
+        {'projectId': projectId},
+      );
+
+  /// Deletes a sample and the channels / playlist clips using it.
+  _ida.Future<void> delete(_isc.UuidValue sampleId) =>
+      caller.callServerEndpoint<void>(
+        'sample',
+        'delete',
+        {'sampleId': sampleId},
+      );
+}
+
 /// This is an example endpoint that returns a greeting message through
 /// its [hello] method.
 /// {@category Endpoint}
@@ -689,8 +955,12 @@ class Client extends _isc.ServerpodClientShared {
        ) {
     emailIdp = EndpointEmailIdp(this);
     jwtRefresh = EndpointJwtRefresh(this);
+    channel = EndpointChannel(this);
+    pattern = EndpointPattern(this);
+    playlist = EndpointPlaylist(this);
     projectCollaboration = EndpointProjectCollaboration(this);
     project = EndpointProject(this);
+    sample = EndpointSample(this);
     greeting = EndpointGreeting(this);
     modules = Modules(this);
   }
@@ -699,9 +969,17 @@ class Client extends _isc.ServerpodClientShared {
 
   late final EndpointJwtRefresh jwtRefresh;
 
+  late final EndpointChannel channel;
+
+  late final EndpointPattern pattern;
+
+  late final EndpointPlaylist playlist;
+
   late final EndpointProjectCollaboration projectCollaboration;
 
   late final EndpointProject project;
+
+  late final EndpointSample sample;
 
   late final EndpointGreeting greeting;
 
@@ -711,8 +989,12 @@ class Client extends _isc.ServerpodClientShared {
   Map<String, _isc.EndpointRef> get endpointRefLookup => {
     'emailIdp': emailIdp,
     'jwtRefresh': jwtRefresh,
+    'channel': channel,
+    'pattern': pattern,
+    'playlist': playlist,
     'projectCollaboration': projectCollaboration,
     'project': project,
+    'sample': sample,
     'greeting': greeting,
   };
 

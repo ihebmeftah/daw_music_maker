@@ -2,6 +2,8 @@ import 'package:serverpod/serverpod.dart';
 
 import '../../../core/pagination/page_limits.dart';
 import '../../../generated/protocol.dart';
+import '../../channels/services/channel_service.dart';
+import '../../patterns/services/pattern_service.dart';
 import '../mappers/project_mapper.dart';
 import '../repositories/project_invitations_repository.dart';
 import '../repositories/project_join_requests_repository.dart';
@@ -35,19 +37,34 @@ class ProjectService {
       allowContributions: request.allowContributions,
     );
     final now = DateTime.now().toUtc();
-    final project = await _projects.insert(
-      session,
-      Project(
-        ownerId: userId,
-        name: details.name,
-        description: details.description,
-        genres: details.genres,
-        visibility: details.visibility,
-        allowContributions: details.allowContributions,
-        createdAt: now,
-        updatedAt: now,
-      ),
-    );
+    // Every project starts with "Pattern 1" and a drum rack.
+    final project = await session.db.transaction((tx) async {
+      final saved = await _projects.insert(
+        session,
+        Project(
+          ownerId: userId,
+          name: details.name,
+          description: details.description,
+          genres: details.genres,
+          visibility: details.visibility,
+          allowContributions: details.allowContributions,
+          createdAt: now,
+          updatedAt: now,
+        ),
+        transaction: tx,
+      );
+      await const PatternService().createDefault(
+        session,
+        saved.id!,
+        transaction: tx,
+      );
+      await const ChannelService().createDefaults(
+        session,
+        saved.id!,
+        transaction: tx,
+      );
+      return saved;
+    });
     return project.toResponse(access: ProjectAccess.owner, memberCount: 0);
   }
 
