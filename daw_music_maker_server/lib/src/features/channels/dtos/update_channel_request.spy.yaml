@@ -1,0 +1,17 @@
+### Full replacement of a channel's settings (owner or write member).
+class: UpdateChannelRequest
+fields:
+  ### Display name, 1–40 chars after trimming.
+  name: String
+  ### Volume, 0.0–1.0.
+  volume: double
+  ### Whether the channel is silenced.
+  muted: bool
+  ### Stereo position, -1.0 – 1.0.
+  pan: double, default=0.0
+  ### Transposition in semitones, -24 – 24.
+  pitch: int, default=0
+  ### Start of the played region (0.0 ≤ start < end).
+  startFrac: double, default=0.0
+  ### End of the played region (start < end ≤ 1.0).
+  endFrac: double, default=1.0

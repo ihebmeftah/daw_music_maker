@@ -1,0 +1,5 @@
+### Chops a channel's region into equal slices, one new channel each.
+class: ChopChannelRequest
+fields:
+  ### Number of slices: 2, 4, 8 or 16.
+  slices: int

@@ -1,0 +1,27 @@
+### A channel as seen by the client.
+class: ChannelResponse
+fields:
+  ### Channel id.
+  id: UuidValue
+  ### The project.
+  projectId: UuidValue
+  ### Display name.
+  name: String
+  ### The built-in sample this channel plays (null for uploaded samples).
+  sample: SampleKind?
+  ### The uploaded sample this channel plays, if any.
+  sampleId: UuidValue?
+  ### Volume, 0.0–1.0.
+  volume: double
+  ### Whether the channel is silenced.
+  muted: bool
+  ### Stereo position, -1.0 – 1.0.
+  pan: double
+  ### Transposition in semitones.
+  pitch: int
+  ### Start of the played region (fraction).
+  startFrac: double
+  ### End of the played region (fraction).
+  endFrac: double
+  ### Order in the rack.
+  position: int

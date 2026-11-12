@@ -1,0 +1,5 @@
+### Replaces all notes of a pattern at once (owner or write member).
+class: SavePatternNotesRequest
+fields:
+  ### The pattern's complete note list (max 4096).
+  notes: List<NoteInput>

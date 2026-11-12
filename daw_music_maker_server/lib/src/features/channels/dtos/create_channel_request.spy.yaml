@@ -1,0 +1,12 @@
+### Input for adding a channel (owner or write member). Exactly one of
+### [sample] (built-in) and [sampleId] (uploaded) must be set.
+class: CreateChannelRequest
+fields:
+  ### The project.
+  projectId: UuidValue
+  ### A built-in sample to play.
+  sample: SampleKind?
+  ### An uploaded sample of the project to play.
+  sampleId: UuidValue?
+  ### Optional name (1–40 chars); defaults to the sample's name.
+  name: String?

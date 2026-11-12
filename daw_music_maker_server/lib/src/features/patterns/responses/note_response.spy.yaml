@@ -1,0 +1,15 @@
+### A pattern note as seen by the client.
+class: NoteResponse
+fields:
+  ### Note id.
+  id: UuidValue
+  ### The channel that plays it.
+  channelId: UuidValue
+  ### Start in ticks.
+  tick: int
+  ### Duration in ticks.
+  lengthTicks: int
+  ### MIDI pitch.
+  pitch: int
+  ### MIDI velocity.
+  velocity: int

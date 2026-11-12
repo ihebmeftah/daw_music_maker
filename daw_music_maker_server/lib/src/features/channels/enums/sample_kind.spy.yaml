@@ -1,0 +1,11 @@
+### Built-in samples a channel can play (bundled with the app).
+enum: SampleKind
+values:
+  ### Kick drum.
+  - kick
+  ### Snare drum.
+  - snare
+  ### Closed hi-hat.
+  - closedHat
+  ### Open hi-hat.
+  - openHat

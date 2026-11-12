@@ -1,0 +1,13 @@
+### One note in a [SavePatternNotesRequest].
+class: NoteInput
+fields:
+  ### The channel (must belong to the pattern's project).
+  channelId: UuidValue
+  ### Start in ticks (0 ≤ tick < pattern length).
+  tick: int
+  ### Duration in ticks (≥ 1, ends within the pattern).
+  lengthTicks: int
+  ### MIDI pitch 0–127.
+  pitch: int
+  ### MIDI velocity 1–127.
+  velocity: int
