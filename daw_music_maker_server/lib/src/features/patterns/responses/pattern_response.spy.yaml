@@ -1,0 +1,19 @@
+### A pattern as seen by the client.
+class: PatternResponse
+fields:
+  ### Pattern id.
+  id: UuidValue
+  ### The project.
+  projectId: UuidValue
+  ### Display name.
+  name: String
+  ### Index into the track color palette (0–7).
+  colorIndex: int
+  ### Loop length in bars.
+  lengthBars: int
+  ### Sort order within the project.
+  position: int
+  ### Creation time.
+  createdAt: DateTime
+  ### Last modification time.
+  updatedAt: DateTime

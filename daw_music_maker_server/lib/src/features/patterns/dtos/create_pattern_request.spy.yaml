@@ -1,0 +1,11 @@
+### Input for adding a pattern to a project (owner or write member).
+class: CreatePatternRequest
+fields:
+  ### The project.
+  projectId: UuidValue
+  ### Optional name (1–40 chars); defaults to "Pattern N".
+  name: String?
+  ### Optional color index (0–7); defaults to the next color in the palette.
+  colorIndex: int?
+  ### Optional length in bars (1–16); defaults to 4.
+  lengthBars: int?

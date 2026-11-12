@@ -1,0 +1,9 @@
+### Full replacement of a pattern's settings (owner or write member).
+class: UpdatePatternRequest
+fields:
+  ### Display name, 1–40 chars after trimming.
+  name: String
+  ### Color index (0–7).
+  colorIndex: int
+  ### Length in bars (1–16).
+  lengthBars: int
