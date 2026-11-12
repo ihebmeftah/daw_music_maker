@@ -684,7 +684,7 @@ class Protocol extends _is.DatabaseSerializationManager
           dartType: 'int',
         ),
         _isp.ColumnDefinition(
-          name: 'startBar',
+          name: 'startStep',
           columnType: _isp.ColumnType.bigint,
           isNullable: false,
           dartType: 'int',

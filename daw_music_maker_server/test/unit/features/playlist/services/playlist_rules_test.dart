@@ -12,12 +12,18 @@ void main() {
   final unknown = UuidValue.fromString('0190f1c2-7b7a-7cc0-8d4e-3f1b2c3d4e03');
   final lengths = <Object, int>{fourBars: 4, eightBars: 8};
 
-  ClipInput clip({UuidValue? pattern, int track = 0, int startBar = 0}) =>
-      ClipInput(
-        patternId: pattern ?? fourBars,
-        track: track,
-        startBar: startBar,
-      );
+  /// A pattern clip; [startBar] is converted to steps unless [startStep]
+  /// is given.
+  ClipInput clip({
+    UuidValue? pattern,
+    int track = 0,
+    int startBar = 0,
+    int? startStep,
+  }) => ClipInput(
+    patternId: pattern ?? fourBars,
+    track: track,
+    startStep: startStep ?? startBar * ValidationRules.stepsPerBar,
+  );
 
   void validate(List<ClipInput> clips) =>
       PlaylistRules.validate(clips, patternLengths: lengths);
@@ -148,7 +154,7 @@ void main() {
       sampleId: sample ?? sampleId,
       lengthBars: lengthBars,
       track: track,
-      startBar: startBar,
+      startStep: startBar * ValidationRules.stepsPerBar,
     );
 
     void validateAudio(List<ClipInput> clips) => PlaylistRules.validate(
@@ -171,13 +177,13 @@ void main() {
               sampleId: sampleId,
               lengthBars: 2,
               track: 0,
-              startBar: 0,
+              startStep: 0,
             ),
           ]),
           throwsClipError('exactly one'),
         );
         expect(
-          () => validateAudio([ClipInput(track: 0, startBar: 0)]),
+          () => validateAudio([ClipInput(track: 0, startStep: 0)]),
           throwsClipError('exactly one'),
         );
       },
@@ -225,6 +231,55 @@ void main() {
       expect(
         () => validateAudio([audio(lengthBars: 4, startBar: 253)]),
         throwsClipError('256'),
+      );
+    });
+  });
+
+  group('Given clips positioned in steps', () {
+    final oneBar = UuidValue.fromString('0190f1c2-7b7a-7cc0-8d4e-3f1b2c3d4e09');
+    void validateOneBar(List<ClipInput> clips) => PlaylistRules.validate(
+      clips,
+      patternLengths: {...lengths, oneBar: 1},
+    );
+
+    test('when 1-bar clips start on steps 4 and 20, then they fit', () {
+      expect(
+        () => validateOneBar([
+          clip(pattern: oneBar, startStep: 4),
+          clip(pattern: oneBar, startStep: 20),
+        ]),
+        returnsNormally,
+      );
+    });
+
+    test('when 1-bar clips start on steps 4 and 12, then they overlap', () {
+      expect(
+        () => validateOneBar([
+          clip(pattern: oneBar, startStep: 4),
+          clip(pattern: oneBar, startStep: 12),
+        ]),
+        throwsClipError('overlaps'),
+      );
+    });
+
+    test('when a clip ends exactly at step 4096, then it is accepted', () {
+      expect(
+        () => validateOneBar([clip(pattern: oneBar, startStep: 4080)]),
+        returnsNormally,
+      );
+    });
+
+    test('when a clip would end at step 4097, then it is rejected', () {
+      expect(
+        () => validateOneBar([clip(pattern: oneBar, startStep: 4081)]),
+        throwsClipError('256 bars'),
+      );
+    });
+
+    test('when the start step is negative, then it is rejected', () {
+      expect(
+        () => validateOneBar([clip(pattern: oneBar, startStep: -1)]),
+        throwsCode(ErrorCode.validation),
       );
     });
   });

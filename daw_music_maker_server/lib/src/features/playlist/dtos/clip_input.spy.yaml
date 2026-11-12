@@ -10,5 +10,5 @@ fields:
   lengthBars: int?
   ### Track (row), 0–15.
   track: int
-  ### First bar, 0–255.
-  startBar: int
+  ### Start in steps (1/16 notes) from the song start, 0–4095.
+  startStep: int

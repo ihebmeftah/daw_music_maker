@@ -22,12 +22,17 @@ void main() {
       );
     }
 
-    ClipInput clip({UuidValue? patternId, int track = 0, int startBar = 0}) =>
-        ClipInput(
-          patternId: patternId ?? pattern.id,
-          track: track,
-          startBar: startBar,
-        );
+    /// A clip; [startBar] is converted to steps unless [startStep] is given.
+    ClipInput clip({
+      UuidValue? patternId,
+      int track = 0,
+      int startBar = 0,
+      int? startStep,
+    }) => ClipInput(
+      patternId: patternId ?? pattern.id,
+      track: track,
+      startStep: startStep ?? startBar * 16,
+    );
 
     Future<List<ClipResponse>> save(TestUser user, List<ClipInput> clips) =>
         endpoints.playlist.save(
@@ -138,7 +143,7 @@ void main() {
         final saved = await save(other, [clip(track: 2, startBar: 8)]);
 
         expect(saved.single.track, 2);
-        expect(saved.single.startBar, 8);
+        expect(saved.single.startStep, 128);
       });
 
       test('when the input is invalid, then validation fails', () async {
@@ -175,7 +180,24 @@ void main() {
       );
 
       test(
-        'when saving, then replaces the whole list ordered by track and bar',
+        'when clips start on beats / steps, then they are kept in step order',
+        () async {
+          await save(owner, [
+            clip(track: 0, startStep: 68),
+            clip(track: 0, startStep: 4),
+          ]);
+
+          final listed = await endpoints.playlist.list(
+            owner.session,
+            project.id,
+          );
+
+          expect([for (final c in listed) c.startStep], [4, 68]);
+        },
+      );
+
+      test(
+        'when saving, then replaces the whole list ordered by track and step',
         () async {
           await save(owner, [clip(track: 5)]);
 
@@ -191,11 +213,11 @@ void main() {
 
           expect(saved, hasLength(3));
           expect(
-            [for (final c in listed) (c.track, c.startBar)],
+            [for (final c in listed) (c.track, c.startStep)],
             [
-              (0, 4),
+              (0, 64),
               (1, 0),
-              (1, 8),
+              (1, 128),
             ],
           );
         },

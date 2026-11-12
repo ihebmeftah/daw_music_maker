@@ -42,11 +42,16 @@ abstract final class PlaylistRules {
         error = 'unknown pattern';
       } else if (c.track < 0 || c.track >= ValidationRules.playlistTracks) {
         error = 'track must be 1–${ValidationRules.playlistTracks}';
-      } else if (c.startBar < 0 ||
-          c.startBar + length > ValidationRules.playlistBarsMax) {
+      } else if (c.startStep < 0 ||
+          c.startStep + length * ValidationRules.stepsPerBar >
+              ValidationRules.playlistBarsMax * ValidationRules.stepsPerBar) {
         error = 'must fit in ${ValidationRules.playlistBarsMax} bars';
       } else {
-        final span = (c.startBar, c.startBar + length);
+        // Spans in steps: clips may start on any step.
+        final span = (
+          c.startStep,
+          c.startStep + length * ValidationRules.stepsPerBar,
+        );
         final others = byTrack[c.track] ??= [];
         if (others.any((o) => span.$1 < o.$2 && o.$1 < span.$2)) {
           error = 'overlaps another clip on the track';

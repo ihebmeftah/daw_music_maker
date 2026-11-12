@@ -21,7 +21,7 @@ abstract class ClipResponse
     this.sampleId,
     this.lengthBars,
     required this.track,
-    required this.startBar,
+    required this.startStep,
   });
 
   factory ClipResponse({
@@ -30,7 +30,7 @@ abstract class ClipResponse
     _is.UuidValue? sampleId,
     int? lengthBars,
     required int track,
-    required int startBar,
+    required int startStep,
   }) = _ClipResponseImpl;
 
   factory ClipResponse.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -44,7 +44,7 @@ abstract class ClipResponse
           : _is.UuidValueJsonExtension.fromJson(jsonSerialization['sampleId']),
       lengthBars: jsonSerialization['lengthBars'] as int?,
       track: jsonSerialization['track'] as int,
-      startBar: jsonSerialization['startBar'] as int,
+      startStep: jsonSerialization['startStep'] as int,
     );
   }
 
@@ -63,8 +63,8 @@ abstract class ClipResponse
   /// Track (row).
   int track;
 
-  /// First bar (0-based).
-  int startBar;
+  /// Start in steps (1/16 notes) from the song start, 0–4095.
+  int startStep;
 
   /// Returns a shallow copy of this [ClipResponse]
   /// with some or all fields replaced by the given arguments.
@@ -75,7 +75,7 @@ abstract class ClipResponse
     _is.UuidValue? sampleId = const _is.$UndefinedUuidValue(),
     int? lengthBars,
     int? track,
-    int? startBar,
+    int? startStep,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -86,7 +86,7 @@ abstract class ClipResponse
       if (sampleId != null) 'sampleId': sampleId?.toJson(),
       if (lengthBars != null) 'lengthBars': lengthBars,
       'track': track,
-      'startBar': startBar,
+      'startStep': startStep,
     };
   }
 
@@ -99,7 +99,7 @@ abstract class ClipResponse
       if (sampleId != null) 'sampleId': sampleId?.toJson(),
       if (lengthBars != null) 'lengthBars': lengthBars,
       'track': track,
-      'startBar': startBar,
+      'startStep': startStep,
     };
   }
 
@@ -118,14 +118,14 @@ class _ClipResponseImpl extends ClipResponse {
     _is.UuidValue? sampleId,
     int? lengthBars,
     required int track,
-    required int startBar,
+    required int startStep,
   }) : super._(
          id: id,
          patternId: patternId,
          sampleId: sampleId,
          lengthBars: lengthBars,
          track: track,
-         startBar: startBar,
+         startStep: startStep,
        );
 
   /// Returns a shallow copy of this [ClipResponse]
@@ -138,7 +138,7 @@ class _ClipResponseImpl extends ClipResponse {
     _is.UuidValue? sampleId = const _is.$UndefinedUuidValue(),
     Object? lengthBars = _Undefined,
     int? track,
-    int? startBar,
+    int? startStep,
   }) {
     return ClipResponse(
       id: id ?? this.id,
@@ -148,7 +148,7 @@ class _ClipResponseImpl extends ClipResponse {
       sampleId: sampleId is _is.UndefinedSentinel ? this.sampleId : sampleId,
       lengthBars: lengthBars is int? ? lengthBars : this.lengthBars,
       track: track ?? this.track,
-      startBar: startBar ?? this.startBar,
+      startStep: startStep ?? this.startStep,
     );
   }
 }

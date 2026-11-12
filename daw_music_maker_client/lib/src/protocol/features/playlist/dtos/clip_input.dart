@@ -21,7 +21,7 @@ abstract class ClipInput
     this.sampleId,
     this.lengthBars,
     required this.track,
-    required this.startBar,
+    required this.startStep,
   });
 
   factory ClipInput({
@@ -29,7 +29,7 @@ abstract class ClipInput
     _isc.UuidValue? sampleId,
     int? lengthBars,
     required int track,
-    required int startBar,
+    required int startStep,
   }) = _ClipInputImpl;
 
   factory ClipInput.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -44,7 +44,7 @@ abstract class ClipInput
           : _isc.UuidValueJsonExtension.fromJson(jsonSerialization['sampleId']),
       lengthBars: jsonSerialization['lengthBars'] as int?,
       track: jsonSerialization['track'] as int,
-      startBar: jsonSerialization['startBar'] as int,
+      startStep: jsonSerialization['startStep'] as int,
     );
   }
 
@@ -60,8 +60,8 @@ abstract class ClipInput
   /// Track (row), 0–15.
   int track;
 
-  /// First bar, 0–255.
-  int startBar;
+  /// Start in steps (1/16 notes) from the song start, 0–4095.
+  int startStep;
 
   /// Returns a shallow copy of this [ClipInput]
   /// with some or all fields replaced by the given arguments.
@@ -71,7 +71,7 @@ abstract class ClipInput
     _isc.UuidValue? sampleId = const _isc.$UndefinedUuidValue(),
     int? lengthBars,
     int? track,
-    int? startBar,
+    int? startStep,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -81,7 +81,7 @@ abstract class ClipInput
       if (sampleId != null) 'sampleId': sampleId?.toJson(),
       if (lengthBars != null) 'lengthBars': lengthBars,
       'track': track,
-      'startBar': startBar,
+      'startStep': startStep,
     };
   }
 
@@ -93,7 +93,7 @@ abstract class ClipInput
       if (sampleId != null) 'sampleId': sampleId?.toJson(),
       if (lengthBars != null) 'lengthBars': lengthBars,
       'track': track,
-      'startBar': startBar,
+      'startStep': startStep,
     };
   }
 
@@ -111,13 +111,13 @@ class _ClipInputImpl extends ClipInput {
     _isc.UuidValue? sampleId,
     int? lengthBars,
     required int track,
-    required int startBar,
+    required int startStep,
   }) : super._(
          patternId: patternId,
          sampleId: sampleId,
          lengthBars: lengthBars,
          track: track,
-         startBar: startBar,
+         startStep: startStep,
        );
 
   /// Returns a shallow copy of this [ClipInput]
@@ -129,7 +129,7 @@ class _ClipInputImpl extends ClipInput {
     _isc.UuidValue? sampleId = const _isc.$UndefinedUuidValue(),
     Object? lengthBars = _Undefined,
     int? track,
-    int? startBar,
+    int? startStep,
   }) {
     return ClipInput(
       patternId: patternId is _isc.UndefinedSentinel
@@ -138,7 +138,7 @@ class _ClipInputImpl extends ClipInput {
       sampleId: sampleId is _isc.UndefinedSentinel ? this.sampleId : sampleId,
       lengthBars: lengthBars is int? ? lengthBars : this.lengthBars,
       track: track ?? this.track,
-      startBar: startBar ?? this.startBar,
+      startStep: startStep ?? this.startStep,
     );
   }
 }

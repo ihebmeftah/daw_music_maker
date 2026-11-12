@@ -9,6 +9,6 @@ extension ClipMapper on PlaylistClip {
     sampleId: sampleId,
     lengthBars: lengthBars,
     track: track,
-    startBar: startBar,
+    startStep: startStep,
   );
 }

@@ -17,8 +17,9 @@ fields:
   lengthBars: int?
   ### Playlist track (row), 0–15.
   track: int
-  ### First bar of the clip (0-based).
-  startBar: int
+  ### Start of the clip in steps (1/16 notes) from the song start, so clips
+  ### can snap to bars, beats or steps.
+  startStep: int
 indexes:
   playlist_clip_project_idx:
     fields: projectId

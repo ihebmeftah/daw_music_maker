@@ -78,6 +78,9 @@ abstract final class ValidationRules {
   /// Ticks of one bar (4/4).
   static const int ticksPerBar = ppq * 4;
 
+  /// Steps (1/16 notes) per bar.
+  static const int stepsPerBar = 16;
+
   /// Ticks of one step-sequencer step (a 1/16 note).
   static const int stepTicks = ppq ~/ 4;
 

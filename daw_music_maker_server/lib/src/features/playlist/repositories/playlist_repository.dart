@@ -7,14 +7,14 @@ class PlaylistClipsRepository {
   /// Creates the repository.
   const PlaylistClipsRepository();
 
-  /// Clips of [projectId], ordered by track then start.
+  /// Clips of [projectId], ordered by track then start step.
   Future<List<PlaylistClip>> listForProject(
     Session session,
     UuidValue projectId,
   ) => PlaylistClip.db.find(
     session,
     where: (t) => t.projectId.equals(projectId),
-    orderByList: (t) => [t.track.asc(), t.startBar.asc()],
+    orderByList: (t) => [t.track.asc(), t.startStep.asc()],
   );
 
   /// Replaces all clips of [projectId] (inside [transaction]).

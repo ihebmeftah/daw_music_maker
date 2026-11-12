@@ -25,7 +25,7 @@ abstract class PlaylistClip
     this.sampleId,
     this.lengthBars,
     required this.track,
-    required this.startBar,
+    required this.startStep,
   });
 
   factory PlaylistClip({
@@ -35,7 +35,7 @@ abstract class PlaylistClip
     _is.UuidValue? sampleId,
     int? lengthBars,
     required int track,
-    required int startBar,
+    required int startStep,
   }) = _PlaylistClipImpl;
 
   factory PlaylistClip.fromJson(Map<String, dynamic> jsonSerialization) {
@@ -54,7 +54,7 @@ abstract class PlaylistClip
           : _is.UuidValueJsonExtension.fromJson(jsonSerialization['sampleId']),
       lengthBars: jsonSerialization['lengthBars'] as int?,
       track: jsonSerialization['track'] as int,
-      startBar: jsonSerialization['startBar'] as int,
+      startStep: jsonSerialization['startStep'] as int,
     );
   }
 
@@ -80,8 +80,9 @@ abstract class PlaylistClip
   /// Playlist track (row), 0–15.
   int track;
 
-  /// First bar of the clip (0-based).
-  int startBar;
+  /// Start of the clip in steps (1/16 notes) from the song start, so clips
+  /// can snap to bars, beats or steps.
+  int startStep;
 
   @override
   _is.Table<_is.UuidValue?> get table => t;
@@ -96,7 +97,7 @@ abstract class PlaylistClip
     _is.UuidValue? sampleId = const _is.$UndefinedUuidValue(),
     int? lengthBars,
     int? track,
-    int? startBar,
+    int? startStep,
   });
   @override
   Map<String, dynamic> toJson() {
@@ -108,7 +109,7 @@ abstract class PlaylistClip
       if (sampleId != null) 'sampleId': sampleId?.toJson(),
       if (lengthBars != null) 'lengthBars': lengthBars,
       'track': track,
-      'startBar': startBar,
+      'startStep': startStep,
     };
   }
 
@@ -155,7 +156,7 @@ class _PlaylistClipImpl extends PlaylistClip {
     _is.UuidValue? sampleId,
     int? lengthBars,
     required int track,
-    required int startBar,
+    required int startStep,
   }) : super._(
          id: id,
          projectId: projectId,
@@ -163,7 +164,7 @@ class _PlaylistClipImpl extends PlaylistClip {
          sampleId: sampleId,
          lengthBars: lengthBars,
          track: track,
-         startBar: startBar,
+         startStep: startStep,
        );
 
   /// Returns a shallow copy of this [PlaylistClip]
@@ -177,7 +178,7 @@ class _PlaylistClipImpl extends PlaylistClip {
     _is.UuidValue? sampleId = const _is.$UndefinedUuidValue(),
     Object? lengthBars = _Undefined,
     int? track,
-    int? startBar,
+    int? startStep,
   }) {
     return PlaylistClip(
       id: id is _is.UndefinedSentinel ? this.id : id,
@@ -188,7 +189,7 @@ class _PlaylistClipImpl extends PlaylistClip {
       sampleId: sampleId is _is.UndefinedSentinel ? this.sampleId : sampleId,
       lengthBars: lengthBars is int? ? lengthBars : this.lengthBars,
       track: track ?? this.track,
-      startBar: startBar ?? this.startBar,
+      startStep: startStep ?? this.startStep,
     );
   }
 }
@@ -227,8 +228,8 @@ class PlaylistClipUpdateTable extends _is.UpdateTable<PlaylistClipTable> {
     value,
   );
 
-  _is.ColumnValue<int, int> startBar(int value) => _is.ColumnValue(
-    table.startBar,
+  _is.ColumnValue<int, int> startStep(int value) => _is.ColumnValue(
+    table.startStep,
     value,
   );
 }
@@ -256,8 +257,8 @@ class PlaylistClipTable extends _is.Table<_is.UuidValue?> {
       'track',
       this,
     );
-    startBar = _is.ColumnInt(
-      'startBar',
+    startStep = _is.ColumnInt(
+      'startStep',
       this,
     );
   }
@@ -279,8 +280,9 @@ class PlaylistClipTable extends _is.Table<_is.UuidValue?> {
   /// Playlist track (row), 0–15.
   late final _is.ColumnInt track;
 
-  /// First bar of the clip (0-based).
-  late final _is.ColumnInt startBar;
+  /// Start of the clip in steps (1/16 notes) from the song start, so clips
+  /// can snap to bars, beats or steps.
+  late final _is.ColumnInt startStep;
 
   @override
   List<_is.Column> get columns => [
@@ -290,7 +292,7 @@ class PlaylistClipTable extends _is.Table<_is.UuidValue?> {
     sampleId,
     lengthBars,
     track,
-    startBar,
+    startStep,
   ];
 }
 

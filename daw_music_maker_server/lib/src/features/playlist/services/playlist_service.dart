@@ -60,7 +60,7 @@ class PlaylistService {
             sampleId: c.sampleId,
             lengthBars: c.sampleId == null ? null : c.lengthBars,
             track: c.track,
-            startBar: c.startBar,
+            startStep: c.startStep,
           ),
       ], transaction: tx),
     );
