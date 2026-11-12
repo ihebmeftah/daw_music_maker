@@ -56,6 +56,18 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i440.EndpointProject>(
       () => registerModule.projectEndpoint(gh<_i440.Client>()),
     );
+    gh.lazySingleton<_i440.EndpointSample>(
+      () => registerModule.sampleEndpoint(gh<_i440.Client>()),
+    );
+    gh.lazySingleton<_i440.EndpointPlaylist>(
+      () => registerModule.playlistEndpoint(gh<_i440.Client>()),
+    );
+    gh.lazySingleton<_i440.EndpointChannel>(
+      () => registerModule.channelEndpoint(gh<_i440.Client>()),
+    );
+    gh.lazySingleton<_i440.EndpointPattern>(
+      () => registerModule.patternEndpoint(gh<_i440.Client>()),
+    );
     gh.lazySingleton<_i440.EndpointProjectCollaboration>(
       () => registerModule.projectCollaborationEndpoint(gh<_i440.Client>()),
     );
@@ -67,6 +79,15 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i440.EndpointProjectCollaboration>(),
       ),
     );
+    gh.lazySingleton<_i317.StudioRepository>(
+      () => _i386.StudioRepositoryImpl(
+        gh<_i440.EndpointProject>(),
+        gh<_i440.EndpointPattern>(),
+        gh<_i440.EndpointChannel>(),
+        gh<_i440.EndpointPlaylist>(),
+        gh<_i440.EndpointSample>(),
+      ),
+    );
     gh.factory<_i576.Metronome>(() => _i576.Metronome(gh<_i131.AudioEngine>()));
     gh.lazySingleton<_i879.ProjectRepository>(
       () => _i337.ProjectRepositoryImpl(gh<_i440.EndpointProject>()),
@@ -76,9 +97,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i440.EndpointEmailIdp>(),
         gh<_i90.FlutterAuthSessionManager>(),
       ),
-    );
-    gh.lazySingleton<_i317.StudioRepository>(
-      () => _i386.StudioRepositoryImpl(gh<_i440.EndpointProject>()),
     );
     gh.lazySingleton<_i630.AuthSession>(
       () => _i630.AuthSessionImpl(gh<_i90.FlutterAuthSessionManager>()),

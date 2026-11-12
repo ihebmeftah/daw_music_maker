@@ -2,7 +2,16 @@ import 'package:daw_music_maker/core/errors/failure.dart';
 import 'package:daw_music_maker/features/projects/presentation/views/project_detail_view.dart';
 import 'package:daw_music_maker/features/studio/presentation/views/studio_view.dart';
 import 'package:daw_music_maker/features/studio/presentation/widgets/beat_lights.dart';
+import 'package:daw_music_maker/features/studio/data/studio_clip.dart';
+import 'package:daw_music_maker/features/studio/data/studio_note.dart';
+import 'package:daw_music_maker/features/studio/presentation/widgets/playlist_view.dart';
+import 'package:daw_music_maker/features/studio/presentation/widgets/sample_browser.dart';
+import 'package:daw_music_maker/features/studio/presentation/view_models/studio_view_model.dart';
 import 'package:daw_music_maker/features/studio/presentation/widgets/bpm_display.dart';
+import 'package:daw_music_maker/features/studio/presentation/widgets/channel_rack.dart';
+import 'package:daw_music_maker/features/studio/presentation/widgets/piano_roll.dart';
+import 'package:daw_music_maker/features/studio/presentation/widgets/pattern_name_dialog.dart';
+import 'package:daw_music_maker/features/studio/presentation/widgets/pattern_selector.dart';
 import 'package:daw_music_maker/features/studio/presentation/widgets/playback_timeline.dart';
 import 'package:daw_music_maker/features/studio/presentation/widgets/transport_toolbar.dart';
 import 'package:flutter/gestures.dart';
@@ -25,6 +34,7 @@ void main() {
   setUp(() {
     studio = MockStudioRepository();
     audio = FakeAudioEngine();
+    stubPatterns(studio);
     when(() => studio.saveTempo(any(), any())).thenAnswer(
       (inv) async => testProject(bpm: inv.positionalArguments[1] as double),
     );
@@ -283,6 +293,383 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
       expect(find.text('00:00.00'), findsOneWidget);
       expect(find.text('STOPPED'), findsOneWidget);
+    });
+  });
+
+  group('Given patterns in the studio toolbar', () {
+    final intro = testPattern(id: testPatternId, name: 'Intro', lengthBars: 4);
+    final drop = testPattern(
+      id: otherTestId,
+      name: 'Drop',
+      lengthBars: 8,
+      position: 1,
+    );
+
+    testWidgets('when switching with ] and [, then the timeline follows', (
+      tester,
+    ) async {
+      stubPatterns(studio, [intro, drop]);
+      await open(tester);
+
+      expect(find.text('INTRO · LOOP 4 BARS'), findsOneWidget);
+
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.sendKeyEvent(LogicalKeyboardKey.bracketRight);
+      await tester.pumpAndSettle();
+      expect(find.text('DROP · LOOP 8 BARS'), findsOneWidget);
+      expect(find.text('Drop'), findsOneWidget);
+
+      // Shortcuts keep working with focus anywhere in the studio.
+      await tester.sendKeyEvent(LogicalKeyboardKey.bracketLeft);
+      await tester.pumpAndSettle();
+      expect(find.text('INTRO · LOOP 4 BARS'), findsOneWidget);
+    });
+
+    testWidgets('when renaming from the menu, then saves the new name', (
+      tester,
+    ) async {
+      stubPatterns(studio, [intro, drop]);
+      when(
+        () => studio.updatePattern(
+          any(),
+          name: any(named: 'name'),
+          colorIndex: any(named: 'colorIndex'),
+          lengthBars: any(named: 'lengthBars'),
+        ),
+      ).thenAnswer(
+        (inv) async => testPattern(
+          id: testPatternId,
+          name: inv.namedArguments[#name] as String,
+        ),
+      );
+      await open(tester);
+
+      await tester.tap(find.byKey(PatternSelector.menuKey));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(PatternSelector.renameKey));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(PatternNameDialog.fieldKey), 'Verse');
+      await tester.tap(find.byKey(PatternNameDialog.saveKey));
+      await tester.pumpAndSettle();
+
+      verify(
+        () => studio.updatePattern(
+          testPatternId,
+          name: 'Verse',
+          colorIndex: 0,
+          lengthBars: 4,
+        ),
+      ).called(1);
+      expect(find.text('VERSE · LOOP 4 BARS'), findsOneWidget);
+    });
+
+    testWidgets('when adding a pattern with +, then it becomes current', (
+      tester,
+    ) async {
+      final added = testPattern(
+        id: otherTestId,
+        name: 'Pattern 2',
+        position: 1,
+      );
+      when(() => studio.createPattern(any())).thenAnswer((_) async => added);
+      await open(tester);
+
+      await tester.tap(find.byKey(PatternSelector.addKey));
+      await tester.pumpAndSettle();
+
+      expect(find.text('PATTERN 2 · LOOP 4 BARS'), findsOneWidget);
+    });
+
+    testWidgets('when a read member opens the studio, then there is no +', (
+      tester,
+    ) async {
+      await open(tester, access: ProjectAccess.read);
+
+      expect(find.byKey(PatternSelector.menuKey), findsOneWidget);
+      expect(find.byKey(PatternSelector.addKey), findsNothing);
+    });
+  });
+
+  group('Given the channel rack and piano roll', () {
+    testWidgets('when clicking a step, then it plays and saves after a pause', (
+      tester,
+    ) async {
+      await open(tester);
+
+      expect(find.byType(ChannelRack), findsOneWidget);
+      await tester.tap(find.byKey(ChannelRack.stepKey(testChannelIds[0], 0)));
+      await tester.pump();
+      expect(audio.samples.single.sample, SampleKind.kick);
+      verifyNever(() => studio.saveNotes(any(), any()));
+
+      await tester.pump(StudioViewModel.noteSaveDelay);
+      await tester.pumpAndSettle();
+
+      final saved =
+          verify(
+                () => studio.saveNotes(testPatternId, captureAny()),
+              ).captured.single
+              as List<StudioNote>;
+      expect(saved.single.channelId, testChannelIds[0]);
+    });
+
+    testWidgets('when playing, then the drums sound on their steps', (
+      tester,
+    ) async {
+      stubPatterns(studio, null, null, [
+        StudioNote(channelId: testChannelIds[0], tick: 0),
+        StudioNote(channelId: testChannelIds[1], tick: 960),
+      ]);
+      await open(tester);
+
+      await tester.tap(find.byKey(TransportToolbar.playKey));
+      await tester.pump();
+      // 120 BPM: beat 2 (step 4) is 500 ms later.
+      await tester.pump(const Duration(milliseconds: 520));
+
+      expect(audio.samples.map((s) => s.sample), [
+        SampleKind.kick,
+        SampleKind.snare,
+      ]);
+
+      await tester.tap(find.byKey(TransportToolbar.playKey));
+      await tester.pump(const Duration(seconds: 1));
+    });
+
+    testWidgets('when switching to the piano roll, then shows the channel', (
+      tester,
+    ) async {
+      await open(tester);
+
+      await tester.tap(find.byKey(StudioView.pianoTabKey));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PianoRoll), findsOneWidget);
+      expect(find.byType(ChannelRack), findsNothing);
+      await tester.tap(find.byKey(PianoRoll.keyFor(72)));
+      await tester.pump();
+      expect(audio.samples.single.rate, closeTo(2, 1e-9));
+
+      await tester.tap(find.byKey(StudioView.rackTabKey));
+      await tester.pumpAndSettle();
+      expect(find.byType(ChannelRack), findsOneWidget);
+    });
+  });
+
+  group('Given the playlist and song mode', () {
+    testWidgets(
+      'when placing a clip in the playlist, then saves it after a pause',
+      (
+        tester,
+      ) async {
+        await open(tester);
+
+        await tester.tap(find.byKey(StudioView.playlistTabKey));
+        await tester.pumpAndSettle();
+        expect(find.byType(PlaylistView), findsOneWidget);
+
+        final grid = tester.getTopLeft(find.byKey(PlaylistView.gridKey));
+        await tester.tapAt(
+          grid +
+              const Offset(
+                PlaylistView.barWidth * 2 + 10,
+                PlaylistView.rulerHeight + 10,
+              ),
+        );
+        await tester.pump(StudioViewModel.noteSaveDelay);
+        await tester.pumpAndSettle();
+
+        final saved =
+            verify(
+                  () => studio.saveClips(testRequestId, captureAny()),
+                ).captured.single
+                as List<StudioClip>;
+        expect(saved.single.startBar, 2);
+        expect(saved.single.track, 0);
+      },
+    );
+
+    testWidgets(
+      'when switching to SONG with L, then the timeline shows the song',
+      (
+        tester,
+      ) async {
+        stubPatterns(studio, null, null, const [], [
+          StudioClip(patternId: testPatternId, track: 0, startBar: 4),
+        ]);
+        await open(tester);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.keyL);
+        await tester.pumpAndSettle();
+        expect(find.text('SONG · LOOP 8 BARS'), findsOneWidget);
+
+        await tester.tap(find.byKey(TransportToolbar.patModeKey));
+        await tester.pumpAndSettle();
+        expect(find.text('PATTERN 1 · LOOP 4 BARS'), findsOneWidget);
+      },
+    );
+
+    testWidgets('when playing the song, then clips sound at their bars', (
+      tester,
+    ) async {
+      stubPatterns(
+        studio,
+        null,
+        null,
+        [StudioNote(channelId: testChannelIds[0], tick: 0)],
+        [StudioClip(patternId: testPatternId, track: 0, startBar: 1)],
+      );
+      await open(tester);
+      await tester.tap(find.byKey(TransportToolbar.songModeKey));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(TransportToolbar.playKey));
+      await tester.pump();
+      expect(audio.samples, isEmpty); // bar 1 is empty
+
+      // At 120 BPM, bar 2 starts after 2 s.
+      await tester.pump(const Duration(milliseconds: 2010));
+      expect(audio.samples.single.sample, SampleKind.kick);
+
+      await tester.tap(find.byKey(TransportToolbar.playKey));
+      await tester.pump(const Duration(seconds: 1));
+    });
+  });
+
+  group('Given the toolbar and timeline layout', () {
+    testWidgets('when wide, then they share a row at about 70% / 30%', (
+      tester,
+    ) async {
+      await open(tester);
+
+      final toolbar = tester.getRect(find.byType(TransportToolbar));
+      final timeline = tester.getRect(find.byType(PlaybackTimeline));
+
+      expect(timeline.top, toolbar.top);
+      expect(timeline.left, greaterThan(toolbar.right));
+      final ratio = timeline.width / (toolbar.width + timeline.width);
+      expect(ratio, closeTo(0.3, 0.02));
+    });
+
+    testWidgets('when narrow, then the timeline goes below the toolbar', (
+      tester,
+    ) async {
+      await open(tester);
+      tester.view.physicalSize = const Size(800, 1100);
+      await tester.pumpAndSettle();
+
+      final toolbar = tester.getRect(find.byType(TransportToolbar));
+      final timeline = tester.getRect(find.byType(PlaybackTimeline));
+      expect(timeline.top, greaterThanOrEqualTo(toolbar.bottom));
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('Given the sample browser and drag & drop', () {
+    final voxId = UuidValue.fromString('0190f1c2-7b7a-7cc0-8d4e-3f1b2c3d4f41');
+
+    Future<void> dragTo(WidgetTester tester, Finder from, Offset to) async {
+      final gesture = await tester.startGesture(tester.getCenter(from));
+      await tester.pump();
+      await gesture.moveBy(const Offset(20, 0));
+      await tester.pump();
+      await gesture.moveTo(to);
+      await tester.pump();
+      await gesture.up();
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets(
+      'when dropping a drum on the channel rack, then adds a channel',
+      (
+        tester,
+      ) async {
+        when(
+          () => studio.createChannel(
+            any(),
+            sample: any(named: 'sample'),
+            sampleId: any(named: 'sampleId'),
+          ),
+        ).thenAnswer(
+          (_) async => testChannels().first.copyWith(
+            id: voxId,
+            name: 'Snare',
+            sample: SampleKind.snare,
+            position: 4,
+          ),
+        );
+        await open(tester);
+
+        await dragTo(
+          tester,
+          find.byKey(SampleBrowser.builtinKey(SampleKind.snare)),
+          tester.getCenter(find.byType(ChannelRack)),
+        );
+
+        verify(
+          () => studio.createChannel(testRequestId, sample: SampleKind.snare),
+        ).called(1);
+        expect(find.byKey(ChannelRack.channelKey(voxId)), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'when dropping an upload on the playlist, then places and saves an audio clip',
+      (
+        tester,
+      ) async {
+        stubPatterns(studio, null, null, const [], const [], [
+          testSample(id: voxId, name: 'Vox', durationMs: 9000),
+        ]);
+        await open(tester);
+        await tester.tap(find.byKey(StudioView.playlistTabKey));
+        await tester.pumpAndSettle();
+
+        final grid = tester.getTopLeft(find.byKey(PlaylistView.gridKey));
+        await dragTo(
+          tester,
+          find.byKey(SampleBrowser.sampleKey(voxId)),
+          grid +
+              const Offset(
+                PlaylistView.barWidth * 2 + 10,
+                PlaylistView.rulerHeight + PlaylistView.trackHeight + 10,
+              ),
+        );
+        await tester.pump(StudioViewModel.noteSaveDelay);
+        await tester.pumpAndSettle();
+
+        final saved =
+            verify(
+                  () => studio.saveClips(testRequestId, captureAny()),
+                ).captured.single
+                as List<StudioClip>;
+        expect(saved.single.sampleId, voxId);
+        expect(saved.single.lengthBars, 5); // 9 s at 120 BPM
+        expect(saved.single.track, 1);
+        expect(saved.single.startBar, 2);
+        expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets('when the playlist has audio clips, then it paints them', (
+      tester,
+    ) async {
+      stubPatterns(
+        studio,
+        null,
+        null,
+        const [],
+        [StudioClip(sampleId: voxId, lengthBars: 3, track: 0, startBar: 0)],
+        [testSample(id: voxId)],
+      );
+      await open(tester);
+
+      await tester.tap(find.byKey(StudioView.playlistTabKey));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PlaylistView), findsOneWidget);
+      expect(find.text('3 BARS'), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
   });
 

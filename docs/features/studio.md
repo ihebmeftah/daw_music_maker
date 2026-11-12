@@ -16,12 +16,31 @@ The studio is where a project is produced. Its first piece is the transport:
   the beat on four lights; beat 1 is accented (higher click, red light).
 - I can **mute / unmute the metronome sound** (speaker toggle — selected = sound on — or
   **M**); while muted the beat, lights and playhead keep running silently.
-- I see the **timeline**: a 4-bar loop with a moving playhead, a waveform trail of the
-  clicks played (taller on beat 1, faded when muted). One header row shows the loop label,
-  the **bar · beat** position and the **elapsed time** (`mm:ss.cc`); on narrow screens the
-  texts shrink instead of wrapping.
+- I see the **timeline** next to the toolbar (same row, ≈30% of the width; below it on
+  screens narrower than 900 px): a waveform of **what the transport actually plays** —
+  the selected pattern's notes in PAT mode, every playlist clip's notes in SONG mode —
+  with taller hits for louder notes (channel volume × velocity), longer tails for kicks
+  and open hats than for closed hats, muted channels left out. The whole loop is shown
+  faintly and lights up as the playhead passes. One header row shows the loop label,
+  the **bar · beat** position and the **elapsed time** (`mm:ss.cc`).
 - The studio is full screen (no app bar); the toolbar's **back arrow + project name**
   returns to the project page (`/projects/{id}`).
+- The toolbar has a **pattern selector** (see [patterns.md](patterns.md)); the timeline
+  loops over the selected pattern's length and shows its name.
+- A **browser** on the left of the workspace lists drums and uploads; audio files can be
+  dropped anywhere on the studio to upload them (see [samples.md](samples.md)). The
+  workspace tabs become icon-only when the workspace is narrow.
+- Below the timeline, the workspace switches between the **Channel rack**, the **Piano
+  roll** (see [sequencer.md](sequencer.md)) and the **Playlist** (see
+  [playlist.md](playlist.md)); the toolbar's **PAT / SONG** switch chooses whether play
+  loops the selected pattern or plays the arrangement, and the speaker toggle is the
+  metronome on/off.
+- Every toolbar control is the same height (`AppSpacing.toolbarControl`, 36 px; icon
+  buttons share `toolbarIconStyle()`), play and metronome are equal circles, and the
+  PAT / SONG switch is icon-only (grid = pattern, timeline = song, with tooltips). The
+  toolbar fits on one line at 70% of a 1440 px screen; on smaller widths the controls
+  wrap onto another line (nothing is scrolled out of view) while the status chip and
+  theme toggle stay pinned on the right.
 
 ## 2. Screens / routes and endpoints
 
@@ -50,6 +69,11 @@ Flutter structure:
   pinned, so it never overflows), `PlaybackTimeline` and `PlayButton`. Below the timeline
   is the workspace where the channel rack and playlist will go.
 
+The wave comes from `timeline_wave.dart` (pure, unit tested): `timelineHits(state)` turns
+the notes into hits and `waveformEnvelope` sums exponentially decaying envelopes at 8
+points per step (clamped to 1); it is recomputed only when the notes / loop change. The
+metronome does not affect it.
+
 `PlaybackTimeline` reads a `TransportPosition` (implemented by `Metronome`: `isRunning`,
 `elapsed`, continuous `beatPosition`) every frame with a `Ticker` that only runs while
 playing, and repaints a `CustomPainter` through a frame notifier — no provider rebuilds.
@@ -63,7 +87,10 @@ toolbar and as a semantics hint.
 - Assets: `assets/audio/samples/metronome_accent.wav` and `metronome_beat.wav` (synthesized
   60 ms clicks, 44.1 kHz mono), accessed via flutter_gen (`Assets.audio.samples.*`).
 
-Keyboard: Space play/pause, M mute, ↑/↓ nudge (ignored while typing in a field).
+Keyboard: Space play/pause, L PAT/SONG, M mute, `[` / `]` previous / next pattern, ↑/↓ nudge. The
+shortcuts use a `HardwareKeyboard` handler registered while the studio is mounted (not a
+`Focus` node), so they keep working wherever focus is in the studio; they are ignored
+while typing in a text field or when a dialog is on top.
 
 Timing: each beat is scheduled from the time of the previous beat using `clock` (so drift
 does not accumulate and tests control time with `fakeAsync`). Changing the tempo while

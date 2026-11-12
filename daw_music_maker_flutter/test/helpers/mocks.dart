@@ -2,6 +2,8 @@ import 'package:daw_music_maker/core/auth/auth_session.dart';
 import 'package:daw_music_maker/features/auth/data/auth_repository.dart';
 import 'package:daw_music_maker/features/projects/data/collaboration_repository.dart';
 import 'package:daw_music_maker/features/projects/data/project_repository.dart';
+import 'package:daw_music_maker/features/studio/data/studio_clip.dart';
+import 'package:daw_music_maker/features/studio/data/studio_note.dart';
 import 'package:daw_music_maker/features/studio/data/studio_repository.dart';
 import 'package:daw_music_maker_client/daw_music_maker_client.dart';
 import 'package:flutter/foundation.dart';
@@ -20,6 +22,18 @@ class MockCollaborationRepository extends Mock
 
 /// Mock of the studio repository.
 class MockStudioRepository extends Mock implements StudioRepository {}
+
+/// Mock of the generated sample endpoint.
+class MockEndpointSample extends Mock implements EndpointSample {}
+
+/// Mock of the generated playlist endpoint.
+class MockEndpointPlaylist extends Mock implements EndpointPlaylist {}
+
+/// Mock of the generated channel endpoint.
+class MockEndpointChannel extends Mock implements EndpointChannel {}
+
+/// Mock of the generated pattern endpoint.
+class MockEndpointPattern extends Mock implements EndpointPattern {}
 
 /// Mock of the generated project endpoint.
 class MockEndpointProject extends Mock implements EndpointProject {}
@@ -99,6 +113,104 @@ ProjectResponse testProject({
   updatedAt: DateTime.utc(2026, 11, 2),
 );
 
+/// Builds a [PatternResponse] for tests.
+PatternResponse testPattern({
+  required UuidValue id,
+  String name = 'Pattern 1',
+  int colorIndex = 0,
+  int lengthBars = 4,
+  int position = 0,
+}) => PatternResponse(
+  id: id,
+  projectId: testRequestId,
+  name: name,
+  colorIndex: colorIndex,
+  lengthBars: lengthBars,
+  position: position,
+  createdAt: DateTime.utc(2026, 11, 1),
+  updatedAt: DateTime.utc(2026, 11, 1),
+);
+
+/// Id of the default test pattern.
+final testPatternId = UuidValue.fromString(
+  '0190f1c2-7b7a-7cc0-8d4e-3f1b2c3d4e80',
+);
+
+/// Ids of the default test channels (Kick, Snare, Hat, Open Hat).
+final testChannelIds = [
+  for (var i = 0; i < 4; i++)
+    UuidValue.fromString('0190f1c2-7b7a-7cc0-8d4e-3f1b2c3d4ec$i'),
+];
+
+/// The default drum rack for tests.
+List<ChannelResponse> testChannels() => [
+  for (final (i, (name, sample)) in [
+    ('Kick', SampleKind.kick),
+    ('Snare', SampleKind.snare),
+    ('Hat', SampleKind.closedHat),
+    ('Open Hat', SampleKind.openHat),
+  ].indexed)
+    ChannelResponse(
+      id: testChannelIds[i],
+      projectId: testRequestId,
+      name: name,
+      sample: sample,
+      volume: 0.8,
+      muted: false,
+      pan: 0,
+      pitch: 0,
+      startFrac: 0,
+      endFrac: 1,
+      position: i,
+    ),
+];
+
+/// Builds an uploaded [SampleResponse] for tests.
+SampleResponse testSample({
+  required UuidValue id,
+  String name = 'Vox',
+  AudioFormat format = AudioFormat.wav,
+  int? durationMs = 2000,
+  List<double>? peaks = const [0.2, 0.8, 0.4],
+}) => SampleResponse(
+  id: id,
+  projectId: testRequestId,
+  name: name,
+  format: format,
+  sizeBytes: 2048,
+  durationMs: durationMs,
+  peaks: peaks,
+  url: 'https://storage.test/$id',
+  createdAt: DateTime.utc(2026, 11, 1),
+);
+
+/// Stubs [studio] to list [patterns] (default: one "Pattern 1"), the
+/// default drum rack (or [channels]) and [notes] for every pattern.
+void stubPatterns(
+  MockStudioRepository studio, [
+  List<PatternResponse>? patterns,
+  List<ChannelResponse>? channels,
+  List<StudioNote> notes = const [],
+  List<StudioClip> clips = const [],
+  List<SampleResponse> samples = const [],
+]) {
+  when(() => studio.listSamples(any())).thenAnswer((_) async => samples);
+  when(() => studio.listClips(any())).thenAnswer((_) async => clips);
+  when(
+    () => studio.saveClips(any(), any()),
+  ).thenAnswer((inv) async => inv.positionalArguments[1] as List<StudioClip>);
+  when(() => studio.listPatterns(any())).thenAnswer(
+    (_) async => patterns ?? [testPattern(id: testPatternId)],
+  );
+  when(
+    () => studio.listChannels(any()),
+  ).thenAnswer((_) async => channels ?? testChannels());
+  when(() => studio.listNotes(any())).thenAnswer((_) async => notes);
+  when(
+    () => studio.saveNotes(any(), any()),
+  ).thenAnswer((inv) async => inv.positionalArguments[1] as List<StudioNote>);
+}
+
 /// An empty project page.
 final emptyPage = ProjectPageResponse(items: [], hasMore: false);
 
@@ -106,6 +218,9 @@ final emptyPage = ProjectPageResponse(items: [], hasMore: false);
 void registerTestFallbacks() {
   registerFallbackValue(testRequestId);
   registerFallbackValue(ProjectRole.read);
+  registerFallbackValue(SampleKind.kick);
+  registerFallbackValue(<StudioNote>[]);
+  registerFallbackValue(<StudioClip>[]);
   registerFallbackValue(
     CreateProjectRequest(
       name: 'x',

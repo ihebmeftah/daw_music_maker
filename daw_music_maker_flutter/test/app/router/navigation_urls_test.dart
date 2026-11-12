@@ -46,6 +46,7 @@ void main() {
     ).thenAnswer((_) async => []);
     when(() => collab.listJoinRequests(any())).thenAnswer((_) async => []);
     when(() => studio.loadProject(any())).thenAnswer((_) async => project);
+    stubPatterns(studio);
   });
 
   Future<ProviderContainerHandle> open(

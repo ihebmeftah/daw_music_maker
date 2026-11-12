@@ -174,8 +174,8 @@ class _BpmDisplayState extends State<BpmDisplay> {
                 : SystemMouseCursors.basic,
             child: AnimatedContainer(
               duration: AppDurations.fast,
-              width: 176,
-              height: AppSpacing.xxl + AppSpacing.sm,
+              width: 120,
+              height: AppSpacing.toolbarControl,
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.smd),
               decoration: BoxDecoration(
                 // Recessed LCD look.
@@ -197,7 +197,7 @@ class _BpmDisplayState extends State<BpmDisplay> {
                 children: [
                   Icon(
                     Icons.unfold_more_rounded,
-                    size: 18,
+                    size: 16,
                     color: active ? colors.primary : colors.onSurfaceVariant,
                   ),
                   const SizedBox(width: AppSpacing.xs),
@@ -207,7 +207,7 @@ class _BpmDisplayState extends State<BpmDisplay> {
                             key: BpmDisplay.fieldKey,
                             controller: _field,
                             focusNode: _fieldFocus,
-                            style: styles.mono.copyWith(fontSize: 22),
+                            style: styles.mono.copyWith(fontSize: 18),
                             keyboardType: const TextInputType.numberWithOptions(
                               decimal: true,
                             ),

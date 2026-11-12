@@ -76,6 +76,7 @@ extension PumpApp on WidgetTester {
     String? initialLocation,
   }) async {
     prepareSurface(this);
+    final engine = audio ?? FakeAudioEngine();
     final projectRepo = projects ?? MockProjectRepository();
     final collabRepo = collaboration ?? MockCollaborationRepository();
     if (projects == null) stubEmptyProjectLists(projectRepo);
@@ -92,8 +93,9 @@ extension PumpApp on WidgetTester {
         studioRepositoryProvider.overrideWithValue(
           studio ?? MockStudioRepository(),
         ),
+        audioEngineProvider.overrideWithValue(engine),
         metronomeProvider.overrideWith((ref) {
-          final metronome = Metronome(audio ?? FakeAudioEngine());
+          final metronome = Metronome(engine);
           ref.onDispose(metronome.dispose);
           return metronome;
         }),

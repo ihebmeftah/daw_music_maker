@@ -198,4 +198,49 @@ void main() {
       expect(Validators.bpm(' 999 '), isNull);
     });
   });
+
+  group('Given Validators.audioFile', () {
+    test('when the limits are compared to the server, then they match', () {
+      expect(ValidationRules.sampleMaxBytes, 10 * 1024 * 1024);
+      expect(ValidationRules.samplerPitchRange, 24);
+      expect(ValidationRules.chopSlices, [2, 4, 8, 16]);
+      expect(ValidationRules.audioClipBarsMax, 64);
+    });
+
+    test('when the extension is supported (any case), then accepts it', () {
+      for (final name in [
+        'a.wav',
+        'a.WAV',
+        'a.wave',
+        'a.mp3',
+        'a.Mp3',
+        'a.ogg',
+        'a.oga',
+        'a.flac',
+      ]) {
+        expect(Validators.audioFile(name, 100), isNull, reason: name);
+      }
+    });
+
+    test('when the extension is unknown or missing, then rejects it', () {
+      expect(
+        Validators.audioFile('a.txt', 100),
+        'Use a WAV, MP3, OGG or FLAC file',
+      );
+      expect(Validators.audioFile('noext', 100), isNotNull);
+    });
+
+    test('when the file is empty, then rejects it', () {
+      expect(Validators.audioFile('a.wav', 0), 'The file is empty');
+    });
+
+    test('when exactly 10 MB, then accepts it; one byte more is rejected', () {
+      const max = 10 * 1024 * 1024;
+      expect(Validators.audioFile('a.wav', max), isNull);
+      expect(
+        Validators.audioFile('a.wav', max + 1),
+        'Files must be at most 10 MB',
+      );
+    });
+  });
 }

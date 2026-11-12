@@ -53,7 +53,7 @@ void main() {
           PlaybackTimeline(
             position: position,
             isPlaying: playing,
-            isMuted: false,
+            hits: const [],
           ),
         );
 
@@ -88,7 +88,7 @@ void main() {
             child: PlaybackTimeline(
               position: position,
               isPlaying: false,
-              isMuted: false,
+              hits: const [],
             ),
           ),
         ),
@@ -131,7 +131,7 @@ void main() {
 
       // Stop the ticker before the test ends.
       await tester.pumpApp(
-        PlaybackTimeline(position: position, isPlaying: false, isMuted: false),
+        PlaybackTimeline(position: position, isPlaying: false, hits: const []),
       );
     });
 
@@ -146,7 +146,7 @@ void main() {
 
       expect(tester.takeException(), isNull);
       await tester.pumpApp(
-        PlaybackTimeline(position: position, isPlaying: false, isMuted: true),
+        PlaybackTimeline(position: position, isPlaying: false, hits: const []),
       );
     });
   });

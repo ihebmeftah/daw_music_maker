@@ -143,6 +143,30 @@ void main() {
       });
     });
 
+    test('when running, then reports every 1/16 step and clicks on beats', () {
+      fakeAsync((async) {
+        final steps = <int>[];
+        final seen = <int?>[];
+        metronome.onStep = steps.add;
+        metronome.step.addListener(() => seen.add(metronome.step.value));
+        metronome.start(120);
+        async.flushMicrotasks();
+        // 120 BPM → a step every 125 ms.
+        async.elapse(const Duration(milliseconds: 1000));
+
+        expect(
+          Metronome.stepIntervalFor(120),
+          const Duration(milliseconds: 125),
+        );
+        expect(steps, [0, 1, 2, 3, 4, 5, 6, 7, 8]);
+        expect(seen, steps);
+        expect(engine.clicks, [true, false, false]);
+
+        metronome.stop();
+        expect(metronome.step.value, isNull);
+      });
+    });
+
     test('when stopped while loading, then never clicks', () {
       fakeAsync((async) {
         metronome.start(120);

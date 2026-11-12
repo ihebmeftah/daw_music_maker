@@ -43,8 +43,10 @@ void main() {
       overrides: [
         studioRepositoryProvider.overrideWithValue(repository),
         metronomeProvider.overrideWithValue(metronome),
+        audioEngineProvider.overrideWithValue(audio),
       ],
     );
+    stubPatterns(repository);
     when(() => repository.saveTempo(any(), any())).thenAnswer(
       (inv) async => testProject(bpm: inv.positionalArguments[1] as double),
     );

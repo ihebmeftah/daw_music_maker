@@ -56,7 +56,7 @@ final class StudioViewModelProvider
   }
 }
 
-String _$studioViewModelHash() => r'964ad4ff0390999897dddc16cdd9fdaaa605842d';
+String _$studioViewModelHash() => r'5a3c6579ae9e17f7f706200cd1c03df074ad52e7';
 
 /// ViewModel of the studio: tempo editing (with server persistence for
 /// owners and write members), tap tempo and the metronome transport.

@@ -27,11 +27,13 @@ class BeatLights extends StatelessWidget {
       child: ValueListenableBuilder<int?>(
         valueListenable: beat,
         builder: (context, current, _) => Row(
+          // Size to the pads so the lights don't claim a whole toolbar line.
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             for (var i = 0; i < Metronome.beatsPerBar; i++) ...[
               if (i > 0)
-                SizedBox(width: compact ? AppSpacing.xs + 2 : AppSpacing.smd),
+                SizedBox(width: compact ? AppSpacing.xs : AppSpacing.smd),
               _Pad(
                 key: padKey(i),
                 index: i,
@@ -65,8 +67,8 @@ class _Pad extends StatelessWidget {
     final color = index == 0 ? daw.record : daw.waveStart;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 70),
-      width: compact ? AppSpacing.md : AppSpacing.xxl,
-      height: compact ? AppSpacing.md : AppSpacing.xxl,
+      width: compact ? AppSpacing.smd : AppSpacing.xxl,
+      height: compact ? AppSpacing.smd : AppSpacing.xxl,
       decoration: BoxDecoration(
         borderRadius: compact ? AppRadii.smAll : AppRadii.mdAll,
         color: lit ? color : colors.surfaceContainerHigh,

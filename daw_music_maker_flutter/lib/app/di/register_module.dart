@@ -33,6 +33,22 @@ abstract class RegisterModule {
   @lazySingleton
   EndpointProject projectEndpoint(Client client) => client.project;
 
+  /// Sample uploads endpoint.
+  @lazySingleton
+  EndpointSample sampleEndpoint(Client client) => client.sample;
+
+  /// Playlist endpoint.
+  @lazySingleton
+  EndpointPlaylist playlistEndpoint(Client client) => client.playlist;
+
+  /// Channel rack endpoint.
+  @lazySingleton
+  EndpointChannel channelEndpoint(Client client) => client.channel;
+
+  /// Patterns endpoint.
+  @lazySingleton
+  EndpointPattern patternEndpoint(Client client) => client.pattern;
+
   /// Members, invitations and join requests endpoint.
   @lazySingleton
   EndpointProjectCollaboration projectCollaborationEndpoint(Client client) =>

@@ -7,8 +7,9 @@ import 'package:injectable/injectable.dart';
 import 'audio_engine.dart';
 import 'transport_position.dart';
 
-/// A metronome: clicks at a tempo with an accent on the first beat of each
-/// bar, and publishes the current beat for UI lights.
+/// The studio transport: advances in 1/16 steps at a tempo, reports every
+/// step (for the sequencer and the playhead), and clicks on beats with an
+/// accent on the first beat of each bar (the metronome, mutable).
 ///
 /// Timing is drift-corrected: every beat is scheduled from the time of the
 /// previous beat (not by accumulating timer delays), using `clock` so tests
@@ -23,6 +24,18 @@ class Metronome implements TransportPosition {
 
   /// Beats per bar (4/4).
   static const int beatsPerBar = 4;
+
+  /// Sequencer steps per beat (1/16 notes).
+  static const int stepsPerBeat = 4;
+
+  final ValueNotifier<int?> _step = ValueNotifier(null);
+
+  /// Called on every step with the absolute step index since start; the
+  /// sequencer uses it to play the notes of that step.
+  void Function(int step)? onStep;
+
+  /// Absolute step being played (null when stopped). Changes 4× per beat.
+  ValueListenable<int?> get step => _step;
 
   Timer? _timer;
   DateTime? _startedAt;
@@ -54,10 +67,10 @@ class Metronome implements TransportPosition {
   double get beatPosition {
     final last = _lastBeatAt;
     if (!isRunning || last == null || _count == 0) return 0;
-    final interval = intervalFor(_bpm).inMicroseconds;
+    final interval = stepIntervalFor(_bpm).inMicroseconds;
     final sinceLast = clock.now().difference(last).inMicroseconds / interval;
-    // _count beats were played; the last one is at index _count - 1.
-    return (_count - 1) + sinceLast.clamp(0.0, 1.0);
+    // _count steps were played; the last one is at index _count - 1.
+    return ((_count - 1) + sinceLast.clamp(0.0, 1.0)) / stepsPerBeat;
   }
 
   /// Current tempo in beats per minute.
@@ -67,13 +80,18 @@ class Metronome implements TransportPosition {
   static Duration intervalFor(double bpm) =>
       Duration(microseconds: (Duration.microsecondsPerMinute / bpm).round());
 
+  /// Time between two steps (1/16 notes) at [bpm].
+  static Duration stepIntervalFor(double bpm) => Duration(
+    microseconds: (Duration.microsecondsPerMinute / bpm / stepsPerBeat).round(),
+  );
+
   /// Changes the tempo. While running, the next beat is rescheduled from the
   /// last one so the change is heard immediately without a gap or double hit.
   set bpm(double value) {
     _bpm = value;
     if (!isRunning || _lastBeatAt == null) return;
     _timer?.cancel();
-    _schedule(_lastBeatAt!.add(intervalFor(_bpm)));
+    _schedule(_lastBeatAt!.add(stepIntervalFor(_bpm)));
   }
 
   /// Starts at [bpm] from beat 1. Preloads sounds first. No-op if running.
@@ -94,18 +112,26 @@ class Metronome implements TransportPosition {
     _timer = null;
     _lastBeatAt = null;
     _startedAt = null;
-    if (!_disposed) _beat.value = null;
+    if (!_disposed) {
+      _beat.value = null;
+      _step.value = null;
+    }
   }
 
   void _tick() {
     final now = clock.now();
     _startedAt ??= now;
-    final position = _count % beatsPerBar;
-    if (!muted) _engine.playClick(accent: position == 0);
-    _beat.value = position;
+    final step = _count;
+    if (step % stepsPerBeat == 0) {
+      final position = (step ~/ stepsPerBeat) % beatsPerBar;
+      if (!muted) _engine.playClick(accent: position == 0);
+      _beat.value = position;
+    }
+    _step.value = step;
+    onStep?.call(step);
     _count++;
     _lastBeatAt = now;
-    _schedule(now.add(intervalFor(_bpm)));
+    _schedule(now.add(stepIntervalFor(_bpm)));
   }
 
   void _schedule(DateTime at) {
@@ -118,6 +144,8 @@ class Metronome implements TransportPosition {
   void dispose() {
     stop();
     _disposed = true;
+    onStep = null;
     _beat.dispose();
+    _step.dispose();
   }
 }

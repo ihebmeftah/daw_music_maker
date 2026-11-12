@@ -1,5 +1,8 @@
+import 'package:daw_music_maker/core/theme/app_spacing.dart';
 import 'package:daw_music_maker/features/studio/presentation/state/studio_state.dart';
+import 'package:daw_music_maker/features/studio/presentation/widgets/bpm_display.dart';
 import 'package:daw_music_maker/features/studio/presentation/widgets/beat_lights.dart';
+import 'package:daw_music_maker/features/studio/presentation/widgets/pattern_selector.dart';
 import 'package:daw_music_maker/features/studio/presentation/widgets/play_button.dart';
 import 'package:daw_music_maker/features/studio/presentation/widgets/transport_toolbar.dart';
 import 'package:daw_music_maker_client/daw_music_maker_client.dart';
@@ -100,6 +103,17 @@ void main() {
               onNudge: (_) {},
               onTap: () {},
               onSubmitted: (_) {},
+              onSetMode: (_) {},
+              patternActions: PatternActions(
+                onSelect: (_) {},
+                onStep: (_) {},
+                onCreate: () {},
+                onClone: () {},
+                onRename: () {},
+                onColor: (_) {},
+                onLength: (_) {},
+                onDelete: () {},
+              ),
             ),
           ),
         ),
@@ -117,7 +131,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('when narrow, then scrolls instead of overflowing', (
+    testWidgets('when narrow, then wraps instead of overflowing', (
       tester,
     ) async {
       for (final width in [320.0, 640.0, 860.0]) {
@@ -131,8 +145,13 @@ void main() {
           width,
         );
 
-        expect(find.byType(SingleChildScrollView), findsOneWidget);
+        expect(find.byType(Wrap), findsOneWidget);
         expect(tester.takeException(), isNull, reason: '$width px');
+        // Every control stays on screen (none scrolled away).
+        final right = tester.getBottomRight(
+          find.byKey(TransportToolbar.tapKey),
+        );
+        expect(right.dx, lessThanOrEqualTo(tester.view.physicalSize.width));
       }
     });
 
@@ -221,6 +240,64 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('TAP'), findsNothing);
+    });
+
+    testWidgets('when rendered, then every control has the same height', (
+      tester,
+    ) async {
+      await pump(tester, state, 1100);
+
+      final finders = {
+        'back': find.byKey(TransportToolbar.backKey),
+        'play': find.byKey(TransportToolbar.playKey),
+        'mute': find.byKey(TransportToolbar.muteKey),
+        'pattern box': find.byKey(PatternSelector.menuKey),
+        'previous': find.byKey(PatternSelector.previousKey),
+        'add': find.byKey(PatternSelector.addKey),
+        'bpm': find.byType(BpmDisplay),
+        'tap': find.byKey(TransportToolbar.tapKey),
+      };
+      for (final MapEntry(:key, :value) in finders.entries) {
+        expect(
+          tester.getSize(value).height,
+          AppSpacing.toolbarControl,
+          reason: key,
+        );
+      }
+      // Play and mute are the same circle size.
+      expect(
+        tester.getSize(find.byKey(TransportToolbar.playKey)),
+        tester.getSize(find.byKey(TransportToolbar.muteKey)),
+      );
+    });
+
+    testWidgets('when the mode switch is shown, then it uses icons, not text', (
+      tester,
+    ) async {
+      await pump(tester, state, 1100);
+
+      expect(find.text('PAT'), findsNothing);
+      expect(find.text('SONG'), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byKey(TransportToolbar.patModeKey),
+          matching: find.byIcon(Icons.grid_view_rounded),
+        ),
+        findsOneWidget,
+      );
+      expect(find.byTooltip('Song mode: play the playlist'), findsOneWidget);
+    });
+
+    testWidgets('when 70% of a 1440 px screen wide, then fits on one line', (
+      tester,
+    ) async {
+      // 1440 px screen − 32 px padding − 8 px gap → 70% ≈ 975 px.
+      await pump(tester, state, 975);
+
+      final first = tester.getCenter(find.byKey(TransportToolbar.backKey)).dy;
+      final last = tester.getCenter(find.byKey(TransportToolbar.tapKey)).dy;
+      expect(last, closeTo(first, 1));
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('when there are unsaved changes, then says UNSAVED', (

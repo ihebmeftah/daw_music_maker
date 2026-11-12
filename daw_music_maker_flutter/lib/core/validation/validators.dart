@@ -116,4 +116,28 @@ abstract final class Validators {
     }
     return null;
   }
+
+  /// Validates a pattern name (1–40 chars after trimming).
+  static String? patternName(String? value) {
+    final name = value?.trim() ?? '';
+    if (name.isEmpty) return 'Give the pattern a name';
+    if (name.length > ValidationRules.patternNameMaxLength) {
+      return 'Use at most ${ValidationRules.patternNameMaxLength} characters';
+    }
+    return null;
+  }
+
+  /// Checks an audio file before uploading: extension and size (≤ 10 MB).
+  static String? audioFile(String fileName, int sizeBytes) {
+    final dot = fileName.lastIndexOf('.');
+    final extension = dot < 0 ? '' : fileName.substring(dot + 1).toLowerCase();
+    if (!ValidationRules.sampleExtensions.contains(extension)) {
+      return 'Use a WAV, MP3, OGG or FLAC file';
+    }
+    if (sizeBytes <= 0) return 'The file is empty';
+    if (sizeBytes > ValidationRules.sampleMaxBytes) {
+      return 'Files must be at most 10 MB';
+    }
+    return null;
+  }
 }

@@ -6,17 +6,31 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../shared/widgets/buttons/theme_mode_toggle.dart';
 import '../../../../shared/widgets/feedback/equalizer_loader.dart';
+import '../../../../shared/widgets/inputs/daw_segmented_control.dart';
 import '../state/studio_state.dart';
 import 'beat_lights.dart';
 import 'bpm_display.dart';
+import 'pattern_selector.dart';
 import 'play_button.dart';
+
+/// Style shared by every icon button of the studio toolbar: a fixed
+/// [AppSpacing.toolbarControl] square, so all controls line up.
+ButtonStyle toolbarIconStyle() => IconButton.styleFrom(
+  fixedSize: const Size.square(AppSpacing.toolbarControl),
+  minimumSize: const Size.square(AppSpacing.toolbarControl),
+  maximumSize: const Size.square(AppSpacing.toolbarControl),
+  padding: EdgeInsets.zero,
+  iconSize: 20,
+  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+);
 
 /// DAW-style transport bar (the studio has no app bar): back to the
 /// project, play/pause, metronome sound on/off, the tempo LCD with nudge
 /// arrows, beat LEDs, tap tempo, the save status and the theme toggle.
 ///
-/// Controls scroll horizontally when space runs out; the status chip and
-/// theme toggle stay pinned (below the controls on phones).
+/// Controls wrap onto extra lines when space runs out (nothing is hidden);
+/// the status chip and theme toggle stay pinned (below the controls on
+/// phones).
 class TransportToolbar extends StatelessWidget {
   /// Creates the toolbar.
   const TransportToolbar({
@@ -31,7 +45,21 @@ class TransportToolbar extends StatelessWidget {
     required this.onNudge,
     required this.onTap,
     required this.onSubmitted,
+    required this.patternActions,
+    required this.onSetMode,
   });
+
+  /// Key of the PAT segment.
+  static const patModeKey = Key('studio.mode.pattern');
+
+  /// Key of the SONG segment.
+  static const songModeKey = Key('studio.mode.song');
+
+  /// PAT / SONG switch.
+  final ValueChanged<TransportMode> onSetMode;
+
+  /// Pattern selector callbacks.
+  final PatternActions patternActions;
 
   /// Key of the "back to project" button.
   static const backKey = Key('studio.back');
@@ -89,12 +117,46 @@ class TransportToolbar extends StatelessWidget {
       const _Divider(),
       PlayButton(
         key: playKey,
-        size: AppSpacing.xxl + AppSpacing.xs,
+        size: AppSpacing.toolbarControl,
         isPlaying: state.isPlaying,
         onPressed: onTogglePlay,
       ),
-      const SizedBox(width: AppSpacing.sm),
+      const SizedBox(width: AppSpacing.xs),
       _SoundToggle(muted: state.isMuted, onToggle: onToggleMute),
+      const SizedBox(width: AppSpacing.xs),
+      Tooltip(
+        message: 'Pattern / song mode (L)',
+        child: DawSegmentedControl<TransportMode>(
+          expand: false,
+          dense: true,
+          selected: state.mode,
+          onChanged: onSetMode,
+          segments: const [
+            DawSegment(
+              key: patModeKey,
+              value: TransportMode.pattern,
+              label: '',
+              icon: Icons.grid_view_rounded,
+              tooltip: 'Pattern mode: loop the selected pattern',
+            ),
+            DawSegment(
+              key: songModeKey,
+              value: TransportMode.song,
+              label: '',
+              icon: Icons.view_timeline_rounded,
+              tooltip: 'Song mode: play the playlist',
+            ),
+          ],
+        ),
+      ),
+      const _Divider(),
+      PatternSelector(
+        patterns: state.patterns,
+        selected: state.selectedPattern,
+        canEdit: state.canEdit,
+        isBusy: state.isPatternBusy,
+        actions: patternActions,
+      ),
       const _Divider(),
       BpmDisplay(
         bpm: state.bpm,
@@ -113,7 +175,7 @@ class TransportToolbar extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
+        horizontal: AppSpacing.sm,
         vertical: AppSpacing.smd,
       ),
       decoration: BoxDecoration(
@@ -130,11 +192,12 @@ class TransportToolbar extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          // The controls scroll sideways if they don't fit; the status and
-          // theme toggle stay pinned, so the bar never overflows.
-          final controls = SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(children: items),
+          // Controls wrap onto another line when they don't fit, so every
+          // control stays visible; the status and theme toggle stay pinned.
+          final controls = Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runSpacing: AppSpacing.sm,
+            children: items,
           );
           if (constraints.maxWidth >= 600) {
             return Row(
@@ -174,8 +237,8 @@ class _Divider extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 1,
-      height: AppSpacing.xl,
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      height: AppSpacing.lg,
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
       color: context.colors.outlineVariant,
     );
   }
@@ -189,9 +252,10 @@ class _NudgeArrows extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Two half-height arrows stacked = one toolbar control.
     const constraints = BoxConstraints.tightFor(
-      width: AppSpacing.xl,
-      height: AppSpacing.lg,
+      width: AppSpacing.lg,
+      height: AppSpacing.toolbarControl / 2,
     );
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -201,7 +265,7 @@ class _NudgeArrows extends StatelessWidget {
           tooltip: '+1 BPM (↑)',
           constraints: constraints,
           padding: EdgeInsets.zero,
-          iconSize: 20,
+          iconSize: 18,
           onPressed: enabled ? () => onNudge(1) : null,
           icon: const Icon(Icons.keyboard_arrow_up_rounded),
         ),
@@ -210,7 +274,7 @@ class _NudgeArrows extends StatelessWidget {
           tooltip: '−1 BPM (↓)',
           constraints: constraints,
           padding: EdgeInsets.zero,
-          iconSize: 20,
+          iconSize: 18,
           onPressed: enabled ? () => onNudge(-1) : null,
           icon: const Icon(Icons.keyboard_arrow_down_rounded),
         ),
@@ -229,6 +293,7 @@ class _TapButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton.outlined(
       key: TransportToolbar.tapKey,
+      style: toolbarIconStyle(),
       tooltip: 'Tap tempo',
       onPressed: enabled ? onTap : null,
       icon: const Icon(Icons.touch_app_outlined),
@@ -247,6 +312,9 @@ class _SoundToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton.filledTonal(
       key: TransportToolbar.muteKey,
+      style: toolbarIconStyle().copyWith(
+        shape: const WidgetStatePropertyAll(CircleBorder()),
+      ),
       isSelected: !muted,
       tooltip: muted ? 'Unmute metronome (M)' : 'Mute metronome (M)',
       onPressed: onToggle,
@@ -270,30 +338,19 @@ class _BackToProject extends StatelessWidget {
       children: [
         IconButton(
           key: TransportToolbar.backKey,
+          style: toolbarIconStyle(),
           tooltip: 'Back to project',
           onPressed: onBack,
           icon: const Icon(Icons.arrow_back_rounded),
         ),
+        const SizedBox(width: AppSpacing.xs),
         ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 160),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'STUDIO',
-                style: context.textStyles.eyebrow.copyWith(
-                  fontSize: 9,
-                  color: context.colors.primary,
-                ),
-              ),
-              Text(
-                name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.textStyles.title,
-              ),
-            ],
+          constraints: const BoxConstraints(maxWidth: 80),
+          child: Text(
+            name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.textStyles.title,
           ),
         ),
       ],

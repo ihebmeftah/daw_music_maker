@@ -61,8 +61,15 @@ Keep this list up to date (one line each, link to `docs/features/<feature>.md`).
   read/write roles, discover and inbox
 - [studio](docs/features/studio.md) — `/projects/:id/studio`: project tempo (BPM) with
   tap tempo, saved on the project, and a play/pause metronome
-- _planned_: channel rack / step sequencer, piano roll, playlist / arrangement, mixer,
-  sample browser, transport
+- [patterns](docs/features/patterns.md) — FL Studio–style patterns per project (name,
+  color, length) managed from the studio toolbar; the timeline loops the selected one
+- [sequencer](docs/features/sequencer.md) — channel rack (Kick, Snare, Hat, Open Hat by
+  default), step sequencer and piano roll per pattern, played by the studio transport
+- [playlist](docs/features/playlist.md) — song arrangement: pattern clips on 16 tracks,
+  PAT / SONG transport mode
+- [samples](docs/features/samples.md) — drag & drop audio uploads (≤ 10 MB, progress),
+  browser, sampler (trim, volume, pan, pitch) and chopping; audio clips on the playlist
+- _planned_: mixer
 
 ## Serverpod runner & MCP
 
