@@ -1,0 +1,7 @@
+### Permission to upload one file.
+class: SampleUploadTicket
+fields:
+  ### Id to pass to `finishUpload`.
+  uploadId: UuidValue
+  ### Serverpod upload description for `FileUploader`.
+  uploadDescription: String

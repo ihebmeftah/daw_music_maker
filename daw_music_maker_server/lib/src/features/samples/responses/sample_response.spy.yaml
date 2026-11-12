@@ -1,0 +1,21 @@
+### An uploaded sample as seen by the client.
+class: SampleResponse
+fields:
+  ### Sample id.
+  id: UuidValue
+  ### The project.
+  projectId: UuidValue
+  ### Display name.
+  name: String
+  ### File format.
+  format: AudioFormat
+  ### File size in bytes.
+  sizeBytes: int
+  ### Duration in milliseconds, if known.
+  durationMs: int?
+  ### Waveform outline (0–1), for WAV files.
+  peaks: List<double>?
+  ### Time-limited download URL (valid for 12 hours).
+  url: String
+  ### Upload time.
+  createdAt: DateTime

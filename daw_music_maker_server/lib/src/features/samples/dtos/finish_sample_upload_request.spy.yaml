@@ -1,0 +1,11 @@
+### Registers an uploaded file as a sample once the upload finished.
+class: FinishSampleUploadRequest
+fields:
+  ### The project.
+  projectId: UuidValue
+  ### The id returned by `requestUpload`.
+  uploadId: UuidValue
+  ### Original file name.
+  fileName: String
+  ### Duration measured by the client (used for non-WAV files, ≤ 10 min).
+  durationMs: int?

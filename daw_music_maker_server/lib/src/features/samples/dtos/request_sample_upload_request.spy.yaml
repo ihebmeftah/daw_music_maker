@@ -1,0 +1,9 @@
+### Asks for permission to upload an audio file (owner or write member).
+class: RequestSampleUploadRequest
+fields:
+  ### The project.
+  projectId: UuidValue
+  ### Original file name (used for the extension and display name).
+  fileName: String
+  ### File size in bytes (1 B – 10 MB).
+  sizeBytes: int

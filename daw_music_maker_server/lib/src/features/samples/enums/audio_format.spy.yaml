@@ -1,0 +1,11 @@
+### Audio file formats accepted for uploads.
+enum: AudioFormat
+values:
+  ### RIFF/WAVE (PCM or float) — gets a server-computed waveform and duration.
+  - wav
+  ### MPEG-1/2 Layer III.
+  - mp3
+  ### Ogg (Vorbis/Opus).
+  - ogg
+  ### Free Lossless Audio Codec.
+  - flac
