@@ -1,0 +1,15 @@
+### A playlist clip as seen by the client.
+class: ClipResponse
+fields:
+  ### Clip id.
+  id: UuidValue
+  ### The pattern it plays (pattern clips).
+  patternId: UuidValue?
+  ### The sample it plays (audio clips).
+  sampleId: UuidValue?
+  ### Length in bars (audio clips).
+  lengthBars: int?
+  ### Track (row).
+  track: int
+  ### First bar (0-based).
+  startBar: int

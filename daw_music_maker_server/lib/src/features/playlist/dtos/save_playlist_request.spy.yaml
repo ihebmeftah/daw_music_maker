@@ -1,0 +1,5 @@
+### Replaces the project's whole playlist (owner or write member).
+class: SavePlaylistRequest
+fields:
+  ### All clips (max 2048; clips on one track must not overlap).
+  clips: List<ClipInput>

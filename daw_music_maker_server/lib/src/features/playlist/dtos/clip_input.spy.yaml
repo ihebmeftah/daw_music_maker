@@ -1,0 +1,14 @@
+### One clip in a [SavePlaylistRequest]: exactly one of [patternId] and
+### [sampleId].
+class: ClipInput
+fields:
+  ### The pattern (must belong to the project).
+  patternId: UuidValue?
+  ### The uploaded sample of an audio clip (must belong to the project).
+  sampleId: UuidValue?
+  ### Length of an audio clip in bars (1–64).
+  lengthBars: int?
+  ### Track (row), 0–15.
+  track: int
+  ### First bar, 0–255.
+  startBar: int
