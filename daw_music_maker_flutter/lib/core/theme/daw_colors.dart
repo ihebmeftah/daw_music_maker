@@ -25,7 +25,14 @@ class DawColors extends ThemeExtension<DawColors> {
     required this.meterHigh,
     required this.record,
     required this.shadow,
+    required this.trackColors,
   });
+
+  /// Track / pattern palette, indexed by a pattern's `colorIndex` (8 colors).
+  final List<Color> trackColors;
+
+  /// The track color for [index] (wraps around the palette).
+  Color trackColor(int index) => trackColors[index % trackColors.length];
 
   /// Deepest background behind every surface (the "studio wall").
   final Color backdrop;
@@ -77,6 +84,16 @@ class DawColors extends ThemeExtension<DawColors> {
     meterHigh: AppColors.red400,
     record: AppColors.red400,
     shadow: AppColors.black.withValues(alpha: 0.6),
+    trackColors: const [
+      AppColors.trackAmber,
+      AppColors.trackCoral,
+      AppColors.trackTeal,
+      AppColors.trackSky,
+      AppColors.trackLime,
+      AppColors.trackPink,
+      AppColors.trackLavender,
+      AppColors.trackSand,
+    ],
   );
 
   /// Palette for the light ("paper studio") theme.
@@ -93,6 +110,16 @@ class DawColors extends ThemeExtension<DawColors> {
     meterHigh: AppColors.red600,
     record: AppColors.red600,
     shadow: AppColors.graphite900.withValues(alpha: 0.14),
+    trackColors: const [
+      AppColors.trackAmberDeep,
+      AppColors.trackCoralDeep,
+      AppColors.trackTealDeep,
+      AppColors.trackSkyDeep,
+      AppColors.trackLimeDeep,
+      AppColors.trackPinkDeep,
+      AppColors.trackLavenderDeep,
+      AppColors.trackSandDeep,
+    ],
   );
 
   @override
@@ -109,6 +136,7 @@ class DawColors extends ThemeExtension<DawColors> {
     Color? meterHigh,
     Color? record,
     Color? shadow,
+    List<Color>? trackColors,
   }) {
     return DawColors(
       backdrop: backdrop ?? this.backdrop,
@@ -123,6 +151,7 @@ class DawColors extends ThemeExtension<DawColors> {
       meterHigh: meterHigh ?? this.meterHigh,
       record: record ?? this.record,
       shadow: shadow ?? this.shadow,
+      trackColors: trackColors ?? this.trackColors,
     );
   }
 
@@ -142,6 +171,10 @@ class DawColors extends ThemeExtension<DawColors> {
       meterHigh: Color.lerp(meterHigh, other.meterHigh, t)!,
       record: Color.lerp(record, other.record, t)!,
       shadow: Color.lerp(shadow, other.shadow, t)!,
+      trackColors: [
+        for (var i = 0; i < trackColors.length; i++)
+          Color.lerp(trackColors[i], other.trackColor(i), t)!,
+      ],
     );
   }
 }

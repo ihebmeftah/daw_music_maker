@@ -80,6 +80,55 @@ abstract final class AppColors {
   /// Meter warning yellow.
   static const Color yellow400 = Color(0xFFFFD84A);
 
+  // ── Track / pattern palette (dark theme; light theme uses the *Deep set) ─
+  /// Track color 0 — amber.
+  static const Color trackAmber = Color(0xFFFFB23E);
+
+  /// Track color 1 — coral.
+  static const Color trackCoral = Color(0xFFFF6B5B);
+
+  /// Track color 2 — teal.
+  static const Color trackTeal = Color(0xFF34E0C2);
+
+  /// Track color 3 — sky.
+  static const Color trackSky = Color(0xFF5AB8FF);
+
+  /// Track color 4 — lime.
+  static const Color trackLime = Color(0xFFB6E65A);
+
+  /// Track color 5 — pink.
+  static const Color trackPink = Color(0xFFFF7EB6);
+
+  /// Track color 6 — lavender.
+  static const Color trackLavender = Color(0xFFB59CFF);
+
+  /// Track color 7 — sand.
+  static const Color trackSand = Color(0xFFE8D3A8);
+
+  /// Track color 0 (light theme).
+  static const Color trackAmberDeep = Color(0xFFC77800);
+
+  /// Track color 1 (light theme).
+  static const Color trackCoralDeep = Color(0xFFD63B2B);
+
+  /// Track color 2 (light theme).
+  static const Color trackTealDeep = Color(0xFF0B8C76);
+
+  /// Track color 3 (light theme).
+  static const Color trackSkyDeep = Color(0xFF1F6FC2);
+
+  /// Track color 4 (light theme).
+  static const Color trackLimeDeep = Color(0xFF5E8C10);
+
+  /// Track color 5 (light theme).
+  static const Color trackPinkDeep = Color(0xFFC23A7A);
+
+  /// Track color 6 (light theme).
+  static const Color trackLavenderDeep = Color(0xFF6A4FD1);
+
+  /// Track color 7 (light theme).
+  static const Color trackSandDeep = Color(0xFF8C6A2E);
+
   /// Pure black (used for shadows and on-accent text).
   static const Color black = Color(0xFF000000);
 

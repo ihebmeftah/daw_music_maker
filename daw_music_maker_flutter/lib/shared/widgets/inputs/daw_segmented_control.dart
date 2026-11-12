@@ -13,12 +13,17 @@ class DawSegment<T> {
     required this.label,
     this.icon,
     this.key,
+    this.tooltip,
   });
+
+  /// Tooltip (useful for icon-only segments).
+  final String? tooltip;
 
   /// The value selected by this option.
   final T value;
 
-  /// Visible label.
+  /// Visible label (empty for an icon-only segment; then [tooltip] or the
+  /// label is used for accessibility).
   final String label;
 
   /// Optional leading icon.
@@ -49,7 +54,11 @@ class DawSegmentedControl<T> extends StatelessWidget {
     required this.selected,
     required this.onChanged,
     this.expand = true,
+    this.dense = false,
   });
+
+  /// Compact variant (toolbar size, tighter padding).
+  final bool dense;
 
   /// Available options.
   final List<DawSegment<T>> segments;
@@ -67,7 +76,8 @@ class DawSegmentedControl<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.xs),
+      height: dense ? AppSpacing.toolbarControl : null,
+      padding: EdgeInsets.all(dense ? AppSpacing.xxs + 1 : AppSpacing.xs),
       decoration: BoxDecoration(
         color: colors.surfaceContainerHigh.withValues(alpha: 0.6),
         borderRadius: AppRadii.mdAll,
@@ -81,6 +91,7 @@ class DawSegmentedControl<T> extends StatelessWidget {
               _SegmentButton<T>(
                 key: segment.key,
                 segment: segment,
+                dense: dense,
                 selected: segment.value == selected,
                 onTap: onChanged == null
                     ? null
@@ -101,9 +112,11 @@ class _SegmentButton<T> extends StatelessWidget {
     required this.segment,
     required this.selected,
     required this.onTap,
+    this.dense = false,
   });
 
   final DawSegment<T> segment;
+  final bool dense;
   final bool selected;
   final VoidCallback? onTap;
 
@@ -112,18 +125,20 @@ class _SegmentButton<T> extends StatelessWidget {
     final colors = context.colors;
     final daw = context.dawColors;
     final foreground = selected ? colors.onPrimary : colors.onSurfaceVariant;
-    return Semantics(
+    final iconOnly = segment.label.isEmpty;
+    final button = Semantics(
       selected: selected,
       button: true,
+      label: iconOnly ? segment.tooltip : null,
       child: InkWell(
         onTap: onTap,
         borderRadius: AppRadii.mdAll,
         child: AnimatedContainer(
           duration: AppDurations.medium,
           curve: Curves.easeOutCubic,
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.smd - 2,
+          padding: EdgeInsets.symmetric(
+            horizontal: dense ? AppSpacing.sm : AppSpacing.md,
+            vertical: dense ? 0 : AppSpacing.smd - 2,
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppRadii.md - 2),
@@ -138,21 +153,24 @@ class _SegmentButton<T> extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (segment.icon != null) ...[
-                Icon(segment.icon, size: 16, color: foreground),
+              if (segment.icon != null)
+                Icon(segment.icon, size: dense ? 18 : 16, color: foreground),
+              if (segment.icon != null && !iconOnly)
                 const SizedBox(width: AppSpacing.sm),
-              ],
-              Flexible(
-                child: Text(
-                  segment.label,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.textStyles.label.copyWith(color: foreground),
+              if (!iconOnly)
+                Flexible(
+                  child: Text(
+                    segment.label,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textStyles.label.copyWith(color: foreground),
+                  ),
                 ),
-              ),
             ],
           ),
         ),
       ),
     );
+    final tooltip = segment.tooltip;
+    return tooltip == null ? button : Tooltip(message: tooltip, child: button);
   }
 }

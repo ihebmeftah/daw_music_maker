@@ -29,6 +29,9 @@ abstract final class AppSpacing {
   /// 64 px — section breathing room.
   static const double xxxl = 64;
 
+  /// Size of every control in the studio toolbar (buttons, boxes, LCDs).
+  static const double toolbarControl = 36;
+
   /// Maximum width of auth / form cards.
   static const double formMaxWidth = 440;
 
