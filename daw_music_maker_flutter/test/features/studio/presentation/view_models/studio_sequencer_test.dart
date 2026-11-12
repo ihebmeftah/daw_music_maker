@@ -3,6 +3,7 @@ import 'package:daw_music_maker/core/audio/metronome.dart';
 import 'package:daw_music_maker/core/errors/failure.dart';
 import 'package:daw_music_maker/features/studio/data/studio_note.dart';
 import 'package:daw_music_maker/features/studio/data/studio_providers.dart';
+import 'package:daw_music_maker/features/studio/presentation/state/grid_snap.dart';
 import 'package:daw_music_maker/features/studio/presentation/state/studio_state.dart';
 import 'package:daw_music_maker/features/studio/presentation/view_models/studio_view_model.dart';
 import 'package:daw_music_maker_client/daw_music_maker_client.dart';
@@ -203,7 +204,7 @@ void main() {
         vm().openPianoRoll(snare);
         expect(state().workspace, StudioWorkspace.pianoRoll);
 
-        vm().togglePianoNote(3, 67);
+        vm().togglePianoNote(720, 67);
         expect(state().currentNotes.single.pitch, 67);
         expect(state().currentNotes.single.channelId, snare);
         expect(
@@ -211,8 +212,58 @@ void main() {
           closeTo(StudioViewModel.rateForPitch(67), 1e-9),
         );
 
-        vm().togglePianoNote(3, 67);
+        vm().togglePianoNote(720, 67);
         expect(state().currentNotes, isEmpty);
+      },
+    );
+
+    test(
+      'when the piano roll snaps to beats, then notes start on a beat and last one',
+      () async {
+        await load();
+        vm().openPianoRoll(snare);
+        vm().setPianoRollSnap(GridSnap.beat);
+
+        vm().togglePianoNote(1500, 60); // inside beat 2 (960..1919)
+
+        final note = state().currentNotes.single;
+        expect(state().pianoRollSnap, GridSnap.beat);
+        expect(note.tick, 960);
+        expect(note.lengthTicks, 960);
+      },
+    );
+
+    test(
+      'when the piano roll snaps to lines, then notes are half a step',
+      () async {
+        await load();
+        vm().openPianoRoll(snare);
+        vm().setPianoRollSnap(GridSnap.line);
+
+        vm().togglePianoNote(250, 60);
+
+        final note = state().currentNotes.single;
+        expect(note.tick, 240);
+        expect(note.lengthTicks, 120);
+
+        vm().togglePianoNote(300, 60); // inside the note: removes it
+        expect(state().currentNotes, isEmpty);
+      },
+    );
+
+    test(
+      'when a bar-long note would pass the pattern end, then it is cut',
+      () async {
+        await load();
+        vm().openPianoRoll(snare);
+        vm().setPianoRollSnap(GridSnap.bar);
+
+        vm().togglePianoNote(3 * 3840 + 10, 60); // last bar of 4
+
+        final note = state().currentNotes.single;
+        expect(note.tick, 3 * 3840);
+        expect(note.lengthTicks, 3840);
+        expect(note.tick + note.lengthTicks, state().patternSteps * 240);
       },
     );
 

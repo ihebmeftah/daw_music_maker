@@ -7,6 +7,8 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/validation/validation_rules.dart';
 import '../../data/studio_note.dart';
+import '../state/grid_snap.dart';
+import 'snap_selector.dart';
 
 /// Note name in FL Studio's convention (60 = C5).
 String pitchName(int pitch) {
@@ -31,8 +33,9 @@ String pitchName(int pitch) {
 bool isBlackKey(int pitch) => const {1, 3, 6, 8, 10}.contains(pitch % 12);
 
 /// The piano roll of one channel: a keyboard (click to preview) and a
-/// pitch × step grid where clicks add or remove one-step notes. The
-/// playhead line follows the transport.
+/// pitch × time grid where clicks add or remove notes. New notes snap to
+/// [snap] (bar, beat, ½ beat, step or line) and are one snap long; the
+/// grid draws lines at that resolution. The playhead follows the transport.
 class PianoRoll extends StatelessWidget {
   /// Creates the piano roll.
   const PianoRoll({
@@ -46,7 +49,18 @@ class PianoRoll extends StatelessWidget {
     required this.onToggleNote,
     required this.onPreview,
     required this.onSelectChannel,
+    this.snap = GridSnap.step,
+    this.onSnapChanged,
   });
+
+  /// Key of the snap selector.
+  static const snapKey = Key('pianoRoll.snap');
+
+  /// Snap grid of new notes and the drawn grid lines.
+  final GridSnap snap;
+
+  /// Called when the user picks another snap (hidden when null).
+  final ValueChanged<GridSnap>? onSnapChanged;
 
   /// Key of the note grid.
   static const gridKey = Key('pianoRoll.grid');
@@ -87,8 +101,8 @@ class PianoRoll extends StatelessWidget {
   /// Absolute transport step (null when stopped).
   final ValueListenable<int?> playhead;
 
-  /// Grid click at a step and pitch.
-  final void Function(int step, int pitch) onToggleNote;
+  /// Grid click at a tick (unsnapped, PPQ 960) and pitch.
+  final void Function(int tick, int pitch) onToggleNote;
 
   /// Piano key click.
   final ValueChanged<int> onPreview;
@@ -102,6 +116,13 @@ class PianoRoll extends StatelessWidget {
   /// Pitch at a vertical offset in the grid.
   static int pitchAt(double dy) =>
       (pitchHigh - (dy / rowHeight).floor()).clamp(pitchLow, pitchHigh);
+
+  /// Tick at a horizontal offset in a grid of [steps] steps.
+  static int tickAt(double dx, int steps) =>
+      (dx / stepWidth * ValidationRules.stepTicks).floor().clamp(
+        0,
+        steps * ValidationRules.stepTicks - 1,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -129,6 +150,14 @@ class PianoRoll extends StatelessWidget {
                   DropdownMenuItem(value: c.id, child: Text(c.name)),
               ],
             ),
+            const SizedBox(width: AppSpacing.sm),
+            if (onSnapChanged != null)
+              SnapSelector(
+                key: snapKey,
+                value: snap,
+                options: GridSnap.values,
+                onChanged: onSnapChanged!,
+              ),
             const Spacer(),
             Flexible(
               child: Text(
@@ -155,10 +184,7 @@ class PianoRoll extends StatelessWidget {
                       key: gridKey,
                       onTapUp: canEdit
                           ? (d) => onToggleNote(
-                              (d.localPosition.dx / stepWidth).floor().clamp(
-                                0,
-                                steps - 1,
-                              ),
+                              tickAt(d.localPosition.dx, steps),
                               pitchAt(d.localPosition.dy),
                             )
                           : null,
@@ -168,6 +194,7 @@ class PianoRoll extends StatelessWidget {
                           painter: _GridPainter(
                             notes: notes,
                             steps: steps,
+                            snapTicks: snap.ticks,
                             playhead: playhead,
                             noteColor: context.dawColors.trackColor(
                               channels.indexOf(channel),
@@ -244,6 +271,7 @@ class _GridPainter extends CustomPainter {
   _GridPainter({
     required this.notes,
     required this.steps,
+    required this.snapTicks,
     required this.playhead,
     required this.noteColor,
     required this.black,
@@ -255,6 +283,7 @@ class _GridPainter extends CustomPainter {
 
   final List<StudioNote> notes;
   final int steps;
+  final int snapTicks;
   final ValueListenable<int?> playhead;
   final Color noteColor;
   final Color black;
@@ -275,16 +304,24 @@ class _GridPainter extends CustomPainter {
         Paint()..color = isBlackKey(p) ? black : white,
       );
     }
-    // Step / beat / bar lines.
-    for (var s = 0; s <= steps; s++) {
-      final x = s * stepW;
-      final isBar = s % ValidationRules.stepsPerBar == 0;
-      final isBeat = s % Metronome.stepsPerBeat == 0;
+    // Grid lines at the snap resolution; bars and beats always shown.
+    const stepTicks = ValidationRules.stepTicks;
+    const beatTicks = stepTicks * Metronome.stepsPerBeat;
+    const barTicks = stepTicks * ValidationRules.stepsPerBar;
+    final lineTicks = snapTicks < beatTicks ? snapTicks : beatTicks;
+    final total = steps * stepTicks;
+    for (var t = 0; t <= total; t += lineTicks) {
+      final x = t / stepTicks * stepW;
+      final isBar = t % barTicks == 0;
+      final isBeat = t % beatTicks == 0;
+      final isStep = t % stepTicks == 0;
       canvas.drawLine(
         Offset(x, 0),
         Offset(x, size.height),
         Paint()
-          ..color = isBar ? barLine : beatLine
+          ..color = isBar
+              ? barLine
+              : (isStep ? beatLine : beatLine.withValues(alpha: 0.4))
           ..strokeWidth = isBar ? 1.5 : (isBeat ? 1 : 0.5),
       );
     }
@@ -327,6 +364,7 @@ class _GridPainter extends CustomPainter {
   bool shouldRepaint(_GridPainter old) =>
       old.notes != notes ||
       old.steps != steps ||
+      old.snapTicks != snapTicks ||
       old.noteColor != noteColor ||
       old.black != black;
 }

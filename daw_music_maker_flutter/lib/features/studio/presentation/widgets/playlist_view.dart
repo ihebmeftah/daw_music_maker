@@ -7,7 +7,9 @@ import '../../../../core/theme/daw_colors.dart';
 import '../../../../core/theme/theme_context.dart';
 import '../../../../core/validation/validation_rules.dart';
 import '../../data/studio_clip.dart';
+import '../state/grid_snap.dart';
 import 'browser_item.dart';
+import 'snap_selector.dart';
 import 'waveform.dart';
 
 /// FL Studio–style playlist: tracks (rows) × bars (columns) with pattern
@@ -29,13 +31,24 @@ class PlaylistView extends StatelessWidget {
     required this.onPickClip,
     required this.onDropSample,
     this.samples = const [],
+    this.snap = GridSnap.bar,
+    this.onSnapChanged,
   });
+
+  /// Key of the snap selector.
+  static const snapKey = Key('playlist.snap');
+
+  /// Snap grid (where clips land); also sets the drawn grid lines.
+  final GridSnap snap;
+
+  /// Called when the user picks another snap.
+  final ValueChanged<GridSnap>? onSnapChanged;
 
   /// Uploaded samples (audio clip names, waveforms).
   final List<SampleResponse> samples;
 
-  /// An uploaded sample was dropped on [track] / [bar].
-  final void Function(UuidValue sampleId, int track, int bar) onDropSample;
+  /// An uploaded sample was dropped on [track] at a step (unsnapped).
+  final void Function(UuidValue sampleId, int track, int step) onDropSample;
 
   /// Key of the clip grid.
   static const gridKey = Key('playlist.grid');
@@ -79,26 +92,29 @@ class PlaylistView extends StatelessWidget {
   /// Absolute transport step (null when stopped).
   final ValueListenable<int?> playhead;
 
-  /// Click on a track / bar.
-  final void Function(int track, int bar) onToggleCell;
+  /// Click on a track at a step (unsnapped; the ViewModel snaps).
+  final void Function(int track, int step) onToggleCell;
 
-  /// Right-click / long-press on a track / bar.
-  final void Function(int track, int bar) onPickClip;
+  /// Right-click / long-press on a track at a step.
+  final void Function(int track, int step) onPickClip;
 
   /// Bars drawn in the grid.
   int get visibleBars => (songBars + spareBars)
       .clamp(minBars, ValidationRules.playlistBarsMax)
       .toInt();
 
-  /// Track and bar at a position in the grid.
-  static (int track, int bar) cellAt(Offset position) => (
+  /// Width of one step (1/16 note).
+  static const double stepWidth = barWidth / ValidationRules.stepsPerBar;
+
+  /// Track and (unsnapped) step at a position in the grid.
+  static (int track, int step) cellAt(Offset position) => (
     (position.dy / trackHeight).floor().clamp(
       0,
       ValidationRules.playlistTracks - 1,
     ),
-    (position.dx / barWidth).floor().clamp(
+    (position.dx / stepWidth).floor().clamp(
       0,
-      ValidationRules.playlistBarsMax - 1,
+      ValidationRules.playlistBarsMax * ValidationRules.stepsPerBar - 1,
     ),
   );
 
@@ -130,7 +146,15 @@ class PlaylistView extends StatelessWidget {
                 style: styles.eyebrow.copyWith(fontSize: 9),
               ),
             ),
-            const Spacer(),
+            const SizedBox(width: AppSpacing.sm),
+            if (onSnapChanged != null)
+              SnapSelector(
+                key: snapKey,
+                value: snap,
+                options: GridSnap.playlistOptions,
+                onChanged: onSnapChanged!,
+              ),
+            const SizedBox(width: AppSpacing.sm),
             Text('$songBars BARS', style: styles.mono),
           ],
         ),
@@ -200,6 +224,7 @@ class PlaylistView extends StatelessWidget {
                               songBars: songBars,
                               isSongMode: isSongMode,
                               playhead: playhead,
+                              snapSteps: snap.steps,
                               palette: context.dawColors,
                               rowA: colors.surfaceContainerHigh,
                               rowB: colors.surfaceContainer,
@@ -283,6 +308,7 @@ class _PlaylistPainter extends CustomPainter {
     required this.songBars,
     required this.isSongMode,
     required this.playhead,
+    required this.snapSteps,
     required this.palette,
     required this.rowA,
     required this.rowB,
@@ -301,6 +327,7 @@ class _PlaylistPainter extends CustomPainter {
   final int songBars;
   final bool isSongMode;
   final ValueListenable<int?> playhead;
+  final int snapSteps;
   final DawColors palette;
   final Color rowA;
   final Color rowB;
@@ -322,6 +349,18 @@ class _PlaylistPainter extends CustomPainter {
         Rect.fromLTWH(0, top + t * rowH, size.width, rowH),
         Paint()..color = t.isEven ? rowA : rowB,
       );
+    }
+    // Snap lines (beats / steps) under the bar lines.
+    if (snapSteps < ValidationRules.stepsPerBar) {
+      final snapPaint = Paint()
+        ..color = barLine.withValues(alpha: snapSteps >= 4 ? 0.45 : 0.2)
+        ..strokeWidth = 0.5;
+      final totalSteps = bars * ValidationRules.stepsPerBar;
+      for (var st = snapSteps; st < totalSteps; st += snapSteps) {
+        if (st % ValidationRules.stepsPerBar == 0) continue;
+        final x = st * PlaylistView.stepWidth;
+        canvas.drawLine(Offset(x, top), Offset(x, size.height), snapPaint);
+      }
     }
     // Bars + ruler numbers; the song end is marked.
     for (var b = 0; b <= bars; b++) {
@@ -368,7 +407,7 @@ class _PlaylistPainter extends CustomPainter {
       }
       final rect = RRect.fromRectAndRadius(
         Rect.fromLTWH(
-          clip.startBar * barW + 1,
+          clip.startStep * PlaylistView.stepWidth + 1,
           top + clip.track * rowH + 2,
           length * barW - 2,
           rowH - 4,
@@ -420,5 +459,6 @@ class _PlaylistPainter extends CustomPainter {
       old.bars != bars ||
       old.songBars != songBars ||
       old.isSongMode != isSongMode ||
+      old.snapSteps != snapSteps ||
       old.palette != palette;
 }

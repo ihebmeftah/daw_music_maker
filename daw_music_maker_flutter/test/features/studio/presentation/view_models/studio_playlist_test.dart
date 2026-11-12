@@ -4,6 +4,7 @@ import 'package:daw_music_maker/core/errors/failure.dart';
 import 'package:daw_music_maker/features/studio/data/studio_clip.dart';
 import 'package:daw_music_maker/features/studio/data/studio_note.dart';
 import 'package:daw_music_maker/features/studio/data/studio_providers.dart';
+import 'package:daw_music_maker/features/studio/presentation/state/grid_snap.dart';
 import 'package:daw_music_maker/features/studio/presentation/state/studio_state.dart';
 import 'package:daw_music_maker/features/studio/presentation/view_models/studio_view_model.dart';
 import 'package:daw_music_maker_client/daw_music_maker_client.dart';
@@ -74,8 +75,8 @@ void main() {
     test('when loaded, then has the saved clips and the song length', () async {
       await load(
         clips: [
-          StudioClip(patternId: introId, track: 0, startBar: 0),
-          StudioClip(patternId: dropId, track: 1, startBar: 2),
+          StudioClip(patternId: introId, track: 0, startStep: 0),
+          StudioClip(patternId: dropId, track: 1, startStep: 32),
         ],
       );
 
@@ -86,7 +87,9 @@ void main() {
     });
 
     test('when switching to SONG, then the loop follows the song', () async {
-      await load(clips: [StudioClip(patternId: dropId, track: 0, startBar: 4)]);
+      await load(
+        clips: [StudioClip(patternId: dropId, track: 0, startStep: 64)],
+      );
 
       vm().setMode(TransportMode.song);
       await Future<void>.delayed(Duration.zero);
@@ -102,20 +105,68 @@ void main() {
       () async {
         await load();
 
-        vm().togglePlaylistCell(3, 5);
+        vm().togglePlaylistCell(3, 80);
 
         expect(
           state().clips.single,
-          StudioClip(patternId: introId, track: 3, startBar: 5),
+          StudioClip(patternId: introId, track: 3, startStep: 80),
         );
         expect(state().playlistDirty, isTrue);
       },
     );
 
-    test('when clicking inside a clip, then removes it', () async {
-      await load(clips: [StudioClip(patternId: dropId, track: 0, startBar: 0)]);
+    test(
+      'when clicking with the default bar snap, then clips land on a bar',
+      () async {
+        await load();
 
-      vm().togglePlaylistCell(0, 3); // bar 3 is inside the 4-bar Drop clip
+        vm().togglePlaylistCell(0, 21); // bar 2, step 5
+
+        expect(state().playlistSnap, GridSnap.bar);
+        expect(state().clips.single.startStep, 16);
+      },
+    );
+
+    test(
+      'when the playlist snaps to beats, then clips land on a beat',
+      () async {
+        await load();
+        vm().setPlaylistSnap(GridSnap.beat);
+
+        vm().togglePlaylistCell(0, 21);
+
+        expect(state().playlistSnap, GridSnap.beat);
+        expect(state().clips.single.startStep, 20);
+        expect(state().songBars, 4); // 20 + 32 steps → ends in bar 4
+      },
+    );
+
+    test(
+      'when the playlist snaps to steps, then clips start anywhere',
+      () async {
+        await load();
+        vm().setPlaylistSnap(GridSnap.step);
+
+        vm().togglePlaylistCell(0, 21);
+
+        expect(state().clips.single.startStep, 21);
+      },
+    );
+
+    test('when choosing Line for the playlist, then it is ignored', () async {
+      await load();
+
+      vm().setPlaylistSnap(GridSnap.line);
+
+      expect(state().playlistSnap, GridSnap.bar);
+    });
+
+    test('when clicking inside a clip, then removes it', () async {
+      await load(
+        clips: [StudioClip(patternId: dropId, track: 0, startStep: 0)],
+      );
+
+      vm().togglePlaylistCell(0, 48); // bar 3 is inside the 4-bar Drop clip
 
       expect(state().clips, isEmpty);
     });
@@ -124,20 +175,22 @@ void main() {
       'when a clip would overlap or pass the end, then nothing is placed',
       () async {
         await load(
-          clips: [StudioClip(patternId: dropId, track: 0, startBar: 4)],
+          clips: [StudioClip(patternId: dropId, track: 0, startStep: 64)],
         );
 
-        vm().togglePlaylistCell(0, 3); // Intro (2 bars) at 3 would cover bar 4
-        vm().togglePlaylistCell(1, 255); // would end after bar 256
+        vm().togglePlaylistCell(0, 48); // Intro (2 bars) at 3 would cover bar 4
+        vm().togglePlaylistCell(1, 4080); // would end after bar 256
 
         expect(state().clips, hasLength(1));
       },
     );
 
     test('when right-clicking a clip, then selects its pattern', () async {
-      await load(clips: [StudioClip(patternId: dropId, track: 2, startBar: 0)]);
+      await load(
+        clips: [StudioClip(patternId: dropId, track: 2, startStep: 0)],
+      );
 
-      vm().selectClipPattern(2, 1);
+      vm().selectClipPattern(2, 16);
 
       expect(state().selectedPattern, drop);
     });
@@ -174,8 +227,8 @@ void main() {
       () async {
         await load(
           clips: [
-            StudioClip(patternId: introId, track: 0, startBar: 0),
-            StudioClip(patternId: dropId, track: 1, startBar: 2),
+            StudioClip(patternId: introId, track: 0, startStep: 0),
+            StudioClip(patternId: dropId, track: 1, startStep: 32),
           ],
         );
         vm().setMode(TransportMode.song);
@@ -195,7 +248,9 @@ void main() {
     );
 
     test('when in PAT mode, then the playlist is not played', () async {
-      await load(clips: [StudioClip(patternId: dropId, track: 0, startBar: 0)]);
+      await load(
+        clips: [StudioClip(patternId: dropId, track: 0, startStep: 0)],
+      );
 
       metronome.onStep!(0);
 
@@ -207,8 +262,8 @@ void main() {
       when(() => repository.deletePattern(any())).thenAnswer((_) async {});
       await load(
         clips: [
-          StudioClip(patternId: introId, track: 0, startBar: 0),
-          StudioClip(patternId: dropId, track: 1, startBar: 0),
+          StudioClip(patternId: introId, track: 0, startStep: 0),
+          StudioClip(patternId: dropId, track: 1, startStep: 0),
         ],
       );
 
@@ -232,9 +287,9 @@ void main() {
         );
         await load(
           clips: [
-            StudioClip(patternId: introId, track: 0, startBar: 0),
-            StudioClip(patternId: dropId, track: 0, startBar: 4),
-            StudioClip(patternId: dropId, track: 1, startBar: 4),
+            StudioClip(patternId: introId, track: 0, startStep: 0),
+            StudioClip(patternId: dropId, track: 0, startStep: 64),
+            StudioClip(patternId: dropId, track: 1, startStep: 64),
           ],
         );
 
@@ -242,7 +297,7 @@ void main() {
 
         expect(state().clips, hasLength(2));
         expect(
-          state().clips.any((c) => c.track == 0 && c.startBar == 4),
+          state().clips.any((c) => c.track == 0 && c.startStep == 64),
           isFalse,
         );
       },

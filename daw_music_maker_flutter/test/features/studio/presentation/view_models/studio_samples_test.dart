@@ -235,8 +235,8 @@ void main() {
             StudioNote(channelId: kick, tick: 0),
           ],
           clips: [
-            StudioClip(sampleId: voxId, lengthBars: 1, track: 0, startBar: 0),
-            StudioClip(patternId: testPatternId, track: 1, startBar: 0),
+            StudioClip(sampleId: voxId, lengthBars: 1, track: 0, startStep: 0),
+            StudioClip(patternId: testPatternId, track: 1, startStep: 0),
           ],
         );
 
@@ -421,15 +421,17 @@ void main() {
       () async {
         await load(
           samples: [testSample(id: voxId, durationMs: 9000)],
-          clips: [StudioClip(patternId: testPatternId, track: 0, startBar: 8)],
+          clips: [
+            StudioClip(patternId: testPatternId, track: 0, startStep: 128),
+          ],
         );
 
-        vm().placeSampleClip(voxId, 0, 2); // 5 bars → 2..7, fits before bar 8
-        vm().placeSampleClip(voxId, 0, 6); // would overlap
+        vm().placeSampleClip(voxId, 0, 32); // 5 bars → 2..7, fits before bar 8
+        vm().placeSampleClip(voxId, 0, 96); // would overlap
         vm().placeSampleClip(newId, 1, 0); // unknown sample
 
         final audioClips = state().clips.where((c) => c.isAudio).toList();
-        expect(audioClips.single.startBar, 2);
+        expect(audioClips.single.startStep, 32);
         expect(audioClips.single.lengthBars, 5);
         expect(state().playlistDirty, isTrue);
       },
@@ -440,7 +442,7 @@ void main() {
       () async {
         await load(
           clips: [
-            StudioClip(sampleId: voxId, lengthBars: 2, track: 0, startBar: 1),
+            StudioClip(sampleId: voxId, lengthBars: 2, track: 0, startStep: 16),
           ],
         );
         vm().setMode(TransportMode.song);
@@ -457,7 +459,7 @@ void main() {
     test('when right-clicking an audio clip, then previews it', () async {
       await load(
         clips: [
-          StudioClip(sampleId: voxId, lengthBars: 1, track: 3, startBar: 0),
+          StudioClip(sampleId: voxId, lengthBars: 1, track: 3, startStep: 0),
         ],
       );
 

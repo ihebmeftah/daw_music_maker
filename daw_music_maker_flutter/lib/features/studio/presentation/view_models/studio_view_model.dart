@@ -17,6 +17,7 @@ import '../../../../core/validation/validators.dart';
 import '../../data/studio_clip.dart';
 import '../../data/studio_note.dart';
 import '../../data/studio_providers.dart';
+import '../state/grid_snap.dart';
 import '../state/sample_upload.dart';
 import '../state/studio_state.dart';
 
@@ -33,6 +34,9 @@ class StudioViewModel extends _$StudioViewModel {
   static const noteSaveDelay = Duration(milliseconds: 600);
 
   final Map<UuidValue, Timer> _noteSaveTimers = {};
+
+  /// Notes scheduled inside the current step (off-grid ticks).
+  final Set<Timer> _noteTimers = {};
   Timer? _playlistSaveTimer;
 
   Metronome get _metronome => ref.read(metronomeProvider);
@@ -51,6 +55,9 @@ class StudioViewModel extends _$StudioViewModel {
         timer.cancel();
       }
       _playlistSaveTimer?.cancel();
+      for (final timer in _noteTimers) {
+        timer.cancel();
+      }
     });
     // Preload sounds so previews and the first notes play without delay.
     unawaited(ref.read(audioEngineProvider).load().catchError((_) {}));
@@ -139,11 +146,26 @@ class StudioViewModel extends _$StudioViewModel {
   ) {
     final from = localStep * ValidationRules.stepTicks;
     final to = from + ValidationRules.stepTicks;
+    final stepInterval = Metronome.stepIntervalFor(_metronome.bpm);
     for (final note in notes) {
       if (note.tick < from || note.tick >= to) continue;
       final channel = channels[note.channelId];
       if (channel == null || channel.muted) continue;
-      _playNote(channel, note.pitch, note.velocity);
+      final offset = note.tick - from;
+      if (offset == 0) {
+        _playNote(channel, note.pitch, note.velocity);
+      } else {
+        // Off-grid notes (e.g. on the "Line" snap) play at their exact time
+        // inside the step.
+        late final Timer timer;
+        timer = Timer(stepInterval * (offset / ValidationRules.stepTicks), () {
+          _noteTimers.remove(timer);
+          if (_metronome.isRunning) {
+            _playNote(channel, note.pitch, note.velocity);
+          }
+        });
+        _noteTimers.add(timer);
+      }
     }
   }
 
@@ -229,9 +251,10 @@ class StudioViewModel extends _$StudioViewModel {
     }
   }
 
-  /// Piano roll click at [step] / [pitch] for the selected channel: removes
-  /// the note sounding there, or adds a one-step note (previewed).
-  void togglePianoNote(int step, int pitch) {
+  /// Piano roll click at [tick] (unsnapped) / [pitch] for the selected
+  /// channel: removes the note sounding there, or adds a note on the snap
+  /// grid, one grid unit long (clipped to the pattern end), and previews it.
+  void togglePianoNote(int tick, int pitch) {
     final current = state.value;
     final channel = current?.selectedChannel;
     if (current == null ||
@@ -240,7 +263,6 @@ class StudioViewModel extends _$StudioViewModel {
         !current.notesLoaded) {
       return;
     }
-    final tick = step * ValidationRules.stepTicks;
     final notes = current.currentNotes;
     final hit = notes
         .where(
@@ -253,14 +275,38 @@ class StudioViewModel extends _$StudioViewModel {
         for (final n in notes)
           if (n != hit) n,
       ]);
-    } else {
-      if (notes.length >= ValidationRules.notesPerPatternMax) return;
-      _setCurrentNotes([
-        ...notes,
-        StudioNote(channelId: channel.id, tick: tick, pitch: pitch),
-      ]);
-      preview(channel.id, pitch: pitch);
+      return;
     }
+    if (notes.length >= ValidationRules.notesPerPatternMax) return;
+    final snap = current.pianoRollSnap.ticks;
+    final patternTicks = current.patternSteps * ValidationRules.stepTicks;
+    final start = GridSnap.snapDown(tick, snap);
+    if (start >= patternTicks) return;
+    _setCurrentNotes([
+      ...notes,
+      StudioNote(
+        channelId: channel.id,
+        tick: start,
+        lengthTicks: snap < patternTicks - start ? snap : patternTicks - start,
+        pitch: pitch,
+      ),
+    ]);
+    preview(channel.id, pitch: pitch);
+  }
+
+  /// Sets the piano roll snap grid.
+  void setPianoRollSnap(GridSnap snap) {
+    final current = state.value;
+    if (current == null) return;
+    state = AsyncData(current.copyWith(pianoRollSnap: snap));
+  }
+
+  /// Sets the playlist snap grid ("Line" is not offered: clips start on
+  /// whole steps).
+  void setPlaylistSnap(GridSnap snap) {
+    final current = state.value;
+    if (current == null || snap == GridSnap.line) return;
+    state = AsyncData(current.copyWith(playlistSnap: snap));
   }
 
   void _setCurrentNotes(List<StudioNote> notes) {
@@ -435,14 +481,14 @@ class StudioViewModel extends _$StudioViewModel {
     );
   }
 
-  /// Playlist click on [track] / [bar]: removes the clip there, or places the
-  /// selected pattern starting at [bar] if it fits (no overlap on the track,
-  /// within the song limit).
-  void togglePlaylistCell(int track, int bar) {
+  /// Playlist click on [track] at [step] (unsnapped): removes the clip
+  /// there, or places the selected pattern on the snap grid if it fits (no
+  /// overlap on the track, within the song limit).
+  void togglePlaylistCell(int track, int step) {
     final current = state.value;
     final pattern = current?.selectedPattern;
     if (current == null || pattern == null || !current.canEdit) return;
-    final hit = current.clipAt(track, bar);
+    final hit = current.clipAt(track, step);
     if (hit != null) {
       _setClips([
         for (final c in current.clips)
@@ -450,14 +496,18 @@ class StudioViewModel extends _$StudioViewModel {
       ]);
       return;
     }
-    final clip = StudioClip(patternId: pattern.id, track: track, startBar: bar);
+    final clip = StudioClip(
+      patternId: pattern.id,
+      track: track,
+      startStep: GridSnap.snapDown(step, current.playlistSnap.steps),
+    );
     if (_fits(current, clip)) _setClips([...current.clips, clip]);
   }
 
-  /// Selects the pattern of the clip at [track] / [bar] (FL: pick a clip's
+  /// Selects the pattern of the clip at [track] / [step] (FL: pick a clip's
   /// pattern to edit it). Audio clips are previewed instead.
-  void selectClipPattern(int track, int bar) {
-    final clip = state.value?.clipAt(track, bar);
+  void selectClipPattern(int track, int step) {
+    final clip = state.value?.clipAt(track, step);
     if (clip == null) return;
     final patternId = clip.patternId;
     if (patternId != null) {
@@ -514,22 +564,24 @@ class StudioViewModel extends _$StudioViewModel {
   void _playSongStep(StudioState current, int step) {
     const stepsPerBar = ValidationRules.stepsPerBar;
     final songStep = step % (current.songBars * stepsPerBar);
-    final bar = songStep ~/ stepsPerBar;
     final channels = {for (final c in current.channels) c.id: c};
     for (final clip in current.clips) {
       final length = current.clipLength(clip);
-      if (bar < clip.startBar || bar >= clip.startBar + length) continue;
+      final clipSteps = length * stepsPerBar;
+      if (songStep < clip.startStep || songStep >= clip.startStep + clipSteps) {
+        continue;
+      }
       if (clip.isAudio) {
         // Audio clips start their file on their first step.
         final sample = current.sampleById(clip.sampleId);
-        if (sample != null && songStep == clip.startBar * stepsPerBar) {
+        if (sample != null && songStep == clip.startStep) {
           _engine.play(UploadedSound(sample.id, sample.url), volume: 0.8);
         }
         continue;
       }
       final notes = current.notes[clip.patternId];
       if (notes == null) continue;
-      final local = songStep - clip.startBar * stepsPerBar;
+      final local = songStep - clip.startStep;
       _playNotesAt(notes, local, channels);
     }
   }
@@ -541,16 +593,20 @@ class StudioViewModel extends _$StudioViewModel {
     if (current == null) return;
     final kept = <StudioClip>[];
     final sorted = [...current.clips]
-      ..sort((a, b) => a.startBar.compareTo(b.startBar));
+      ..sort((a, b) => a.startStep.compareTo(b.startStep));
     for (final c in sorted) {
-      final end = c.startBar + current.clipLength(c);
+      final end = c.startStep + current.clipSteps(c);
       final overlaps = kept.any(
         (k) =>
             k.track == c.track &&
-            c.startBar < k.startBar + current.clipLength(k) &&
-            k.startBar < end,
+            c.startStep < k.startStep + current.clipSteps(k) &&
+            k.startStep < end,
       );
-      if (!overlaps && end <= ValidationRules.playlistBarsMax) kept.add(c);
+      if (!overlaps &&
+          end <=
+              ValidationRules.playlistBarsMax * ValidationRules.stepsPerBar) {
+        kept.add(c);
+      }
     }
     if (kept.length != current.clips.length) _setClips(kept);
   }
@@ -811,8 +867,9 @@ class StudioViewModel extends _$StudioViewModel {
     );
   }
 
-  /// Places an audio clip of [sampleId] on [track] at [bar] if it fits.
-  void placeSampleClip(UuidValue sampleId, int track, int bar) {
+  /// Places an audio clip of [sampleId] on [track] at [step] (snapped to
+  /// the playlist grid) if it fits.
+  void placeSampleClip(UuidValue sampleId, int track, int step) {
     final current = state.value;
     final sample = current?.sampleById(sampleId);
     if (current == null || sample == null || !current.canEdit) return;
@@ -820,7 +877,7 @@ class StudioViewModel extends _$StudioViewModel {
       sampleId: sampleId,
       lengthBars: audioClipBars(sample),
       track: track,
-      startBar: bar,
+      startStep: GridSnap.snapDown(step, current.playlistSnap.steps),
     );
     if (_fits(current, clip)) _setClips([...current.clips, clip]);
   }
@@ -828,14 +885,15 @@ class StudioViewModel extends _$StudioViewModel {
   /// Whether [clip] fits: within the song limit, under the clip cap, and not
   /// overlapping another clip on its track.
   bool _fits(StudioState current, StudioClip clip) {
-    final end = clip.startBar + current.clipLength(clip);
-    return end <= ValidationRules.playlistBarsMax &&
+    final end = clip.startStep + current.clipSteps(clip);
+    return end <=
+            ValidationRules.playlistBarsMax * ValidationRules.stepsPerBar &&
         current.clips.length < ValidationRules.playlistClipsMax &&
         !current.clips.any(
           (c) =>
               c.track == clip.track &&
-              clip.startBar < c.startBar + current.clipLength(c) &&
-              c.startBar < end,
+              clip.startStep < c.startStep + current.clipSteps(c) &&
+              c.startStep < end,
         );
   }
 

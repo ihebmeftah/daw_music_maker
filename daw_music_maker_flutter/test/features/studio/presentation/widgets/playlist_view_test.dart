@@ -2,6 +2,8 @@ import 'package:daw_music_maker/features/studio/data/studio_clip.dart';
 import 'package:daw_music_maker/features/studio/presentation/widgets/playlist_view.dart';
 import 'package:daw_music_maker_client/daw_music_maker_client.dart';
 import 'package:flutter/gestures.dart';
+import 'package:daw_music_maker/features/studio/presentation/state/grid_snap.dart';
+import 'package:daw_music_maker/features/studio/presentation/widgets/snap_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -39,6 +41,7 @@ void main() {
         onToggleCell: (t, b) => calls.add('toggle $t $b'),
         onPickClip: (t, b) => calls.add('pick $t $b'),
         onDropSample: (id, t, b) => calls.add('drop $t $b'),
+        onSnapChanged: (s) => calls.add('snap ${s.name}'),
       ),
     ),
   );
@@ -46,12 +49,12 @@ void main() {
   Offset cell(WidgetTester tester, int track, int bar) =>
       tester.getTopLeft(find.byKey(PlaylistView.gridKey)) +
       Offset(
-        bar * PlaylistView.barWidth + 10,
+        bar * PlaylistView.barWidth + 1,
         PlaylistView.rulerHeight + track * PlaylistView.trackHeight + 10,
       );
 
   group('Given cellAt', () {
-    test('when given grid offsets, then returns track and bar', () {
+    test('when given grid offsets, then returns track and step', () {
       expect(
         PlaylistView.cellAt(
           const Offset(
@@ -59,7 +62,7 @@ void main() {
             PlaylistView.trackHeight * 2 + 1,
           ),
         ),
-        (2, 3),
+        (2, 48),
       );
     });
   });
@@ -70,7 +73,7 @@ void main() {
     ) async {
       await pump(
         tester,
-        clips: [StudioClip(patternId: testPatternId, track: 0, startBar: 0)],
+        clips: [StudioClip(patternId: testPatternId, track: 0, startStep: 0)],
       );
 
       expect(find.text('Track 1'), findsOneWidget);
@@ -87,7 +90,7 @@ void main() {
 
       await tester.tapAt(cell(tester, 2, 5));
 
-      expect(calls, ['toggle 2 5']);
+      expect(calls, ['toggle 2 80']);
     });
 
     testWidgets('when right-clicking a cell, then picks the clip', (
@@ -97,7 +100,7 @@ void main() {
 
       await tester.tapAt(cell(tester, 1, 3), buttons: kSecondaryButton);
 
-      expect(calls, ['pick 1 3']);
+      expect(calls, ['pick 1 48']);
     });
 
     testWidgets('when read-only, then clicks do not edit', (tester) async {
@@ -118,6 +121,19 @@ void main() {
       await tester.pump();
 
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('when picking a grid snap, then reports it', (tester) async {
+      await pump(tester);
+
+      await tester.tap(find.byKey(PlaylistView.snapKey));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(SnapSelector.optionKey(PlaylistView.snapKey, GridSnap.beat)),
+      );
+      await tester.pumpAndSettle();
+
+      expect(calls, ['snap beat']);
     });
   });
 }

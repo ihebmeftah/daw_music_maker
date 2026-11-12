@@ -5,6 +5,7 @@ import '../../../../core/errors/failure.dart';
 import '../../../../core/validation/validation_rules.dart';
 import '../../data/studio_clip.dart';
 import '../../data/studio_note.dart';
+import 'grid_snap.dart';
 import 'sample_upload.dart';
 
 part 'studio_state.freezed.dart';
@@ -90,6 +91,12 @@ abstract class StudioState with _$StudioState {
     /// Uploads in progress or failed (until dismissed).
     @Default(<SampleUpload>[]) List<SampleUpload> uploads,
 
+    /// Snap grid of the piano roll (where clicks land, new note length).
+    @Default(GridSnap.step) GridSnap pianoRollSnap,
+
+    /// Snap grid of the playlist (where clips land).
+    @Default(GridSnap.bar) GridSnap playlistSnap,
+
     /// Whether playlist edits are waiting to be saved.
     @Default(false) bool playlistDirty,
 
@@ -127,6 +134,10 @@ abstract class StudioState with _$StudioState {
   int clipLength(StudioClip clip) =>
       clip.isAudio ? (clip.lengthBars ?? 1) : patternLength(clip.patternId!);
 
+  /// Length of a playlist clip in steps.
+  int clipSteps(StudioClip clip) =>
+      clipLength(clip) * ValidationRules.stepsPerBar;
+
   /// The uploaded sample [id], if known.
   SampleResponse? sampleById(UuidValue? id) {
     if (id == null) return null;
@@ -140,7 +151,9 @@ abstract class StudioState with _$StudioState {
   int get songBars {
     var end = 1;
     for (final c in clips) {
-      final clipEnd = c.startBar + clipLength(c);
+      // Round a clip ending mid-bar up to the next bar.
+      final clipEnd =
+          ((c.startStep + clipSteps(c)) / ValidationRules.stepsPerBar).ceil();
       if (clipEnd > end) end = clipEnd;
     }
     return end;
@@ -156,12 +169,12 @@ abstract class StudioState with _$StudioState {
   int get patternSteps =>
       (selectedPattern?.lengthBars ?? 4) * ValidationRules.stepsPerBar;
 
-  /// The clip covering [bar] on [track], if any.
-  StudioClip? clipAt(int track, int bar) {
+  /// The clip covering [step] on [track], if any.
+  StudioClip? clipAt(int track, int step) {
     for (final c in clips) {
       if (c.track == track &&
-          bar >= c.startBar &&
-          bar < c.startBar + clipLength(c)) {
+          step >= c.startStep &&
+          step < c.startStep + clipSteps(c)) {
         return c;
       }
     }

@@ -11,8 +11,11 @@ FL Studio–style beat making inside the studio (`/projects/:id/studio`):
   drum pattern; lit steps use the channel's track color and the playhead column is
   outlined while playing. Each row has a mute LED, a volume slider and a menu (open in
   piano roll, delete). **+ CHANNEL** adds a channel playing any of the four samples.
-- In the **Piano roll** view I pick a channel and click a pitch × step grid to add a
-  one-step note (click a note to remove it). The keyboard previews pitches; C5 (60, FL
+- In the **Piano roll** view I pick a channel and click a pitch × time grid to add a
+  note (click a note to remove it). The **GRID** menu picks the snap like FL Studio —
+  **Bar, Beat, ½ beat, Step** (default) or **Line** (½ step): new notes start on the
+  grid line left of the click and are one grid unit long (cut at the pattern end), and
+  the grid draws lines at that resolution. Off-step notes play at their exact time. The keyboard previews pitches; C5 (60, FL
   naming) plays the sample unpitched, other pitches transpose it.
 - Channels can also play **uploaded samples**, with sampler settings (trim, pan, pitch)
   — see [samples.md](samples.md). Double-clicking a channel opens its sampler; the piano
@@ -26,7 +29,10 @@ FL Studio–style beat making inside the studio (`/projects/:id/studio`):
 
 Studio workspace (below the timeline): `DawSegmentedControl` **Channel rack | Piano
 roll** → `ChannelRack` / `PianoRoll` widgets. Double-clicking a channel name opens it in
-the piano roll.
+the piano roll. `PianoRoll.tickAt` turns a click into an unsnapped tick (PPQ 960);
+`StudioViewModel.togglePianoNote(tick, pitch)` snaps it with `state.pianoRollSnap`
+(`setPianoRollSnap`). During playback notes between two steps are fired by a timer
+offset within the step (`_playNotesAt`).
 
 Server:
 - `client.channel` (`ChannelEndpoint`): `list(projectId)` (visible project), `create`,
@@ -94,7 +100,7 @@ Flutter:
   `studio_repository_impl_test` (channel/note calls), `studio_sequencer_test` (toggle
   steps with preview, save and failures, transport playback incl. loop wrap, pitch → rate
   and velocity → volume, mute silences and reverts on failure, piano-roll notes, preview,
-  shrinking drops notes, add/delete channels, read-only), `channel_rack_test`,
+  beat / line / bar snapping and note length, shrinking drops notes, add/delete channels, read-only), `channel_rack_test`,
   `piano_roll_test` and `studio_view_test` (step → sound → debounced save, drums play on
   their steps while the transport runs, tab switching and key preview). Tests use
   `FakeAudioEngine`, which records clicks and samples instead of playing them.

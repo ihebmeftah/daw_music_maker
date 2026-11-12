@@ -1,5 +1,7 @@
 import 'package:daw_music_maker/features/studio/data/studio_note.dart';
 import 'package:daw_music_maker/features/studio/presentation/widgets/piano_roll.dart';
+import 'package:daw_music_maker/features/studio/presentation/state/grid_snap.dart';
+import 'package:daw_music_maker/features/studio/presentation/widgets/snap_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -29,10 +31,11 @@ void main() {
           steps: 16,
           canEdit: canEdit,
           playhead: playhead,
-          onToggleNote: (step, pitch) => calls.add('note $step $pitch'),
+          onToggleNote: (tick, pitch) => calls.add('note $tick $pitch'),
           onPreview: (pitch) => calls.add('preview $pitch'),
           onSelectChannel: (id) =>
               calls.add('channel ${testChannelIds.indexOf(id)}'),
+          onSnapChanged: (s) => calls.add('snap ${s.name}'),
         ),
       ),
     );
@@ -57,7 +60,7 @@ void main() {
   });
 
   group('Given a PianoRoll', () {
-    testWidgets('when clicking the grid, then reports the step and pitch', (
+    testWidgets('when clicking the grid, then reports the tick and pitch', (
       tester,
     ) async {
       await pump(tester);
@@ -71,7 +74,7 @@ void main() {
             ),
       );
 
-      expect(calls, ['note 3 60']);
+      expect(calls, ['note 770 60']);
     });
 
     testWidgets('when clicking a key, then previews its pitch', (tester) async {
@@ -116,6 +119,19 @@ void main() {
       await tester.pump();
 
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('when picking a grid snap, then reports it', (tester) async {
+      await pump(tester);
+
+      await tester.tap(find.byKey(PianoRoll.snapKey));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.byKey(SnapSelector.optionKey(PianoRoll.snapKey, GridSnap.line)),
+      );
+      await tester.pumpAndSettle();
+
+      expect(calls, ['snap line']);
     });
   });
 }

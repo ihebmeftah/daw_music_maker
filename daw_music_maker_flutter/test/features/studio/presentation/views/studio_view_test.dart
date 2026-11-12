@@ -484,7 +484,7 @@ void main() {
                   () => studio.saveClips(testRequestId, captureAny()),
                 ).captured.single
                 as List<StudioClip>;
-        expect(saved.single.startBar, 2);
+        expect(saved.single.startStep, 32);
         expect(saved.single.track, 0);
       },
     );
@@ -495,7 +495,7 @@ void main() {
         tester,
       ) async {
         stubPatterns(studio, null, null, const [], [
-          StudioClip(patternId: testPatternId, track: 0, startBar: 4),
+          StudioClip(patternId: testPatternId, track: 0, startStep: 64),
         ]);
         await open(tester);
 
@@ -517,7 +517,7 @@ void main() {
         null,
         null,
         [StudioNote(channelId: testChannelIds[0], tick: 0)],
-        [StudioClip(patternId: testPatternId, track: 0, startBar: 1)],
+        [StudioClip(patternId: testPatternId, track: 0, startStep: 16)],
       );
       await open(tester);
       await tester.tap(find.byKey(TransportToolbar.songModeKey));
@@ -646,7 +646,7 @@ void main() {
         expect(saved.single.sampleId, voxId);
         expect(saved.single.lengthBars, 5); // 9 s at 120 BPM
         expect(saved.single.track, 1);
-        expect(saved.single.startBar, 2);
+        expect(saved.single.startStep, 32);
         expect(tester.takeException(), isNull);
       },
     );
@@ -659,7 +659,7 @@ void main() {
         null,
         null,
         const [],
-        [StudioClip(sampleId: voxId, lengthBars: 3, track: 0, startBar: 0)],
+        [StudioClip(sampleId: voxId, lengthBars: 3, track: 0, startStep: 0)],
         [testSample(id: voxId)],
       );
       await open(tester);

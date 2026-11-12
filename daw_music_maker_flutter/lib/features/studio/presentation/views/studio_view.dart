@@ -449,6 +449,8 @@ class _Workspace extends StatelessWidget {
                       onPickClip: vm.selectClipPattern,
                       samples: state.samples,
                       onDropSample: vm.placeSampleClip,
+                      snap: state.playlistSnap,
+                      onSnapChanged: vm.setPlaylistSnap,
                     ),
                     StudioWorkspace.channelRack => ChannelRack(
                       channels: state.channels,
@@ -497,6 +499,8 @@ class _Workspace extends StatelessWidget {
                               onPreview: (pitch) =>
                                   vm.preview(channel.id, pitch: pitch),
                               onSelectChannel: vm.selectChannel,
+                              snap: state.pianoRollSnap,
+                              onSnapChanged: vm.setPianoRollSnap,
                             ),
                   },
           ),

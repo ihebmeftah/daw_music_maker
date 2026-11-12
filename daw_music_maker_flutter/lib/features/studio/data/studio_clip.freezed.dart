@@ -19,8 +19,8 @@ mixin _$StudioClip {
  UuidValue? get patternId;/// The uploaded sample of an audio clip.
  UuidValue? get sampleId;/// Length of an audio clip in bars.
  int? get lengthBars;/// Playlist track (row), 0-based.
- int get track;/// First bar, 0-based.
- int get startBar;
+ int get track;/// Start in steps (1/16 notes) from the song start.
+ int get startStep;
 /// Create a copy of StudioClip
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -32,20 +32,20 @@ $StudioClipCopyWith<StudioClip> get copyWith => _$StudioClipCopyWithImpl<StudioC
 @override
 bool operator ==(Object other) {
   final _this = this as StudioClip;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StudioClip&&(identical(other.patternId, _this.patternId) || other.patternId == _this.patternId)&&(identical(other.sampleId, _this.sampleId) || other.sampleId == _this.sampleId)&&(identical(other.lengthBars, _this.lengthBars) || other.lengthBars == _this.lengthBars)&&(identical(other.track, _this.track) || other.track == _this.track)&&(identical(other.startBar, _this.startBar) || other.startBar == _this.startBar));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StudioClip&&(identical(other.patternId, _this.patternId) || other.patternId == _this.patternId)&&(identical(other.sampleId, _this.sampleId) || other.sampleId == _this.sampleId)&&(identical(other.lengthBars, _this.lengthBars) || other.lengthBars == _this.lengthBars)&&(identical(other.track, _this.track) || other.track == _this.track)&&(identical(other.startStep, _this.startStep) || other.startStep == _this.startStep));
 }
 
 
 @override
 int get hashCode {
   final _this = this as StudioClip;
-  return Object.hash(runtimeType,_this.patternId,_this.sampleId,_this.lengthBars,_this.track,_this.startBar);
+  return Object.hash(runtimeType,_this.patternId,_this.sampleId,_this.lengthBars,_this.track,_this.startStep);
 }
 
 @override
 String toString() {
   final _this = this as StudioClip;
-  return 'StudioClip(patternId: ${_this.patternId}, sampleId: ${_this.sampleId}, lengthBars: ${_this.lengthBars}, track: ${_this.track}, startBar: ${_this.startBar})';
+  return 'StudioClip(patternId: ${_this.patternId}, sampleId: ${_this.sampleId}, lengthBars: ${_this.lengthBars}, track: ${_this.track}, startStep: ${_this.startStep})';
 }
 
 
@@ -56,7 +56,7 @@ abstract mixin class $StudioClipCopyWith<$Res>  {
   factory $StudioClipCopyWith(StudioClip value, $Res Function(StudioClip) _then) = _$StudioClipCopyWithImpl;
 @useResult
 $Res call({
- UuidValue? patternId, UuidValue? sampleId, int? lengthBars, int track, int startBar
+ UuidValue? patternId, UuidValue? sampleId, int? lengthBars, int track, int startStep
 });
 
 
@@ -73,13 +73,13 @@ class _$StudioClipCopyWithImpl<$Res>
 
 /// Create a copy of StudioClip
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? patternId = freezed,Object? sampleId = freezed,Object? lengthBars = freezed,Object? track = null,Object? startBar = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? patternId = freezed,Object? sampleId = freezed,Object? lengthBars = freezed,Object? track = null,Object? startStep = null,}) {
   return _then(StudioClip(
 patternId: freezed == patternId ? _self.patternId : patternId // ignore: cast_nullable_to_non_nullable
 as UuidValue?,sampleId: freezed == sampleId ? _self.sampleId : sampleId // ignore: cast_nullable_to_non_nullable
 as UuidValue?,lengthBars: freezed == lengthBars ? _self.lengthBars : lengthBars // ignore: cast_nullable_to_non_nullable
 as int?,track: null == track ? _self.track : track // ignore: cast_nullable_to_non_nullable
-as int,startBar: null == startBar ? _self.startBar : startBar // ignore: cast_nullable_to_non_nullable
+as int,startStep: null == startStep ? _self.startStep : startStep // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }
@@ -165,10 +165,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( UuidValue? patternId,  UuidValue? sampleId,  int? lengthBars,  int track,  int startBar)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( UuidValue? patternId,  UuidValue? sampleId,  int? lengthBars,  int track,  int startStep)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _StudioClip() when $default != null:
-return $default(_that.patternId,_that.sampleId,_that.lengthBars,_that.track,_that.startBar);case _:
+return $default(_that.patternId,_that.sampleId,_that.lengthBars,_that.track,_that.startStep);case _:
   return orElse();
 
 }
@@ -186,10 +186,10 @@ return $default(_that.patternId,_that.sampleId,_that.lengthBars,_that.track,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( UuidValue? patternId,  UuidValue? sampleId,  int? lengthBars,  int track,  int startBar)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( UuidValue? patternId,  UuidValue? sampleId,  int? lengthBars,  int track,  int startStep)  $default,) {final _that = this;
 switch (_that) {
 case _StudioClip():
-return $default(_that.patternId,_that.sampleId,_that.lengthBars,_that.track,_that.startBar);case _:
+return $default(_that.patternId,_that.sampleId,_that.lengthBars,_that.track,_that.startStep);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -206,10 +206,10 @@ return $default(_that.patternId,_that.sampleId,_that.lengthBars,_that.track,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( UuidValue? patternId,  UuidValue? sampleId,  int? lengthBars,  int track,  int startBar)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( UuidValue? patternId,  UuidValue? sampleId,  int? lengthBars,  int track,  int startStep)?  $default,) {final _that = this;
 switch (_that) {
 case _StudioClip() when $default != null:
-return $default(_that.patternId,_that.sampleId,_that.lengthBars,_that.track,_that.startBar);case _:
+return $default(_that.patternId,_that.sampleId,_that.lengthBars,_that.track,_that.startStep);case _:
   return null;
 
 }
@@ -221,7 +221,7 @@ return $default(_that.patternId,_that.sampleId,_that.lengthBars,_that.track,_tha
 
 
 class _StudioClip extends StudioClip {
-  const _StudioClip({this.patternId, this.sampleId, this.lengthBars, required this.track, required this.startBar}): super._();
+  const _StudioClip({this.patternId, this.sampleId, this.lengthBars, required this.track, required this.startStep}): super._();
   
 
 /// The pattern it plays (its length is the clip's length).
@@ -232,8 +232,8 @@ class _StudioClip extends StudioClip {
 @override final  int? lengthBars;
 /// Playlist track (row), 0-based.
 @override final  int track;
-/// First bar, 0-based.
-@override final  int startBar;
+/// Start in steps (1/16 notes) from the song start.
+@override final  int startStep;
 
 /// Create a copy of StudioClip
 /// with the given fields replaced by the non-null parameter values.
@@ -245,18 +245,18 @@ _$StudioClipCopyWith<_StudioClip> get copyWith => __$StudioClipCopyWithImpl<_Stu
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _StudioClip&&(identical(other.patternId, patternId) || other.patternId == patternId)&&(identical(other.sampleId, sampleId) || other.sampleId == sampleId)&&(identical(other.lengthBars, lengthBars) || other.lengthBars == lengthBars)&&(identical(other.track, track) || other.track == track)&&(identical(other.startBar, startBar) || other.startBar == startBar));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _StudioClip&&(identical(other.patternId, patternId) || other.patternId == patternId)&&(identical(other.sampleId, sampleId) || other.sampleId == sampleId)&&(identical(other.lengthBars, lengthBars) || other.lengthBars == lengthBars)&&(identical(other.track, track) || other.track == track)&&(identical(other.startStep, startStep) || other.startStep == startStep));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,patternId,sampleId,lengthBars,track,startBar);
+    return Object.hash(runtimeType,patternId,sampleId,lengthBars,track,startStep);
 }
 
 @override
 String toString() {
-    return 'StudioClip(patternId: $patternId, sampleId: $sampleId, lengthBars: $lengthBars, track: $track, startBar: $startBar)';
+    return 'StudioClip(patternId: $patternId, sampleId: $sampleId, lengthBars: $lengthBars, track: $track, startStep: $startStep)';
 }
 
 
@@ -267,7 +267,7 @@ abstract mixin class _$StudioClipCopyWith<$Res> implements $StudioClipCopyWith<$
   factory _$StudioClipCopyWith(_StudioClip value, $Res Function(_StudioClip) _then) = __$StudioClipCopyWithImpl;
 @override @useResult
 $Res call({
- UuidValue? patternId, UuidValue? sampleId, int? lengthBars, int track, int startBar
+ UuidValue? patternId, UuidValue? sampleId, int? lengthBars, int track, int startStep
 });
 
 
@@ -284,13 +284,13 @@ class __$StudioClipCopyWithImpl<$Res>
 
 /// Create a copy of StudioClip
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? patternId = freezed,Object? sampleId = freezed,Object? lengthBars = freezed,Object? track = null,Object? startBar = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? patternId = freezed,Object? sampleId = freezed,Object? lengthBars = freezed,Object? track = null,Object? startStep = null,}) {
   return _then(_StudioClip(
 patternId: freezed == patternId ? _self.patternId : patternId // ignore: cast_nullable_to_non_nullable
 as UuidValue?,sampleId: freezed == sampleId ? _self.sampleId : sampleId // ignore: cast_nullable_to_non_nullable
 as UuidValue?,lengthBars: freezed == lengthBars ? _self.lengthBars : lengthBars // ignore: cast_nullable_to_non_nullable
 as int?,track: null == track ? _self.track : track // ignore: cast_nullable_to_non_nullable
-as int,startBar: null == startBar ? _self.startBar : startBar // ignore: cast_nullable_to_non_nullable
+as int,startStep: null == startStep ? _self.startStep : startStep // ignore: cast_nullable_to_non_nullable
 as int,
   ));
 }

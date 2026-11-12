@@ -22,8 +22,8 @@ abstract class StudioClip with _$StudioClip {
     /// Playlist track (row), 0-based.
     required int track,
 
-    /// First bar, 0-based.
-    required int startBar,
+    /// Start in steps (1/16 notes) from the song start.
+    required int startStep,
   }) = _StudioClip;
 
   const StudioClip._();
@@ -34,7 +34,7 @@ abstract class StudioClip with _$StudioClip {
     sampleId: clip.sampleId,
     lengthBars: clip.lengthBars,
     track: clip.track,
-    startBar: clip.startBar,
+    startStep: clip.startStep,
   );
 
   /// Whether this is an audio clip.
@@ -46,6 +46,6 @@ abstract class StudioClip with _$StudioClip {
     sampleId: sampleId,
     lengthBars: lengthBars,
     track: track,
-    startBar: startBar,
+    startStep: startStep,
   );
 }

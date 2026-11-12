@@ -231,7 +231,7 @@ void main() {
             id: testRequestId,
             patternId: testPatternId,
             track: 2,
-            startBar: 8,
+            startStep: 128,
           ),
         ],
       );
@@ -240,7 +240,7 @@ void main() {
 
       expect(
         clips.single,
-        StudioClip(patternId: testPatternId, track: 2, startBar: 8),
+        StudioClip(patternId: testPatternId, track: 2, startStep: 128),
       );
     });
 
@@ -248,7 +248,7 @@ void main() {
       when(() => playlist.save(any(), any())).thenAnswer((_) async => []);
 
       await repository.saveClips(testRequestId, [
-        StudioClip(patternId: testPatternId, track: 0, startBar: 4),
+        StudioClip(patternId: testPatternId, track: 0, startStep: 64),
       ]);
 
       final request =
@@ -256,7 +256,7 @@ void main() {
                 () => playlist.save(testRequestId, captureAny()),
               ).captured.single
               as SavePlaylistRequest;
-      expect(request.clips.single.startBar, 4);
+      expect(request.clips.single.startStep, 64);
     });
 
     test('when clips overlap on the server, then throws validation', () {

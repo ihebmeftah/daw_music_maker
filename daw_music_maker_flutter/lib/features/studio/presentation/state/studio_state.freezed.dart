@@ -33,7 +33,9 @@ mixin _$StudioState {
  TransportMode get mode;/// Clips of the playlist.
  List<StudioClip> get clips;/// Audio files uploaded to the project.
  List<SampleResponse> get samples;/// Uploads in progress or failed (until dismissed).
- List<SampleUpload> get uploads;/// Whether playlist edits are waiting to be saved.
+ List<SampleUpload> get uploads;/// Snap grid of the piano roll (where clicks land, new note length).
+ GridSnap get pianoRollSnap;/// Snap grid of the playlist (where clips land).
+ GridSnap get playlistSnap;/// Whether playlist edits are waiting to be saved.
  bool get playlistDirty;/// Error of the last save.
  Failure? get failure;
 /// Create a copy of StudioState
@@ -47,20 +49,20 @@ $StudioStateCopyWith<StudioState> get copyWith => _$StudioStateCopyWithImpl<Stud
 @override
 bool operator ==(Object other) {
   final _this = this as StudioState;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StudioState&&(identical(other.project, _this.project) || other.project == _this.project)&&(identical(other.bpm, _this.bpm) || other.bpm == _this.bpm)&&(identical(other.savedBpm, _this.savedBpm) || other.savedBpm == _this.savedBpm)&&(identical(other.isPlaying, _this.isPlaying) || other.isPlaying == _this.isPlaying)&&(identical(other.isMuted, _this.isMuted) || other.isMuted == _this.isMuted)&&(identical(other.isSaving, _this.isSaving) || other.isSaving == _this.isSaving)&&const DeepCollectionEquality().equals(other.patterns, _this.patterns)&&(identical(other.selectedPatternId, _this.selectedPatternId) || other.selectedPatternId == _this.selectedPatternId)&&(identical(other.isPatternBusy, _this.isPatternBusy) || other.isPatternBusy == _this.isPatternBusy)&&const DeepCollectionEquality().equals(other.channels, _this.channels)&&const DeepCollectionEquality().equals(other.notes, _this.notes)&&(identical(other.selectedChannelId, _this.selectedChannelId) || other.selectedChannelId == _this.selectedChannelId)&&(identical(other.workspace, _this.workspace) || other.workspace == _this.workspace)&&(identical(other.notesDirty, _this.notesDirty) || other.notesDirty == _this.notesDirty)&&(identical(other.mode, _this.mode) || other.mode == _this.mode)&&const DeepCollectionEquality().equals(other.clips, _this.clips)&&const DeepCollectionEquality().equals(other.samples, _this.samples)&&const DeepCollectionEquality().equals(other.uploads, _this.uploads)&&(identical(other.playlistDirty, _this.playlistDirty) || other.playlistDirty == _this.playlistDirty)&&(identical(other.failure, _this.failure) || other.failure == _this.failure));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StudioState&&(identical(other.project, _this.project) || other.project == _this.project)&&(identical(other.bpm, _this.bpm) || other.bpm == _this.bpm)&&(identical(other.savedBpm, _this.savedBpm) || other.savedBpm == _this.savedBpm)&&(identical(other.isPlaying, _this.isPlaying) || other.isPlaying == _this.isPlaying)&&(identical(other.isMuted, _this.isMuted) || other.isMuted == _this.isMuted)&&(identical(other.isSaving, _this.isSaving) || other.isSaving == _this.isSaving)&&const DeepCollectionEquality().equals(other.patterns, _this.patterns)&&(identical(other.selectedPatternId, _this.selectedPatternId) || other.selectedPatternId == _this.selectedPatternId)&&(identical(other.isPatternBusy, _this.isPatternBusy) || other.isPatternBusy == _this.isPatternBusy)&&const DeepCollectionEquality().equals(other.channels, _this.channels)&&const DeepCollectionEquality().equals(other.notes, _this.notes)&&(identical(other.selectedChannelId, _this.selectedChannelId) || other.selectedChannelId == _this.selectedChannelId)&&(identical(other.workspace, _this.workspace) || other.workspace == _this.workspace)&&(identical(other.notesDirty, _this.notesDirty) || other.notesDirty == _this.notesDirty)&&(identical(other.mode, _this.mode) || other.mode == _this.mode)&&const DeepCollectionEquality().equals(other.clips, _this.clips)&&const DeepCollectionEquality().equals(other.samples, _this.samples)&&const DeepCollectionEquality().equals(other.uploads, _this.uploads)&&(identical(other.pianoRollSnap, _this.pianoRollSnap) || other.pianoRollSnap == _this.pianoRollSnap)&&(identical(other.playlistSnap, _this.playlistSnap) || other.playlistSnap == _this.playlistSnap)&&(identical(other.playlistDirty, _this.playlistDirty) || other.playlistDirty == _this.playlistDirty)&&(identical(other.failure, _this.failure) || other.failure == _this.failure));
 }
 
 
 @override
 int get hashCode {
   final _this = this as StudioState;
-  return Object.hashAll([runtimeType,_this.project,_this.bpm,_this.savedBpm,_this.isPlaying,_this.isMuted,_this.isSaving,const DeepCollectionEquality().hash(_this.patterns),_this.selectedPatternId,_this.isPatternBusy,const DeepCollectionEquality().hash(_this.channels),const DeepCollectionEquality().hash(_this.notes),_this.selectedChannelId,_this.workspace,_this.notesDirty,_this.mode,const DeepCollectionEquality().hash(_this.clips),const DeepCollectionEquality().hash(_this.samples),const DeepCollectionEquality().hash(_this.uploads),_this.playlistDirty,_this.failure]);
+  return Object.hashAll([runtimeType,_this.project,_this.bpm,_this.savedBpm,_this.isPlaying,_this.isMuted,_this.isSaving,const DeepCollectionEquality().hash(_this.patterns),_this.selectedPatternId,_this.isPatternBusy,const DeepCollectionEquality().hash(_this.channels),const DeepCollectionEquality().hash(_this.notes),_this.selectedChannelId,_this.workspace,_this.notesDirty,_this.mode,const DeepCollectionEquality().hash(_this.clips),const DeepCollectionEquality().hash(_this.samples),const DeepCollectionEquality().hash(_this.uploads),_this.pianoRollSnap,_this.playlistSnap,_this.playlistDirty,_this.failure]);
 }
 
 @override
 String toString() {
   final _this = this as StudioState;
-  return 'StudioState(project: ${_this.project}, bpm: ${_this.bpm}, savedBpm: ${_this.savedBpm}, isPlaying: ${_this.isPlaying}, isMuted: ${_this.isMuted}, isSaving: ${_this.isSaving}, patterns: ${_this.patterns}, selectedPatternId: ${_this.selectedPatternId}, isPatternBusy: ${_this.isPatternBusy}, channels: ${_this.channels}, notes: ${_this.notes}, selectedChannelId: ${_this.selectedChannelId}, workspace: ${_this.workspace}, notesDirty: ${_this.notesDirty}, mode: ${_this.mode}, clips: ${_this.clips}, samples: ${_this.samples}, uploads: ${_this.uploads}, playlistDirty: ${_this.playlistDirty}, failure: ${_this.failure})';
+  return 'StudioState(project: ${_this.project}, bpm: ${_this.bpm}, savedBpm: ${_this.savedBpm}, isPlaying: ${_this.isPlaying}, isMuted: ${_this.isMuted}, isSaving: ${_this.isSaving}, patterns: ${_this.patterns}, selectedPatternId: ${_this.selectedPatternId}, isPatternBusy: ${_this.isPatternBusy}, channels: ${_this.channels}, notes: ${_this.notes}, selectedChannelId: ${_this.selectedChannelId}, workspace: ${_this.workspace}, notesDirty: ${_this.notesDirty}, mode: ${_this.mode}, clips: ${_this.clips}, samples: ${_this.samples}, uploads: ${_this.uploads}, pianoRollSnap: ${_this.pianoRollSnap}, playlistSnap: ${_this.playlistSnap}, playlistDirty: ${_this.playlistDirty}, failure: ${_this.failure})';
 }
 
 
@@ -71,7 +73,7 @@ abstract mixin class $StudioStateCopyWith<$Res>  {
   factory $StudioStateCopyWith(StudioState value, $Res Function(StudioState) _then) = _$StudioStateCopyWithImpl;
 @useResult
 $Res call({
- ProjectResponse project, double bpm, double savedBpm, bool isPlaying, bool isMuted, bool isSaving, List<PatternResponse> patterns, UuidValue? selectedPatternId, bool isPatternBusy, List<ChannelResponse> channels, Map<UuidValue, List<StudioNote>> notes, UuidValue? selectedChannelId, StudioWorkspace workspace, bool notesDirty, TransportMode mode, List<StudioClip> clips, List<SampleResponse> samples, List<SampleUpload> uploads, bool playlistDirty, Failure? failure
+ ProjectResponse project, double bpm, double savedBpm, bool isPlaying, bool isMuted, bool isSaving, List<PatternResponse> patterns, UuidValue? selectedPatternId, bool isPatternBusy, List<ChannelResponse> channels, Map<UuidValue, List<StudioNote>> notes, UuidValue? selectedChannelId, StudioWorkspace workspace, bool notesDirty, TransportMode mode, List<StudioClip> clips, List<SampleResponse> samples, List<SampleUpload> uploads, GridSnap pianoRollSnap, GridSnap playlistSnap, bool playlistDirty, Failure? failure
 });
 
 
@@ -88,7 +90,7 @@ class _$StudioStateCopyWithImpl<$Res>
 
 /// Create a copy of StudioState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? project = null,Object? bpm = null,Object? savedBpm = null,Object? isPlaying = null,Object? isMuted = null,Object? isSaving = null,Object? patterns = null,Object? selectedPatternId = freezed,Object? isPatternBusy = null,Object? channels = null,Object? notes = null,Object? selectedChannelId = freezed,Object? workspace = null,Object? notesDirty = null,Object? mode = null,Object? clips = null,Object? samples = null,Object? uploads = null,Object? playlistDirty = null,Object? failure = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? project = null,Object? bpm = null,Object? savedBpm = null,Object? isPlaying = null,Object? isMuted = null,Object? isSaving = null,Object? patterns = null,Object? selectedPatternId = freezed,Object? isPatternBusy = null,Object? channels = null,Object? notes = null,Object? selectedChannelId = freezed,Object? workspace = null,Object? notesDirty = null,Object? mode = null,Object? clips = null,Object? samples = null,Object? uploads = null,Object? pianoRollSnap = null,Object? playlistSnap = null,Object? playlistDirty = null,Object? failure = freezed,}) {
   return _then(StudioState(
 project: null == project ? _self.project : project // ignore: cast_nullable_to_non_nullable
 as ProjectResponse,bpm: null == bpm ? _self.bpm : bpm // ignore: cast_nullable_to_non_nullable
@@ -108,7 +110,9 @@ as bool,mode: null == mode ? _self.mode : mode // ignore: cast_nullable_to_non_n
 as TransportMode,clips: null == clips ? _self.clips : clips // ignore: cast_nullable_to_non_nullable
 as List<StudioClip>,samples: null == samples ? _self.samples : samples // ignore: cast_nullable_to_non_nullable
 as List<SampleResponse>,uploads: null == uploads ? _self.uploads : uploads // ignore: cast_nullable_to_non_nullable
-as List<SampleUpload>,playlistDirty: null == playlistDirty ? _self.playlistDirty : playlistDirty // ignore: cast_nullable_to_non_nullable
+as List<SampleUpload>,pianoRollSnap: null == pianoRollSnap ? _self.pianoRollSnap : pianoRollSnap // ignore: cast_nullable_to_non_nullable
+as GridSnap,playlistSnap: null == playlistSnap ? _self.playlistSnap : playlistSnap // ignore: cast_nullable_to_non_nullable
+as GridSnap,playlistDirty: null == playlistDirty ? _self.playlistDirty : playlistDirty // ignore: cast_nullable_to_non_nullable
 as bool,failure: freezed == failure ? _self.failure : failure // ignore: cast_nullable_to_non_nullable
 as Failure?,
   ));
@@ -195,10 +199,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ProjectResponse project,  double bpm,  double savedBpm,  bool isPlaying,  bool isMuted,  bool isSaving,  List<PatternResponse> patterns,  UuidValue? selectedPatternId,  bool isPatternBusy,  List<ChannelResponse> channels,  Map<UuidValue, List<StudioNote>> notes,  UuidValue? selectedChannelId,  StudioWorkspace workspace,  bool notesDirty,  TransportMode mode,  List<StudioClip> clips,  List<SampleResponse> samples,  List<SampleUpload> uploads,  bool playlistDirty,  Failure? failure)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ProjectResponse project,  double bpm,  double savedBpm,  bool isPlaying,  bool isMuted,  bool isSaving,  List<PatternResponse> patterns,  UuidValue? selectedPatternId,  bool isPatternBusy,  List<ChannelResponse> channels,  Map<UuidValue, List<StudioNote>> notes,  UuidValue? selectedChannelId,  StudioWorkspace workspace,  bool notesDirty,  TransportMode mode,  List<StudioClip> clips,  List<SampleResponse> samples,  List<SampleUpload> uploads,  GridSnap pianoRollSnap,  GridSnap playlistSnap,  bool playlistDirty,  Failure? failure)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _StudioState() when $default != null:
-return $default(_that.project,_that.bpm,_that.savedBpm,_that.isPlaying,_that.isMuted,_that.isSaving,_that.patterns,_that.selectedPatternId,_that.isPatternBusy,_that.channels,_that.notes,_that.selectedChannelId,_that.workspace,_that.notesDirty,_that.mode,_that.clips,_that.samples,_that.uploads,_that.playlistDirty,_that.failure);case _:
+return $default(_that.project,_that.bpm,_that.savedBpm,_that.isPlaying,_that.isMuted,_that.isSaving,_that.patterns,_that.selectedPatternId,_that.isPatternBusy,_that.channels,_that.notes,_that.selectedChannelId,_that.workspace,_that.notesDirty,_that.mode,_that.clips,_that.samples,_that.uploads,_that.pianoRollSnap,_that.playlistSnap,_that.playlistDirty,_that.failure);case _:
   return orElse();
 
 }
@@ -216,10 +220,10 @@ return $default(_that.project,_that.bpm,_that.savedBpm,_that.isPlaying,_that.isM
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ProjectResponse project,  double bpm,  double savedBpm,  bool isPlaying,  bool isMuted,  bool isSaving,  List<PatternResponse> patterns,  UuidValue? selectedPatternId,  bool isPatternBusy,  List<ChannelResponse> channels,  Map<UuidValue, List<StudioNote>> notes,  UuidValue? selectedChannelId,  StudioWorkspace workspace,  bool notesDirty,  TransportMode mode,  List<StudioClip> clips,  List<SampleResponse> samples,  List<SampleUpload> uploads,  bool playlistDirty,  Failure? failure)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ProjectResponse project,  double bpm,  double savedBpm,  bool isPlaying,  bool isMuted,  bool isSaving,  List<PatternResponse> patterns,  UuidValue? selectedPatternId,  bool isPatternBusy,  List<ChannelResponse> channels,  Map<UuidValue, List<StudioNote>> notes,  UuidValue? selectedChannelId,  StudioWorkspace workspace,  bool notesDirty,  TransportMode mode,  List<StudioClip> clips,  List<SampleResponse> samples,  List<SampleUpload> uploads,  GridSnap pianoRollSnap,  GridSnap playlistSnap,  bool playlistDirty,  Failure? failure)  $default,) {final _that = this;
 switch (_that) {
 case _StudioState():
-return $default(_that.project,_that.bpm,_that.savedBpm,_that.isPlaying,_that.isMuted,_that.isSaving,_that.patterns,_that.selectedPatternId,_that.isPatternBusy,_that.channels,_that.notes,_that.selectedChannelId,_that.workspace,_that.notesDirty,_that.mode,_that.clips,_that.samples,_that.uploads,_that.playlistDirty,_that.failure);case _:
+return $default(_that.project,_that.bpm,_that.savedBpm,_that.isPlaying,_that.isMuted,_that.isSaving,_that.patterns,_that.selectedPatternId,_that.isPatternBusy,_that.channels,_that.notes,_that.selectedChannelId,_that.workspace,_that.notesDirty,_that.mode,_that.clips,_that.samples,_that.uploads,_that.pianoRollSnap,_that.playlistSnap,_that.playlistDirty,_that.failure);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -236,10 +240,10 @@ return $default(_that.project,_that.bpm,_that.savedBpm,_that.isPlaying,_that.isM
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ProjectResponse project,  double bpm,  double savedBpm,  bool isPlaying,  bool isMuted,  bool isSaving,  List<PatternResponse> patterns,  UuidValue? selectedPatternId,  bool isPatternBusy,  List<ChannelResponse> channels,  Map<UuidValue, List<StudioNote>> notes,  UuidValue? selectedChannelId,  StudioWorkspace workspace,  bool notesDirty,  TransportMode mode,  List<StudioClip> clips,  List<SampleResponse> samples,  List<SampleUpload> uploads,  bool playlistDirty,  Failure? failure)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ProjectResponse project,  double bpm,  double savedBpm,  bool isPlaying,  bool isMuted,  bool isSaving,  List<PatternResponse> patterns,  UuidValue? selectedPatternId,  bool isPatternBusy,  List<ChannelResponse> channels,  Map<UuidValue, List<StudioNote>> notes,  UuidValue? selectedChannelId,  StudioWorkspace workspace,  bool notesDirty,  TransportMode mode,  List<StudioClip> clips,  List<SampleResponse> samples,  List<SampleUpload> uploads,  GridSnap pianoRollSnap,  GridSnap playlistSnap,  bool playlistDirty,  Failure? failure)?  $default,) {final _that = this;
 switch (_that) {
 case _StudioState() when $default != null:
-return $default(_that.project,_that.bpm,_that.savedBpm,_that.isPlaying,_that.isMuted,_that.isSaving,_that.patterns,_that.selectedPatternId,_that.isPatternBusy,_that.channels,_that.notes,_that.selectedChannelId,_that.workspace,_that.notesDirty,_that.mode,_that.clips,_that.samples,_that.uploads,_that.playlistDirty,_that.failure);case _:
+return $default(_that.project,_that.bpm,_that.savedBpm,_that.isPlaying,_that.isMuted,_that.isSaving,_that.patterns,_that.selectedPatternId,_that.isPatternBusy,_that.channels,_that.notes,_that.selectedChannelId,_that.workspace,_that.notesDirty,_that.mode,_that.clips,_that.samples,_that.uploads,_that.pianoRollSnap,_that.playlistSnap,_that.playlistDirty,_that.failure);case _:
   return null;
 
 }
@@ -251,7 +255,7 @@ return $default(_that.project,_that.bpm,_that.savedBpm,_that.isPlaying,_that.isM
 
 
 class _StudioState extends StudioState {
-  const _StudioState({required this.project, required this.bpm, required this.savedBpm, this.isPlaying = false, this.isMuted = false, this.isSaving = false,  List<PatternResponse> patterns = const <PatternResponse>[], this.selectedPatternId, this.isPatternBusy = false,  List<ChannelResponse> channels = const <ChannelResponse>[],  Map<UuidValue, List<StudioNote>> notes = const <UuidValue, List<StudioNote>>{}, this.selectedChannelId, this.workspace = StudioWorkspace.channelRack, this.notesDirty = false, this.mode = TransportMode.pattern,  List<StudioClip> clips = const <StudioClip>[],  List<SampleResponse> samples = const <SampleResponse>[],  List<SampleUpload> uploads = const <SampleUpload>[], this.playlistDirty = false, this.failure}): _patterns = patterns,_channels = channels,_notes = notes,_clips = clips,_samples = samples,_uploads = uploads,super._();
+  const _StudioState({required this.project, required this.bpm, required this.savedBpm, this.isPlaying = false, this.isMuted = false, this.isSaving = false,  List<PatternResponse> patterns = const <PatternResponse>[], this.selectedPatternId, this.isPatternBusy = false,  List<ChannelResponse> channels = const <ChannelResponse>[],  Map<UuidValue, List<StudioNote>> notes = const <UuidValue, List<StudioNote>>{}, this.selectedChannelId, this.workspace = StudioWorkspace.channelRack, this.notesDirty = false, this.mode = TransportMode.pattern,  List<StudioClip> clips = const <StudioClip>[],  List<SampleResponse> samples = const <SampleResponse>[],  List<SampleUpload> uploads = const <SampleUpload>[], this.pianoRollSnap = GridSnap.step, this.playlistSnap = GridSnap.bar, this.playlistDirty = false, this.failure}): _patterns = patterns,_channels = channels,_notes = notes,_clips = clips,_samples = samples,_uploads = uploads,super._();
   
 
 /// The project open in the studio.
@@ -332,6 +336,10 @@ class _StudioState extends StudioState {
   return EqualUnmodifiableListView(_uploads);
 }
 
+/// Snap grid of the piano roll (where clicks land, new note length).
+@override@JsonKey() final  GridSnap pianoRollSnap;
+/// Snap grid of the playlist (where clips land).
+@override@JsonKey() final  GridSnap playlistSnap;
 /// Whether playlist edits are waiting to be saved.
 @override@JsonKey() final  bool playlistDirty;
 /// Error of the last save.
@@ -347,18 +355,18 @@ _$StudioStateCopyWith<_StudioState> get copyWith => __$StudioStateCopyWithImpl<_
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _StudioState&&(identical(other.project, project) || other.project == project)&&(identical(other.bpm, bpm) || other.bpm == bpm)&&(identical(other.savedBpm, savedBpm) || other.savedBpm == savedBpm)&&(identical(other.isPlaying, isPlaying) || other.isPlaying == isPlaying)&&(identical(other.isMuted, isMuted) || other.isMuted == isMuted)&&(identical(other.isSaving, isSaving) || other.isSaving == isSaving)&&const DeepCollectionEquality().equals(other.patterns, _patterns)&&(identical(other.selectedPatternId, selectedPatternId) || other.selectedPatternId == selectedPatternId)&&(identical(other.isPatternBusy, isPatternBusy) || other.isPatternBusy == isPatternBusy)&&const DeepCollectionEquality().equals(other.channels, _channels)&&const DeepCollectionEquality().equals(other.notes, _notes)&&(identical(other.selectedChannelId, selectedChannelId) || other.selectedChannelId == selectedChannelId)&&(identical(other.workspace, workspace) || other.workspace == workspace)&&(identical(other.notesDirty, notesDirty) || other.notesDirty == notesDirty)&&(identical(other.mode, mode) || other.mode == mode)&&const DeepCollectionEquality().equals(other.clips, _clips)&&const DeepCollectionEquality().equals(other.samples, _samples)&&const DeepCollectionEquality().equals(other.uploads, _uploads)&&(identical(other.playlistDirty, playlistDirty) || other.playlistDirty == playlistDirty)&&(identical(other.failure, failure) || other.failure == failure));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _StudioState&&(identical(other.project, project) || other.project == project)&&(identical(other.bpm, bpm) || other.bpm == bpm)&&(identical(other.savedBpm, savedBpm) || other.savedBpm == savedBpm)&&(identical(other.isPlaying, isPlaying) || other.isPlaying == isPlaying)&&(identical(other.isMuted, isMuted) || other.isMuted == isMuted)&&(identical(other.isSaving, isSaving) || other.isSaving == isSaving)&&const DeepCollectionEquality().equals(other.patterns, _patterns)&&(identical(other.selectedPatternId, selectedPatternId) || other.selectedPatternId == selectedPatternId)&&(identical(other.isPatternBusy, isPatternBusy) || other.isPatternBusy == isPatternBusy)&&const DeepCollectionEquality().equals(other.channels, _channels)&&const DeepCollectionEquality().equals(other.notes, _notes)&&(identical(other.selectedChannelId, selectedChannelId) || other.selectedChannelId == selectedChannelId)&&(identical(other.workspace, workspace) || other.workspace == workspace)&&(identical(other.notesDirty, notesDirty) || other.notesDirty == notesDirty)&&(identical(other.mode, mode) || other.mode == mode)&&const DeepCollectionEquality().equals(other.clips, _clips)&&const DeepCollectionEquality().equals(other.samples, _samples)&&const DeepCollectionEquality().equals(other.uploads, _uploads)&&(identical(other.pianoRollSnap, pianoRollSnap) || other.pianoRollSnap == pianoRollSnap)&&(identical(other.playlistSnap, playlistSnap) || other.playlistSnap == playlistSnap)&&(identical(other.playlistDirty, playlistDirty) || other.playlistDirty == playlistDirty)&&(identical(other.failure, failure) || other.failure == failure));
 }
 
 
 @override
 int get hashCode {
-    return Object.hashAll([runtimeType,project,bpm,savedBpm,isPlaying,isMuted,isSaving,const DeepCollectionEquality().hash(_patterns),selectedPatternId,isPatternBusy,const DeepCollectionEquality().hash(_channels),const DeepCollectionEquality().hash(_notes),selectedChannelId,workspace,notesDirty,mode,const DeepCollectionEquality().hash(_clips),const DeepCollectionEquality().hash(_samples),const DeepCollectionEquality().hash(_uploads),playlistDirty,failure]);
+    return Object.hashAll([runtimeType,project,bpm,savedBpm,isPlaying,isMuted,isSaving,const DeepCollectionEquality().hash(_patterns),selectedPatternId,isPatternBusy,const DeepCollectionEquality().hash(_channels),const DeepCollectionEquality().hash(_notes),selectedChannelId,workspace,notesDirty,mode,const DeepCollectionEquality().hash(_clips),const DeepCollectionEquality().hash(_samples),const DeepCollectionEquality().hash(_uploads),pianoRollSnap,playlistSnap,playlistDirty,failure]);
 }
 
 @override
 String toString() {
-    return 'StudioState(project: $project, bpm: $bpm, savedBpm: $savedBpm, isPlaying: $isPlaying, isMuted: $isMuted, isSaving: $isSaving, patterns: $patterns, selectedPatternId: $selectedPatternId, isPatternBusy: $isPatternBusy, channels: $channels, notes: $notes, selectedChannelId: $selectedChannelId, workspace: $workspace, notesDirty: $notesDirty, mode: $mode, clips: $clips, samples: $samples, uploads: $uploads, playlistDirty: $playlistDirty, failure: $failure)';
+    return 'StudioState(project: $project, bpm: $bpm, savedBpm: $savedBpm, isPlaying: $isPlaying, isMuted: $isMuted, isSaving: $isSaving, patterns: $patterns, selectedPatternId: $selectedPatternId, isPatternBusy: $isPatternBusy, channels: $channels, notes: $notes, selectedChannelId: $selectedChannelId, workspace: $workspace, notesDirty: $notesDirty, mode: $mode, clips: $clips, samples: $samples, uploads: $uploads, pianoRollSnap: $pianoRollSnap, playlistSnap: $playlistSnap, playlistDirty: $playlistDirty, failure: $failure)';
 }
 
 
@@ -369,7 +377,7 @@ abstract mixin class _$StudioStateCopyWith<$Res> implements $StudioStateCopyWith
   factory _$StudioStateCopyWith(_StudioState value, $Res Function(_StudioState) _then) = __$StudioStateCopyWithImpl;
 @override @useResult
 $Res call({
- ProjectResponse project, double bpm, double savedBpm, bool isPlaying, bool isMuted, bool isSaving, List<PatternResponse> patterns, UuidValue? selectedPatternId, bool isPatternBusy, List<ChannelResponse> channels, Map<UuidValue, List<StudioNote>> notes, UuidValue? selectedChannelId, StudioWorkspace workspace, bool notesDirty, TransportMode mode, List<StudioClip> clips, List<SampleResponse> samples, List<SampleUpload> uploads, bool playlistDirty, Failure? failure
+ ProjectResponse project, double bpm, double savedBpm, bool isPlaying, bool isMuted, bool isSaving, List<PatternResponse> patterns, UuidValue? selectedPatternId, bool isPatternBusy, List<ChannelResponse> channels, Map<UuidValue, List<StudioNote>> notes, UuidValue? selectedChannelId, StudioWorkspace workspace, bool notesDirty, TransportMode mode, List<StudioClip> clips, List<SampleResponse> samples, List<SampleUpload> uploads, GridSnap pianoRollSnap, GridSnap playlistSnap, bool playlistDirty, Failure? failure
 });
 
 
@@ -386,7 +394,7 @@ class __$StudioStateCopyWithImpl<$Res>
 
 /// Create a copy of StudioState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? project = null,Object? bpm = null,Object? savedBpm = null,Object? isPlaying = null,Object? isMuted = null,Object? isSaving = null,Object? patterns = null,Object? selectedPatternId = freezed,Object? isPatternBusy = null,Object? channels = null,Object? notes = null,Object? selectedChannelId = freezed,Object? workspace = null,Object? notesDirty = null,Object? mode = null,Object? clips = null,Object? samples = null,Object? uploads = null,Object? playlistDirty = null,Object? failure = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? project = null,Object? bpm = null,Object? savedBpm = null,Object? isPlaying = null,Object? isMuted = null,Object? isSaving = null,Object? patterns = null,Object? selectedPatternId = freezed,Object? isPatternBusy = null,Object? channels = null,Object? notes = null,Object? selectedChannelId = freezed,Object? workspace = null,Object? notesDirty = null,Object? mode = null,Object? clips = null,Object? samples = null,Object? uploads = null,Object? pianoRollSnap = null,Object? playlistSnap = null,Object? playlistDirty = null,Object? failure = freezed,}) {
   return _then(_StudioState(
 project: null == project ? _self.project : project // ignore: cast_nullable_to_non_nullable
 as ProjectResponse,bpm: null == bpm ? _self.bpm : bpm // ignore: cast_nullable_to_non_nullable
@@ -406,7 +414,9 @@ as bool,mode: null == mode ? _self.mode : mode // ignore: cast_nullable_to_non_n
 as TransportMode,clips: null == clips ? _self._clips : clips // ignore: cast_nullable_to_non_nullable
 as List<StudioClip>,samples: null == samples ? _self._samples : samples // ignore: cast_nullable_to_non_nullable
 as List<SampleResponse>,uploads: null == uploads ? _self._uploads : uploads // ignore: cast_nullable_to_non_nullable
-as List<SampleUpload>,playlistDirty: null == playlistDirty ? _self.playlistDirty : playlistDirty // ignore: cast_nullable_to_non_nullable
+as List<SampleUpload>,pianoRollSnap: null == pianoRollSnap ? _self.pianoRollSnap : pianoRollSnap // ignore: cast_nullable_to_non_nullable
+as GridSnap,playlistSnap: null == playlistSnap ? _self.playlistSnap : playlistSnap // ignore: cast_nullable_to_non_nullable
+as GridSnap,playlistDirty: null == playlistDirty ? _self.playlistDirty : playlistDirty // ignore: cast_nullable_to_non_nullable
 as bool,failure: freezed == failure ? _self.failure : failure // ignore: cast_nullable_to_non_nullable
 as Failure?,
   ));

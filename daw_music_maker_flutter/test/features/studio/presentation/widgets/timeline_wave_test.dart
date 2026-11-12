@@ -49,8 +49,8 @@ void main() {
         state(
           mode: TransportMode.song,
           clips: [
-            StudioClip(patternId: introId, track: 0, startBar: 0),
-            StudioClip(patternId: introId, track: 1, startBar: 2),
+            StudioClip(patternId: introId, track: 0, startStep: 0),
+            StudioClip(patternId: introId, track: 1, startStep: 32),
           ],
         ),
       );

@@ -47,7 +47,7 @@ List<TimelineHit> timelineHits(StudioState state) {
 
   if (state.mode == TransportMode.song) {
     for (final clip in state.clips) {
-      final offset = (clip.startBar * ValidationRules.stepsPerBar).toDouble();
+      final offset = clip.startStep.toDouble();
       if (clip.patternId case final patternId?) {
         addNotes(patternId, offset);
       } else {
